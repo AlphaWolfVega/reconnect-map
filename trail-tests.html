@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Trail effects tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2; --line-strong:#C9B89C;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1320px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:36px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:740px;margin:0 auto;line-height:1.6}
+.page-head .controls{margin-top:18px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.global-btn{background:var(--espresso);color:var(--cream);border:none;padding:10px 20px;font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all 0.25s ease}
+.global-btn:hover{background:var(--terracotta-deep);transform:translateY(-1px)}
+.global-btn.ghost{background:transparent;color:var(--espresso);border:1px solid var(--line-strong)}
+.global-btn.ghost:hover{background:var(--cream-deep)}
+.q-counter{font-size:13px;color:var(--whisper);font-style:italic;margin-top:8px}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:760px){ .grid{grid-template-columns:1fr} }
+
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:24px 20px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(45,36,30,0.06)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.card-tag{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.20em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;font-style:italic;color:var(--espresso);margin-bottom:5px;line-height:1.2}
+.card-desc{font-size:12.5px;color:var(--espresso-soft);line-height:1.5}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid var(--line-strong);color:var(--whisper);padding:5px 11px;font-size:9.5px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+.viz-wrap{background:var(--cream);border-radius:var(--r);padding:18px 12px 12px;margin:14px 0 8px;display:flex;flex-direction:column;align-items:center}
+.viz-eyebrow{font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.22em;font-weight:700;color:var(--terracotta-deep);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.viz-eyebrow::before,.viz-eyebrow::after{content:"";width:24px;height:1px;background:var(--gold)}
+.viz-svg{width:100%;max-width:340px;height:auto;display:block}
+.viz-caption{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--espresso-soft);margin-top:6px;min-height:18px}
+
+.actions{display:flex;justify-content:center;gap:10px;margin-top:6px;flex-wrap:wrap}
+.action-btn{background:var(--cream-deep);border:1px solid var(--line);color:var(--espresso);padding:9px 16px;font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all 0.25s ease}
+.action-btn:hover{background:var(--cream);border-color:var(--terracotta);color:var(--terracotta)}
+.action-btn.primary{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
+.action-btn.primary:hover{background:var(--terracotta-deep);border-color:var(--terracotta-deep);color:#fff}
+
+/* Shared SVG pieces */
+.dot{transition:r 0.7s cubic-bezier(0.34,1.56,0.64,1), fill 0.6s ease, opacity 0.6s ease;transform-origin:center;transform-box:fill-box}
+.dot.flash{animation:flashDot 0.9s cubic-bezier(0.22,0.61,0.36,1)}
+@keyframes flashDot{0%{transform:scale(1)}40%{transform:scale(1.7);filter:drop-shadow(0 0 8px rgba(184,102,90,0.95))}100%{transform:scale(1);filter:none}}
+.lbl{font-family:'Lato',sans-serif;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;fill:var(--whisper);transition:fill 0.5s ease}
+.lbl.active{fill:var(--terracotta-deep)}
+.sweep-cone{transform-origin:170px 130px;animation:sweepRotate 4s linear infinite}
+@keyframes sweepRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.center-pulse{animation:breathe 3s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes breathe{0%,100%{opacity:0.7}50%{opacity:1}}
+
+/* Trail-specific styles */
+.trail-particle{fill:var(--terracotta);opacity:0;will-change:transform,opacity}
+.trail-line{stroke:var(--terracotta);stroke-linecap:round;fill:none;opacity:0;stroke-dashoffset:1000}
+.trail-line.go{animation:trailLineDraw 0.9s cubic-bezier(0.22,0.61,0.36,1) forwards}
+@keyframes trailLineDraw{
+  0%{opacity:0;stroke-dashoffset:200}
+  20%{opacity:1}
+  100%{opacity:0;stroke-dashoffset:0}
+}
+
+.notes{margin:48px auto 0;max-width:780px;padding:24px 28px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:14px;color:var(--espresso-soft);line-height:1.65}
+.notes h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--espresso);margin-bottom:10px;font-weight:500}
+.notes ul{padding-left:20px}
+.notes li{margin-bottom:6px}
+.notes strong{color:var(--terracotta-deep)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Trail effects — tests</h1>
+    <p>The radar sweep + the dots growing on each answer stay the same. <strong>What's new is the trail</strong>: at every <em>Answer +1</em>, a directional effect fires from the centre toward the dot whose score moved. 6 ways to do it. Click <strong>Keep this</strong> on the one you want shipped.</p>
+    <div class="controls">
+      <button class="global-btn" onclick="advanceAll()">Answer +1 (all)</button>
+      <button class="global-btn ghost" onclick="resetAll()">Reset all</button>
+    </div>
+    <div class="q-counter" id="globalCounter">0 / 8 answered</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- T1 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T1</div>
+          <div class="card-title">Travelling dots</div>
+          <div class="card-desc">A short stream of small dots flies straight from the centre to the dot that just scored.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T1')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow">Your map is forming</div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgT1">
+          <defs>
+            <radialGradient id="centerGradT1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,0.55)"/><stop offset="60%" stop-color="rgba(201,165,124,0.18)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+            <linearGradient id="sweepGradT1" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(184,102,90,0)"/><stop offset="80%" stop-color="rgba(184,102,90,0.35)"/><stop offset="100%" stop-color="rgba(184,102,90,0)"/></linearGradient>
+          </defs>
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradT1)" id="haloT1"/>
+          <g class="sweep-cone"><path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradT1)" opacity="0.85"/></g>
+          <g id="trailsT1"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="T1-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T1-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T1-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T1-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T1-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="T1-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="T1-l-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+          <text class="lbl" id="T1-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="T1-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="T1-l-echo" x="56" y="108" text-anchor="end">The Echo</text>
+        </svg>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('T1')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('T1')">Reset</button>
+      </div>
+    </div>
+
+    <!-- T2 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T2</div>
+          <div class="card-title">Dashed line draw</div>
+          <div class="card-desc">A dashed line draws itself from the centre to the dot, then fades. Most "diagnostic / connection".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T2')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow">Your map is forming</div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgT2">
+          <defs>
+            <radialGradient id="centerGradT2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,0.55)"/><stop offset="60%" stop-color="rgba(201,165,124,0.18)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+            <linearGradient id="sweepGradT2" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(184,102,90,0)"/><stop offset="80%" stop-color="rgba(184,102,90,0.35)"/><stop offset="100%" stop-color="rgba(184,102,90,0)"/></linearGradient>
+          </defs>
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradT2)" id="haloT2"/>
+          <g class="sweep-cone"><path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradT2)" opacity="0.85"/></g>
+          <g id="trailsT2"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="T2-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T2-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T2-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T2-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T2-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="T2-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="T2-l-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+          <text class="lbl" id="T2-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="T2-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="T2-l-echo" x="56" y="108" text-anchor="end">The Echo</text>
+        </svg>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('T2')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('T2')">Reset</button>
+      </div>
+    </div>
+
+    <!-- T3 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T3</div>
+          <div class="card-title">Comet (head + trail)</div>
+          <div class="card-desc">A small bright dot flies from centre to the destination with a fading trail behind it.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T3')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow">Your map is forming</div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgT3">
+          <defs>
+            <radialGradient id="centerGradT3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,0.55)"/><stop offset="60%" stop-color="rgba(201,165,124,0.18)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+            <linearGradient id="sweepGradT3" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(184,102,90,0)"/><stop offset="80%" stop-color="rgba(184,102,90,0.35)"/><stop offset="100%" stop-color="rgba(184,102,90,0)"/></linearGradient>
+            <radialGradient id="cometGradT3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,1)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+          </defs>
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradT3)" id="haloT3"/>
+          <g class="sweep-cone"><path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradT3)" opacity="0.85"/></g>
+          <g id="trailsT3"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="T3-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T3-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T3-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T3-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T3-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="T3-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="T3-l-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+          <text class="lbl" id="T3-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="T3-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="T3-l-echo" x="56" y="108" text-anchor="end">The Echo</text>
+        </svg>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('T3')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('T3')">Reset</button>
+      </div>
+    </div>
+
+    <!-- T4 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T4</div>
+          <div class="card-title">Stagger dot trail</div>
+          <div class="card-desc">6 dots leave the centre one after another, forming a "running" line that walks toward the target.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T4')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow">Your map is forming</div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgT4">
+          <defs>
+            <radialGradient id="centerGradT4" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,0.55)"/><stop offset="60%" stop-color="rgba(201,165,124,0.18)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+            <linearGradient id="sweepGradT4" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(184,102,90,0)"/><stop offset="80%" stop-color="rgba(184,102,90,0.35)"/><stop offset="100%" stop-color="rgba(184,102,90,0)"/></linearGradient>
+          </defs>
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradT4)" id="haloT4"/>
+          <g class="sweep-cone"><path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradT4)" opacity="0.85"/></g>
+          <g id="trailsT4"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="T4-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T4-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T4-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T4-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T4-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="T4-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="T4-l-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+          <text class="lbl" id="T4-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="T4-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="T4-l-echo" x="56" y="108" text-anchor="end">The Echo</text>
+        </svg>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('T4')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('T4')">Reset</button>
+      </div>
+    </div>
+
+    <!-- T5 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T5</div>
+          <div class="card-title">Dashed pulse line (persistent)</div>
+          <div class="card-desc">A dashed line appears centre→dot and stays visible. Each new answer redraws it shorter for already-known dots.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T5')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow">Your map is forming</div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgT5">
+          <defs>
+            <radialGradient id="centerGradT5" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,0.55)"/><stop offset="60%" stop-color="rgba(201,165,124,0.18)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+            <linearGradient id="sweepGradT5" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(184,102,90,0)"/><stop offset="80%" stop-color="rgba(184,102,90,0.35)"/><stop offset="100%" stop-color="rgba(184,102,90,0)"/></linearGradient>
+          </defs>
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradT5)" id="haloT5"/>
+          <g class="sweep-cone"><path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradT5)" opacity="0.85"/></g>
+          <g id="persistentLinesT5"></g>
+          <g id="trailsT5"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="T5-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T5-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T5-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T5-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T5-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="T5-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="T5-l-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+          <text class="lbl" id="T5-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="T5-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="T5-l-echo" x="56" y="108" text-anchor="end">The Echo</text>
+        </svg>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('T5')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('T5')">Reset</button>
+      </div>
+    </div>
+
+    <!-- T6 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T6</div>
+          <div class="card-title">Curved arc trail</div>
+          <div class="card-desc">A graceful curved arc draws from centre to dot, like a comet's path. More organic, less straight.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T6')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow">Your map is forming</div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgT6">
+          <defs>
+            <radialGradient id="centerGradT6" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,0.55)"/><stop offset="60%" stop-color="rgba(201,165,124,0.18)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+            <linearGradient id="sweepGradT6" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(184,102,90,0)"/><stop offset="80%" stop-color="rgba(184,102,90,0.35)"/><stop offset="100%" stop-color="rgba(184,102,90,0)"/></linearGradient>
+          </defs>
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradT6)" id="haloT6"/>
+          <g class="sweep-cone"><path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradT6)" opacity="0.85"/></g>
+          <g id="trailsT6"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="T6-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T6-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T6-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T6-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T6-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="T6-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="T6-l-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+          <text class="lbl" id="T6-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="T6-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="T6-l-echo" x="56" y="108" text-anchor="end">The Echo</text>
+        </svg>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('T6')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('T6')">Reset</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>How to read these</h3>
+    <ul>
+      <li><strong>T1 — Travelling dots</strong> · 5-6 small dots fly straight to the target, like a delicate stream</li>
+      <li><strong>T2 — Dashed line draw</strong> · a dashed line draws itself from centre to dot then fades</li>
+      <li><strong>T3 — Comet</strong> · a bright head with a soft glowing trail behind it</li>
+      <li><strong>T4 — Stagger dot trail</strong> · 6 dots leaving in cascade, like footprints walking out</li>
+      <li><strong>T5 — Persistent dashed line</strong> · the line stays visible after the answer, building a permanent map of connections</li>
+      <li><strong>T6 — Curved arc</strong> · a softly curved trail, more organic / feminine</li>
+    </ul>
+    <p style="margin-top:14px">All variants <strong>keep the radar sweep + dot growth + flash</strong> from the live version. Pick the one you want layered on top.</p>
+  </div>
+</div>
+
+<script>
+const KINDS = ['strike','slowburn','tide','hum','echo'];
+const TOTAL_QUESTIONS = 8;
+const ANSWER_DELTAS = [
+  {strike:0.4, slowburn:1.4, tide:0.2, hum:0.6, echo:0.0},
+  {strike:0.0, slowburn:1.6, tide:0.0, hum:0.8, echo:0.0},
+  {strike:0.2, slowburn:0.6, tide:0.2, hum:1.4, echo:0.4},
+  {strike:0.0, slowburn:1.2, tide:0.4, hum:0.4, echo:0.6},
+  {strike:0.0, slowburn:0.8, tide:0.0, hum:1.6, echo:0.2},
+  {strike:0.0, slowburn:1.0, tide:0.2, hum:0.6, echo:0.8},
+  {strike:0.4, slowburn:1.4, tide:0.0, hum:1.0, echo:0.0},
+  {strike:0.2, slowburn:0.8, tide:0.2, hum:0.6, echo:0.6}
+];
+
+const VERTICES = {
+  strike:{x:170, y:38},
+  slowburn:{x:268, y:108},
+  tide:{x:235, y:218},
+  hum:{x:105, y:218},
+  echo:{x:72, y:108}
+};
+const VARIANTS = ['T1','T2','T3','T4','T5','T6'];
+
+const STATE = {};
+VARIANTS.forEach(v => {
+  STATE[v] = {step:0, scores:{strike:0, slowburn:0, tide:0, hum:0, echo:0}, prevScores:{strike:0, slowburn:0, tide:0, hum:0, echo:0}};
+});
+
+function copyScores(s){ return {strike:s.strike, slowburn:s.slowburn, tide:s.tide, hum:s.hum, echo:s.echo}; }
+
+function advanceAll(){ VARIANTS.forEach(v => advance(v, true)); updateGlobalCounter(); }
+function resetAll(){ VARIANTS.forEach(v => resetOne(v, true)); document.getElementById('globalCounter').textContent = '0 / '+TOTAL_QUESTIONS+' answered'; }
+
+function advance(variant, silent){
+  const st = STATE[variant];
+  if(st.step >= TOTAL_QUESTIONS) return;
+  st.prevScores = copyScores(st.scores);
+  const d = ANSWER_DELTAS[st.step];
+  KINDS.forEach(k => { st.scores[k] = Math.min(10, st.scores[k] + (d[k] || 0)); });
+  st.step += 1;
+  renderBase(variant, st);
+  // Find which kinds moved this step
+  const moved = KINDS.map(k => ({k, d:st.scores[k] - st.prevScores[k]})).filter(o => o.d > 0).sort((a,b) => b.d - a.d);
+  TRAILS[variant](st, moved);
+  if(!silent) updateGlobalCounter();
+}
+
+function resetOne(variant, silent){
+  const st = STATE[variant];
+  st.step = 0;
+  st.prevScores = {strike:0, slowburn:0, tide:0, hum:0, echo:0};
+  st.scores = {strike:0, slowburn:0, tide:0, hum:0, echo:0};
+  renderBase(variant, st);
+  // Clear trails containers
+  const c = document.getElementById('trails'+variant);
+  if(c) c.innerHTML = '';
+  const p = document.getElementById('persistentLines'+variant);
+  if(p) p.innerHTML = '';
+  if(!silent) updateGlobalCounter();
+}
+
+function updateGlobalCounter(){
+  const maxStep = Math.max.apply(null, VARIANTS.map(v => STATE[v].step));
+  document.getElementById('globalCounter').textContent = maxStep + ' / ' + TOTAL_QUESTIONS + ' answered';
+}
+
+function pick(btn, variant){
+  document.querySelectorAll('.pick-btn').forEach(b => { b.classList.remove('picked'); b.textContent = 'Keep this'; });
+  btn.classList.add('picked');
+  btn.textContent = '✓ Picked ' + variant;
+}
+
+/* Render base radar state (halo + dots) — same for all variants */
+function renderBase(variant, st){
+  const halo = document.getElementById('halo'+variant);
+  if(halo){
+    const intensity = Math.min(1, st.step / 7);
+    halo.setAttribute('r', (12 + intensity * 100).toString());
+    halo.style.opacity = (0.25 + intensity * 0.65).toString();
+  }
+  KINDS.forEach(k => {
+    const dot = document.getElementById(variant+'-'+k);
+    const lbl = document.getElementById(variant+'-l-'+k);
+    if(!dot) return;
+    const score = Math.max(0, st.scores[k]);
+    const intensity = Math.min(1, score / 9);
+    dot.setAttribute('r', (2 + intensity * 8).toString());
+    dot.style.opacity = (0.35 + intensity * 0.65).toString();
+    dot.setAttribute('fill', 'rgba(184,102,90,'+(0.25 + intensity * 0.75)+')');
+    if(score >= 4.5){ if(lbl) lbl.classList.add('active'); }
+    else { if(lbl) lbl.classList.remove('active'); }
+    if(Math.abs(score - st.prevScores[k]) >= 0.6){
+      dot.classList.remove('flash');
+      void dot.getBoundingClientRect();
+      dot.classList.add('flash');
+    }
+  });
+}
+
+const TRAILS = {};
+
+/* T1 — Travelling dots (straight, fast) */
+TRAILS.T1 = function(st, moved){
+  const g = document.getElementById('trailsT1');
+  if(!g) return;
+  const targets = moved.slice(0, 2); // top 2 movers
+  targets.forEach(t => {
+    const v = VERTICES[t.k];
+    const count = Math.max(4, Math.ceil(t.d * 4));
+    for(let i=0; i<count; i++){
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      p.setAttribute('cx','170'); p.setAttribute('cy','130');
+      p.setAttribute('r', (1.2 + Math.random()*0.8).toFixed(1));
+      p.setAttribute('class','trail-particle');
+      g.appendChild(p);
+      const delay = i * 60;
+      const duration = 700 + Math.random()*120;
+      p.animate(
+        [{cx:170, cy:130, opacity:0, offset:0},
+         {cx:170, cy:130, opacity:1, offset:0.1},
+         {cx:v.x, cy:v.y, opacity:1, offset:0.85},
+         {cx:v.x, cy:v.y, opacity:0, offset:1}],
+        {duration:duration, delay:delay, easing:'cubic-bezier(0.4, 0, 0.2, 1)', fill:'forwards'}
+      );
+      setTimeout(() => p.remove(), delay + duration + 100);
+    }
+  });
+};
+
+/* T2 — Dashed line draw */
+TRAILS.T2 = function(st, moved){
+  const g = document.getElementById('trailsT2');
+  if(!g) return;
+  const targets = moved.slice(0, 2);
+  targets.forEach(t => {
+    const v = VERTICES[t.k];
+    const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    ln.setAttribute('x1','170'); ln.setAttribute('y1','130');
+    ln.setAttribute('x2', v.x); ln.setAttribute('y2', v.y);
+    ln.setAttribute('stroke', 'rgba(184,102,90,0.85)');
+    ln.setAttribute('stroke-width', '1.5');
+    ln.setAttribute('stroke-linecap', 'round');
+    ln.setAttribute('stroke-dasharray', '4 4');
+    ln.setAttribute('fill', 'none');
+    g.appendChild(ln);
+    const total = Math.hypot(v.x - 170, v.y - 130);
+    ln.setAttribute('stroke-dashoffset', total.toString());
+    ln.style.opacity = '1';
+    ln.animate(
+      [{strokeDashoffset:total, opacity:0.0, offset:0},
+       {strokeDashoffset:total*0.5, opacity:1, offset:0.3},
+       {strokeDashoffset:0, opacity:1, offset:0.75},
+       {strokeDashoffset:-total*0.4, opacity:0, offset:1}],
+      {duration:1100, easing:'cubic-bezier(0.22,0.61,0.36,1)', fill:'forwards'}
+    );
+    setTimeout(() => ln.remove(), 1200);
+  });
+};
+
+/* T3 — Comet (head + glowing trail) */
+TRAILS.T3 = function(st, moved){
+  const g = document.getElementById('trailsT3');
+  if(!g) return;
+  const targets = moved.slice(0, 2);
+  targets.forEach(t => {
+    const v = VERTICES[t.k];
+    // 1 main head + 4 trail particles
+    for(let i=0; i<5; i++){
+      const isHead = i===0;
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      p.setAttribute('cx','170'); p.setAttribute('cy','130');
+      p.setAttribute('r', isHead ? '3' : (2.4 - i*0.4).toFixed(1));
+      p.setAttribute('fill', isHead ? 'rgba(201,165,124,1)' : 'rgba(184,102,90,'+(0.7 - i*0.15)+')');
+      p.style.filter = isHead ? 'drop-shadow(0 0 4px rgba(201,165,124,0.85))' : 'none';
+      g.appendChild(p);
+      const delay = i * 60;
+      const duration = 750;
+      p.animate(
+        [{cx:170, cy:130, opacity:0, offset:0},
+         {cx:170, cy:130, opacity:1, offset:0.08},
+         {cx:v.x, cy:v.y, opacity:1, offset:0.85},
+         {cx:v.x, cy:v.y, opacity:0, offset:1}],
+        {duration:duration, delay:delay, easing:'cubic-bezier(0.34, 1.56, 0.64, 1)', fill:'forwards'}
+      );
+      setTimeout(() => p.remove(), delay + duration + 100);
+    }
+  });
+};
+
+/* T4 — Stagger dot trail (cascading footsteps) */
+TRAILS.T4 = function(st, moved){
+  const g = document.getElementById('trailsT4');
+  if(!g) return;
+  const targets = moved.slice(0, 2);
+  targets.forEach(t => {
+    const v = VERTICES[t.k];
+    const dx = v.x - 170, dy = v.y - 130;
+    const steps = 6;
+    for(let i=0; i<steps; i++){
+      const ratio = (i+1)/(steps+1); // positions le long du trajet
+      const x = 170 + dx*ratio;
+      const y = 130 + dy*ratio;
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      p.setAttribute('cx', x); p.setAttribute('cy', y);
+      p.setAttribute('r', '0');
+      p.setAttribute('fill', 'rgba(184,102,90,0.85)');
+      g.appendChild(p);
+      const delay = i * 100;
+      p.animate(
+        [{r:0, opacity:0, offset:0},
+         {r:2.5, opacity:1, offset:0.3},
+         {r:2, opacity:0.85, offset:0.6},
+         {r:0, opacity:0, offset:1}],
+        {duration:900, delay:delay, easing:'cubic-bezier(0.34, 1.56, 0.64, 1)', fill:'forwards'}
+      );
+      setTimeout(() => p.remove(), delay + 1000);
+    }
+  });
+};
+
+/* T5 — Persistent dashed line + new pulse on each answer */
+const persistentLineCache = {};
+TRAILS.T5 = function(st, moved){
+  const persistent = document.getElementById('persistentLinesT5');
+  const trails = document.getElementById('trailsT5');
+  if(!persistent || !trails) return;
+  // For each kind with score >= 3, ensure a persistent dashed line exists
+  KINDS.forEach(k => {
+    if(st.scores[k] < 3) return;
+    let line = document.getElementById('persistLine-T5-'+k);
+    if(!line){
+      const v = VERTICES[k];
+      line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('id', 'persistLine-T5-'+k);
+      line.setAttribute('x1','170'); line.setAttribute('y1','130');
+      line.setAttribute('x2', v.x); line.setAttribute('y2', v.y);
+      line.setAttribute('stroke', 'rgba(184,102,90,0.4)');
+      line.setAttribute('stroke-width', '1');
+      line.setAttribute('stroke-dasharray', '3 4');
+      line.setAttribute('fill', 'none');
+      line.setAttribute('opacity', '0');
+      persistent.appendChild(line);
+      // Fade in
+      line.animate(
+        [{opacity:0},{opacity:0.7}],
+        {duration:600, fill:'forwards'}
+      );
+    }
+    const intensity = Math.min(1, st.scores[k] / 9);
+    line.setAttribute('stroke', 'rgba(184,102,90,'+(0.3 + intensity*0.5)+')');
+    line.setAttribute('stroke-width', (0.8 + intensity*0.8).toFixed(1));
+  });
+  // Plus a quick travelling pulse to the moved kind
+  const targets = moved.slice(0, 1);
+  targets.forEach(t => {
+    const v = VERTICES[t.k];
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    p.setAttribute('cx','170'); p.setAttribute('cy','130');
+    p.setAttribute('r', '3');
+    p.setAttribute('fill', 'rgba(201,165,124,0.95)');
+    p.style.filter = 'drop-shadow(0 0 4px rgba(201,165,124,0.7))';
+    trails.appendChild(p);
+    p.animate(
+      [{cx:170, cy:130, opacity:0, offset:0},
+       {cx:170, cy:130, opacity:1, offset:0.1},
+       {cx:v.x, cy:v.y, opacity:1, offset:0.85},
+       {cx:v.x, cy:v.y, opacity:0, offset:1}],
+      {duration:850, easing:'cubic-bezier(0.34, 1.56, 0.64, 1)', fill:'forwards'}
+    );
+    setTimeout(() => p.remove(), 950);
+  });
+};
+
+/* T6 — Curved arc trail */
+TRAILS.T6 = function(st, moved){
+  const g = document.getElementById('trailsT6');
+  if(!g) return;
+  const targets = moved.slice(0, 2);
+  targets.forEach(t => {
+    const v = VERTICES[t.k];
+    // Build a curved path centre→dot using a quadratic Bezier
+    const mx = (170 + v.x)/2;
+    const my = (130 + v.y)/2;
+    // Perpendicular offset for curve
+    const dx = v.x - 170, dy = v.y - 130;
+    const len = Math.hypot(dx, dy);
+    const nx = -dy/len, ny = dx/len; // perpendicular unit
+    const offset = 30;
+    const cx = mx + nx*offset, cy = my + ny*offset;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const d = `M 170 130 Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${v.x} ${v.y}`;
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', 'rgba(184,102,90,0.85)');
+    path.setAttribute('stroke-width', '1.3');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-dasharray', '3 5');
+    path.setAttribute('fill', 'none');
+    g.appendChild(path);
+    const total = path.getTotalLength();
+    path.style.strokeDashoffset = total;
+    path.animate(
+      [{strokeDashoffset:total, opacity:0, offset:0},
+       {strokeDashoffset:total*0.5, opacity:1, offset:0.3},
+       {strokeDashoffset:0, opacity:1, offset:0.75},
+       {strokeDashoffset:-total*0.4, opacity:0, offset:1}],
+      {duration:1100, easing:'cubic-bezier(0.22,0.61,0.36,1)', fill:'forwards'}
+    );
+    setTimeout(() => path.remove(), 1200);
+  });
+};
+
+// Initial render
+VARIANTS.forEach(v => renderBase(v, STATE[v]));
+</script>
+</body>
+</html>
