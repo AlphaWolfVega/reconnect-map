@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Stock Modal Header — 3 variants</title>
+<style>
+:root{
+  --cream:#F4ECDC;--cream-deep:#EBE0CB;
+  --espresso:#2D241E;--espresso-soft:#4A3D33;
+  --terracotta:#B8665A;--terracotta-deep:#9C4D42;
+  --gold:#C9A57C;--gold-deep:#A88858;
+  --line:rgba(45,36,30,0.12);
+  --r:4px;--r-card:8px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#1a1410;color:var(--espresso);font-family:'Lato',-apple-system,BlinkMacSystemFont,sans-serif;font-size:17px;line-height:1.6}
+body{padding:20px 14px 60px}
+h1{font-family:'Cormorant Garamond',Georgia,serif;color:#EBE0CB;text-align:center;font-size:22px;margin:0 0 8px;font-style:italic;font-weight:500}
+.intro{color:rgba(235,224,203,0.65);text-align:center;font-size:13px;margin:0 auto 28px;max-width:340px;line-height:1.5}
+.variant-label{color:#D4B689;font-family:'Lato';font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;text-align:center;margin:32px 0 12px}
+.variant-desc{color:rgba(235,224,203,0.6);font-size:12px;text-align:center;margin:0 auto 14px;max-width:320px;line-height:1.45;font-style:italic}
+.modal-card{background:var(--cream);border-radius:var(--r-card);max-width:380px;width:100%;margin:0 auto;box-shadow:0 24px 60px rgba(0,0,0,0.55);position:relative}
+.modal-available{text-align:center}
+h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;color:var(--espresso);margin:0 0 10px;font-style:italic;line-height:1.25}
+.modal-eyebrow{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--terracotta)}
+.modal-eyebrow-good{color:var(--gold-deep);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.modal-eyebrow-good::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+.stock-bar-wrap{margin:14px auto 12px;max-width:300px}
+.stock-bar{height:10px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(184,102,90,0.20)}
+.stock-fill{position:absolute;top:0;left:0;bottom:0;width:6%;background:var(--terracotta);border-radius:99px}
+.stock-marker{position:absolute;left:6%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--terracotta-deep);box-shadow:0 0 0 0 rgba(184,102,90,0.7);animation:markerPulse 1.4s ease-in-out infinite}
+@keyframes markerPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.7)}50%{box-shadow:0 0 0 8px rgba(184,102,90,0)}}
+.stock-line{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Lato',sans-serif;font-size:11.5px;letter-spacing:0.10em;text-transform:uppercase;font-weight:700}
+.stock-viewing{color:var(--terracotta-deep);margin-bottom:6px}
+.stock-products{color:var(--espresso)}
+.stock-end-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--espresso-soft);margin:14px 18px 18px;line-height:1.5;border-top:1px dashed rgba(184,102,90,0.30);padding-top:12px}
+.stock-end-msg strong{display:block;margin-top:4px;color:var(--terracotta-deep);font-style:normal;letter-spacing:0.06em;text-transform:uppercase;font-size:11.5px;font-weight:700;font-family:'Lato',sans-serif}
+ul.modal-benefits{list-style:none;padding:0;margin:0 0 22px;text-align:left}
+.modal-benefits li{padding:10px 14px 10px 40px;font-size:13.5px;color:var(--espresso-soft);position:relative;background:var(--cream-deep);border-radius:var(--r);margin-bottom:6px;line-height:1.45}
+.modal-benefits li::before{content:"\2713";position:absolute;left:14px;top:10px;color:var(--gold-deep);font-weight:700;font-size:14px}
+.modal-benefits li strong{color:var(--espresso);font-weight:700}
+.modal-cta{display:block;width:100%;padding:16px;background:var(--terracotta);color:var(--cream);text-align:center;font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:var(--r);text-decoration:none;margin-bottom:6px}
+.modal-close-btn{display:block;width:100%;padding:8px;background:none;color:var(--espresso-soft);border:none;font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer}
+
+/* ============================================================
+   VARIANT A — Inline check + eyebrow (Alpha's suggestion)
+   ============================================================ */
+.va .modal-card{padding:22px 26px}
+.va .modal-eyebrow-good{font-size:12px}
+.va .modal-eyebrow-good::before{display:none}
+.va .header-inline{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.va .check-mini{width:22px;height:22px;border-radius:50%;background:rgba(201,165,124,0.22);color:var(--gold-deep);display:inline-flex;align-items:center;justify-content:center;animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;flex-shrink:0}
+.va .check-mini svg{width:13px;height:13px}
+@keyframes popIn{from{opacity:0;transform:scale(0.6)}to{opacity:1;transform:scale(1)}}
+.va h3{margin-bottom:6px;font-size:23px}
+
+/* ============================================================
+   VARIANT B — Compact stacked (smaller check, less padding)
+   ============================================================ */
+.vb .modal-card{padding:20px 26px}
+.vb .check-small{width:42px;height:42px;border-radius:50%;background:rgba(201,165,124,0.22);color:var(--gold-deep);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+.vb .check-small svg{width:22px;height:22px}
+.vb .modal-eyebrow-good{font-size:10.5px;margin-bottom:6px}
+.vb h3{margin-bottom:8px;font-size:23px}
+
+/* ============================================================
+   VARIANT C — Zero check, gold pill eyebrow
+   ============================================================ */
+.vc .modal-card{padding:22px 26px}
+.vc .pill-eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(201,165,124,0.18);border:1px solid rgba(201,165,124,0.50);color:var(--gold-deep);padding:6px 14px 6px 11px;border-radius:99px;font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px;animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+.vc .pill-eyebrow svg{width:13px;height:13px;flex-shrink:0}
+.vc h3{margin-bottom:6px;font-size:23px}
+</style>
+</head>
+<body>
+
+<h1>Stock Modal — Header variants</h1>
+<p class="intro">3 propositions pour rapetisser le haut de la modal et libérer du padding. Choisis A, B ou C.</p>
+
+<!-- VARIANT A -->
+<div class="variant-label">Variant A — Check inline avec "Good news"</div>
+<p class="variant-desc">Le V passe à côté du label, mini-rond 22px. Padding modal réduit à 22px (vs 36px).</p>
+<div class="va">
+  <div class="modal-card">
+    <div class="modal-available">
+      <div class="header-inline">
+        <span class="check-mini" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        <span class="modal-eyebrow modal-eyebrow-good">Good news</span>
+      </div>
+      <h3>Stock available in your area.</h3>
+      <div class="stock-bar-wrap"><div class="stock-bar"><div class="stock-fill"></div><div class="stock-marker"></div></div></div>
+      <div class="stock-line stock-viewing"><span>10</span>&nbsp;people viewing this offer</div>
+      <div class="stock-line stock-products"><strong>7</strong>&nbsp;products in stock</div>
+      <p class="stock-end-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      <ul class="modal-benefits">
+        <li><strong>All 5 pleasures unlocked</strong> — three coordinated stims, the only configuration that delivers them.</li>
+        <li><strong>30-day full refund</strong> — even after opening. Zero risk.</li>
+        <li><strong>Plain packaging</strong> + generic bank statement — nobody in your house knows.</li>
+      </ul>
+      <a class="modal-cta" href="#">Claim my offer now &rarr;</a>
+      <button class="modal-close-btn">Not yet</button>
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT B -->
+<div class="variant-label">Variant B — Check 42px stacked</div>
+<p class="variant-desc">Comme l'actuel mais V réduit à 42px (vs 64px). Padding modal réduit à 20px. Garde la hiérarchie verticale.</p>
+<div class="vb">
+  <div class="modal-card">
+    <div class="modal-available">
+      <div class="check-small" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="modal-eyebrow modal-eyebrow-good">Good news</div>
+      <h3>Stock available in your area.</h3>
+      <div class="stock-bar-wrap"><div class="stock-bar"><div class="stock-fill"></div><div class="stock-marker"></div></div></div>
+      <div class="stock-line stock-viewing"><span>10</span>&nbsp;people viewing this offer</div>
+      <div class="stock-line stock-products"><strong>7</strong>&nbsp;products in stock</div>
+      <p class="stock-end-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      <ul class="modal-benefits">
+        <li><strong>All 5 pleasures unlocked</strong> — three coordinated stims, the only configuration that delivers them.</li>
+        <li><strong>30-day full refund</strong> — even after opening. Zero risk.</li>
+        <li><strong>Plain packaging</strong> + generic bank statement — nobody in your house knows.</li>
+      </ul>
+      <a class="modal-cta" href="#">Claim my offer now &rarr;</a>
+      <button class="modal-close-btn">Not yet</button>
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT C -->
+<div class="variant-label">Variant C — Pill eyebrow (zéro V séparé)</div>
+<p class="variant-desc">Pas de cercle V du tout. Juste une "pilule" dorée avec un petit V. Le plus compact, le plus chic.</p>
+<div class="vc">
+  <div class="modal-card">
+    <div class="modal-available">
+      <span class="pill-eyebrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Good news
+      </span>
+      <h3>Stock available in your area.</h3>
+      <div class="stock-bar-wrap"><div class="stock-bar"><div class="stock-fill"></div><div class="stock-marker"></div></div></div>
+      <div class="stock-line stock-viewing"><span>10</span>&nbsp;people viewing this offer</div>
+      <div class="stock-line stock-products"><strong>7</strong>&nbsp;products in stock</div>
+      <p class="stock-end-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      <ul class="modal-benefits">
+        <li><strong>All 5 pleasures unlocked</strong> — three coordinated stims, the only configuration that delivers them.</li>
+        <li><strong>30-day full refund</strong> — even after opening. Zero risk.</li>
+        <li><strong>Plain packaging</strong> + generic bank statement — nobody in your house knows.</li>
+      </ul>
+      <a class="modal-cta" href="#">Claim my offer now &rarr;</a>
+      <button class="modal-close-btn">Not yet</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
