@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Stock V3 + Promo Timer tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2; --line-strong:#C9B89C;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1280px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:40px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:740px;margin:0 auto;line-height:1.6}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:760px){ .grid{grid-template-columns:1fr} }
+
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:22px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(45,36,30,0.06)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.card-tag{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.20em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;font-style:italic;color:var(--espresso);margin-bottom:5px;line-height:1.2}
+.card-desc{font-size:12px;color:var(--espresso-soft);line-height:1.5}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid var(--line-strong);color:var(--whisper);padding:5px 11px;font-size:9.5px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+/* Modal context replica */
+.modal-context{background:var(--cream);border-radius:var(--r-card);padding:24px 22px;text-align:center}
+.modal-eyebrow-good{font-family:'Lato',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-deep);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+.modal-eyebrow-good::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulseGold 1.4s ease-in-out infinite}
+@keyframes pulseGold{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+.modal-h{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--espresso);margin-bottom:14px;font-style:italic;line-height:1.25}
+
+/* ============== SHARED V3 base ============== */
+.v3-bar-wrap{margin:14px 0 6px;position:relative}
+.v3-bar{height:10px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(184,102,90,0.20)}
+.v3-fill{position:absolute;top:0;left:0;bottom:0;width:9%;background:repeating-linear-gradient(45deg,var(--terracotta) 0,var(--terracotta) 5px,#d97a6c 5px,#d97a6c 10px);border-radius:99px;animation:v3Stripes 1.2s linear infinite}
+@keyframes v3Stripes{from{background-position:0 0}to{background-position:20px 0}}
+.v3-marker{position:absolute;left:9%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--terracotta-deep);box-shadow:0 0 0 0 rgba(184,102,90,0.7);animation:v3MarkerPulse 1.4s ease-in-out infinite}
+@keyframes v3MarkerPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.7)}50%{box-shadow:0 0 0 8px rgba(184,102,90,0)}}
+.v3-meta{display:flex;justify-content:space-between;align-items:center;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;font-weight:700;margin-top:14px}
+.v3-watching{color:var(--terracotta-deep);display:inline-flex;align-items:center;gap:6px}
+.v3-watching::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--terracotta);animation:dotPing 1s ease-in-out infinite}
+@keyframes dotPing{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.v3-stock{color:var(--whisper)}
+.v3-stock strong{color:var(--terracotta-deep);font-weight:700}
+
+/* ============== TIMER VARIANTS ============== */
+
+/* T1 — Inline countdown badge */
+.t1-wrap{margin-top:14px;padding-top:14px;border-top:1px dashed rgba(184,102,90,0.30);display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.t1-label{font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:var(--espresso-soft)}
+.t1-time{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;font-weight:600;color:var(--terracotta-deep);font-variant-numeric:tabular-nums;letter-spacing:0.04em}
+.t1-time::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--terracotta);margin-right:8px;vertical-align:middle;animation:dotPing 1s ease-in-out infinite}
+
+/* T2 — Sticky alert bar */
+.t2-wrap{margin-top:14px;padding:12px 16px;background:linear-gradient(90deg,rgba(184,102,90,0.12) 0%,rgba(184,102,90,0.06) 100%);border:1px solid rgba(184,102,90,0.40);border-radius:var(--r);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;animation:t2Pulse 2.4s ease-in-out infinite}
+@keyframes t2Pulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.4)}50%{box-shadow:0 0 0 5px rgba(184,102,90,0)}}
+.t2-text{font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;color:var(--terracotta-deep);display:inline-flex;align-items:center;gap:8px}
+.t2-text::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--terracotta);animation:dotPing 0.9s ease-in-out infinite}
+.t2-time{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;font-weight:600;color:var(--terracotta-deep);font-variant-numeric:tabular-nums}
+
+/* T3 — Digital countdown blocks */
+.t3-wrap{margin-top:14px;padding-top:14px;border-top:1px dashed rgba(184,102,90,0.30);display:flex;flex-direction:column;align-items:center;gap:8px}
+.t3-label{font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.20em;text-transform:uppercase;font-weight:700;color:var(--espresso-soft)}
+.t3-blocks{display:inline-flex;gap:6px;align-items:center}
+.t3-block{background:var(--espresso);color:var(--cream);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;font-weight:600;padding:8px 12px;border-radius:6px;font-variant-numeric:tabular-nums;min-width:48px;text-align:center;box-shadow:inset 0 -2px 0 rgba(0,0,0,0.2)}
+.t3-sep{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--terracotta-deep);font-weight:600;animation:dotPing 1s ease-in-out infinite}
+
+/* T4 — Calendar end (date-based) */
+.t4-wrap{margin-top:14px;padding:14px 16px;background:rgba(201,165,124,0.10);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;display:flex;align-items:center;gap:12px;justify-content:flex-start;text-align:left}
+.t4-icon{flex-shrink:0;width:40px;height:40px;border-radius:50%;background:rgba(184,102,90,0.14);color:var(--terracotta-deep);display:flex;align-items:center;justify-content:center}
+.t4-icon svg{width:22px;height:22px}
+.t4-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--espresso);line-height:1.4;flex:1}
+.t4-text strong{color:var(--terracotta-deep);font-weight:600;font-style:normal;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;display:block;margin-bottom:2px}
+.t4-time{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--terracotta-deep);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* T5 — Timer bar that fills (visual countdown) */
+.t5-wrap{margin-top:14px;padding-top:14px;border-top:1px dashed rgba(184,102,90,0.30)}
+.t5-label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.t5-label{font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:var(--espresso-soft)}
+.t5-time{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:var(--terracotta-deep);font-weight:600;font-variant-numeric:tabular-nums}
+.t5-bar{height:4px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative}
+.t5-fill{position:absolute;top:0;right:0;bottom:0;width:18%;background:linear-gradient(90deg,#d97a6c 0%,var(--terracotta-deep) 100%);border-radius:99px;animation:t5BarPulse 1.6s ease-in-out infinite}
+@keyframes t5BarPulse{0%,100%{opacity:0.85}50%{opacity:1;box-shadow:0 0 8px rgba(184,102,90,0.4)}}
+.t5-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12.5px;color:var(--espresso-soft);text-align:center;margin-top:8px}
+
+/* T6 — Combined: live HH:MM:SS + closing message + small bar */
+.t6-wrap{margin-top:14px;padding:14px;background:linear-gradient(180deg,rgba(184,102,90,0.06) 0%,rgba(184,102,90,0.02) 100%);border:1px solid rgba(184,102,90,0.25);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;gap:10px}
+.t6-tag{font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.20em;text-transform:uppercase;font-weight:700;color:var(--terracotta-deep);display:inline-flex;align-items:center;gap:8px}
+.t6-tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--terracotta);animation:dotPing 1s ease-in-out infinite}
+.t6-time{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:32px;font-weight:600;color:var(--terracotta-deep);font-variant-numeric:tabular-nums;letter-spacing:0.05em;line-height:1}
+.t6-bar{width:100%;max-width:240px;height:3px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative}
+.t6-fill{position:absolute;top:0;right:0;bottom:0;width:22%;background:var(--terracotta-deep);border-radius:99px;animation:t6BarPulse 1.4s ease-in-out infinite}
+@keyframes t6BarPulse{0%,100%{opacity:0.7}50%{opacity:1}}
+.t6-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12.5px;color:var(--espresso-soft);text-align:center;line-height:1.4;margin:0}
+
+.notes{margin:48px auto 0;max-width:780px;padding:24px 28px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:14px;color:var(--espresso-soft);line-height:1.65}
+.notes h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--espresso);margin-bottom:10px;font-weight:500}
+.notes ul{padding-left:20px}
+.notes li{margin-bottom:6px}
+.notes strong{color:var(--terracotta-deep)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Stock + promo timer — V3 base</h1>
+    <p>Same V3 base for all 6: live tracker bar, counter that fluctuates (9-20 viewing), live "products in stock". <strong>Difference: how the promo timer is presented underneath</strong>. All counters and timers are <em>live</em> (updating in real time).</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ===== T1 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T1</div>
+          <div class="card-title">Inline countdown</div>
+          <div class="card-desc">A simple line under the bar: dot + "Promotion ends in" + italic countdown. Most refined.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T1')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="v3-meta">
+          <span class="v3-watching"><span data-live="watching">11</span>&nbsp;people viewing this offer</span>
+          <span class="v3-stock"><strong data-live="stock">14</strong>&nbsp;products in stock</span>
+        </div>
+        <div class="t1-wrap">
+          <span class="t1-label">Promotion ends in</span>
+          <span class="t1-time" data-live="timer">00:09:42</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== T2 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T2</div>
+          <div class="card-title">Sticky alert bar</div>
+          <div class="card-desc">Pulsing terracotta callout: "Promotion closing soon · 09:42". Most active / urgent.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T2')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="v3-meta">
+          <span class="v3-watching"><span data-live="watching">11</span>&nbsp;people viewing this offer</span>
+          <span class="v3-stock"><strong data-live="stock">14</strong>&nbsp;products in stock</span>
+        </div>
+        <div class="t2-wrap">
+          <span class="t2-text">Promotion closing</span>
+          <span class="t2-time" data-live="timer">00:09:42</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== T3 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T3</div>
+          <div class="card-title">Digital blocks</div>
+          <div class="card-desc">Three dark blocks H : M : S, tabular numerals. Most "live event" feel.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T3')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="v3-meta">
+          <span class="v3-watching"><span data-live="watching">11</span>&nbsp;people viewing this offer</span>
+          <span class="v3-stock"><strong data-live="stock">14</strong>&nbsp;products in stock</span>
+        </div>
+        <div class="t3-wrap">
+          <span class="t3-label">Promotion ends in</span>
+          <div class="t3-blocks">
+            <span class="t3-block" data-live="t3h">00</span>
+            <span class="t3-sep">:</span>
+            <span class="t3-block" data-live="t3m">09</span>
+            <span class="t3-sep">:</span>
+            <span class="t3-block" data-live="t3s">42</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== T4 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T4</div>
+          <div class="card-title">Editorial callout</div>
+          <div class="card-desc">Hourglass icon + sentence "Your offer is held until..." + countdown. Most calm / premium.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T4')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="v3-meta">
+          <span class="v3-watching"><span data-live="watching">11</span>&nbsp;people viewing this offer</span>
+          <span class="v3-stock"><strong data-live="stock">14</strong>&nbsp;products in stock</span>
+        </div>
+        <div class="t4-wrap">
+          <span class="t4-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M6 2v6c0 2 6 2 6 4s-6 2-6 4v6M18 2v6c0 2-6 2-6 4s6 2 6 4v6"/></svg>
+          </span>
+          <span class="t4-text"><strong>Promotion ends in</strong>Your offer is held for <span class="t4-time" data-live="timer">00:09:42</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== T5 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T5</div>
+          <div class="card-title">Slim timer bar</div>
+          <div class="card-desc">A second thin bar showing time remaining, decreasing visibly. Mirrors the stock bar above.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T5')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="v3-meta">
+          <span class="v3-watching"><span data-live="watching">11</span>&nbsp;people viewing this offer</span>
+          <span class="v3-stock"><strong data-live="stock">14</strong>&nbsp;products in stock</span>
+        </div>
+        <div class="t5-wrap">
+          <div class="t5-label-row">
+            <span class="t5-label">Promotion ends in</span>
+            <span class="t5-time" data-live="timer">00:09:42</span>
+          </div>
+          <div class="t5-bar"><div class="t5-fill" id="t5FillEl"></div></div>
+          <p class="t5-note">Your offer is held until the timer reaches zero.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== T6 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T6</div>
+          <div class="card-title">Big countdown card</div>
+          <div class="card-desc">Pulsing tag + huge italic countdown + small bar + reassuring line. Most dramatic / focal.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T6')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="v3-meta">
+          <span class="v3-watching"><span data-live="watching">11</span>&nbsp;people viewing this offer</span>
+          <span class="v3-stock"><strong data-live="stock">14</strong>&nbsp;products in stock</span>
+        </div>
+        <div class="t6-wrap">
+          <span class="t6-tag">Promotion ends in</span>
+          <span class="t6-time" data-live="timer">00:09:42</span>
+          <div class="t6-bar"><div class="t6-fill" id="t6FillEl"></div></div>
+          <p class="t6-note">Your offer is held while the timer runs.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>What's live in every variant</h3>
+    <ul>
+      <li><strong>People viewing</strong> · randomly drifts between 9 and 20 every 4-7 seconds (same logic on the live site)</li>
+      <li><strong>Products in stock</strong> · slowly decreases (occasionally ticks down by 1 every 30-60 seconds, never below 4)</li>
+      <li><strong>Timer</strong> · counts down from 10:00 to 0 in real time. When it hits zero, the offer page can either reset, redirect, or show "expired"</li>
+      <li><strong>Wording</strong> · "products" instead of "kits", "promotion ends in" wording is consistent</li>
+      <li>Tell me which variant you want and I&apos;ll wire all the live behaviour into the actual modal in <code>index.html</code></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function pick(btn, variant){
+  document.querySelectorAll('.pick-btn').forEach(b => { b.classList.remove('picked'); b.textContent = 'Keep this'; });
+  btn.classList.add('picked');
+  btn.textContent = '✓ Picked ' + variant;
+}
+
+// ===== LIVE BEHAVIOUR =====
+
+// Watching count: drifts between 9-20
+let watching = 11;
+function updateWatching(){
+  // ±1 step, occasional ±2
+  const drift = Math.random() < 0.85 ? (Math.random() < 0.5 ? -1 : 1) : (Math.random() < 0.5 ? -2 : 2);
+  watching = Math.max(9, Math.min(20, watching + drift));
+  document.querySelectorAll('[data-live="watching"]').forEach(el => el.textContent = watching);
+}
+setInterval(updateWatching, 4500 + Math.random() * 2500);
+
+// Stock count: slowly decreases, never below 4
+let stock = 14;
+function tickStock(){
+  if(stock > 4 && Math.random() < 0.55){
+    stock -= 1;
+    document.querySelectorAll('[data-live="stock"]').forEach(el => el.textContent = stock);
+  }
+}
+setInterval(tickStock, 35000);
+
+// Timer: 10 minutes countdown
+const TIMER_TOTAL_S = 10 * 60;
+let timerS = TIMER_TOTAL_S;
+function fmt(n){ return n.toString().padStart(2, '0'); }
+function tickTimer(){
+  if(timerS <= 0) return;
+  timerS -= 1;
+  const h = Math.floor(timerS / 3600);
+  const m = Math.floor((timerS % 3600) / 60);
+  const s = timerS % 60;
+  const full = fmt(h) + ':' + fmt(m) + ':' + fmt(s);
+  document.querySelectorAll('[data-live="timer"]').forEach(el => el.textContent = full);
+  document.querySelectorAll('[data-live="t3h"]').forEach(el => el.textContent = fmt(h));
+  document.querySelectorAll('[data-live="t3m"]').forEach(el => el.textContent = fmt(m));
+  document.querySelectorAll('[data-live="t3s"]').forEach(el => el.textContent = fmt(s));
+  // Update T5 + T6 fill bars (decrease)
+  const pct = (timerS / TIMER_TOTAL_S) * 100;
+  const t5Fill = document.getElementById('t5FillEl');
+  if(t5Fill) t5Fill.style.width = pct + '%';
+  const t6Fill = document.getElementById('t6FillEl');
+  if(t6Fill) t6Fill.style.width = pct + '%';
+}
+setInterval(tickTimer, 1000);
+// Initial fills
+window.addEventListener('DOMContentLoaded', () => {
+  const t5Fill = document.getElementById('t5FillEl');
+  if(t5Fill) t5Fill.style.width = '100%';
+  const t6Fill = document.getElementById('t6FillEl');
+  if(t6Fill) t6Fill.style.width = '100%';
+});
+</script>
+</body>
+</html>
