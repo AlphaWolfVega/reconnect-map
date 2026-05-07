@@ -74,9 +74,56 @@ body.has-timer{padding-top:48px}
 .container-wide{max-width:920px;margin:0 auto;padding:0 24px}
 
 /* HERO — centred vertical + horizontal */
-#stage-hero{padding:48px 0 64px;text-align:center}
+#stage-hero{padding:48px 0 64px;text-align:center;position:relative;overflow:hidden}
 #stage-hero.active{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh}
-#stage-hero .container{width:100%;display:flex;flex-direction:column;align-items:center}
+#stage-hero .container{width:100%;display:flex;flex-direction:column;align-items:center;position:relative;z-index:2}
+.hero-fx{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+/* Falling petals */
+.hero-petal{position:absolute;top:-30px;width:14px;height:14px;background:radial-gradient(ellipse at 30% 30%, rgba(232,198,180,0.85), rgba(184,102,90,0.5));border-radius:50% 0 50% 0;opacity:0;animation:petalFall 14s linear infinite;will-change:transform,opacity}
+.hero-petal:nth-child(1){left:6%;animation-duration:15s;animation-delay:0s;width:13px;height:13px}
+.hero-petal:nth-child(2){left:18%;animation-duration:12s;animation-delay:2s;width:16px;height:16px}
+.hero-petal:nth-child(3){left:32%;animation-duration:14s;animation-delay:5s;width:11px;height:11px}
+.hero-petal:nth-child(4){left:46%;animation-duration:16s;animation-delay:1s;width:14px;height:14px}
+.hero-petal:nth-child(5){left:60%;animation-duration:11s;animation-delay:6s;width:12px;height:12px}
+.hero-petal:nth-child(6){left:74%;animation-duration:13s;animation-delay:3s;width:15px;height:15px}
+.hero-petal:nth-child(7){left:86%;animation-duration:15s;animation-delay:8s;width:11px;height:11px}
+.hero-petal:nth-child(8){left:24%;animation-duration:17s;animation-delay:9s;width:13px;height:13px}
+.hero-petal:nth-child(9){left:54%;animation-duration:13s;animation-delay:11s;width:14px;height:14px}
+.hero-petal:nth-child(10){left:90%;animation-duration:14s;animation-delay:4s;width:12px;height:12px}
+@keyframes petalFall{
+  0%{opacity:0;transform:translateY(0) translateX(0) rotate(0deg)}
+  10%{opacity:0.65}
+  90%{opacity:0.5}
+  100%{opacity:0;transform:translateY(110vh) translateX(60px) rotate(720deg)}
+}
+/* Whispers — floating italic words */
+.hero-whisper{position:absolute;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;color:rgba(184,102,90,0.45);letter-spacing:0.04em;opacity:0;animation:whisperIn 11s ease-in-out infinite;pointer-events:none;white-space:nowrap}
+.hero-whisper:nth-child(11){top:12%;left:5%;animation-delay:0s}
+.hero-whisper:nth-child(12){top:18%;right:6%;animation-delay:2s}
+.hero-whisper:nth-child(13){top:78%;left:7%;animation-delay:4s}
+.hero-whisper:nth-child(14){top:84%;right:9%;animation-delay:6s}
+.hero-whisper:nth-child(15){top:48%;left:3%;animation-delay:8s}
+.hero-whisper:nth-child(16){top:38%;right:4%;animation-delay:10s}
+@keyframes whisperIn{
+  0%,100%{opacity:0;transform:translateY(8px)}
+  10%,30%{opacity:0.55;transform:translateY(0)}
+  40%{opacity:0;transform:translateY(-8px)}
+}
+@media (max-width:720px){
+  .hero-whisper{font-size:18px}
+  .hero-whisper:nth-child(15),.hero-whisper:nth-child(16){display:none}
+}
+@media (max-width:520px){
+  .hero-whisper{display:none}
+}
+/* Pulse halo gold around CTA */
+.cta-pulse-wrap{position:relative;display:inline-block;border-radius:var(--r)}
+.cta-pulse-wrap::before{content:"";position:absolute;inset:0;border-radius:var(--r);box-shadow:0 0 0 0 rgba(201,165,124,0.7);animation:ctaPulseHalo 2.4s ease-in-out infinite;pointer-events:none}
+@keyframes ctaPulseHalo{
+  0%{box-shadow:0 0 0 0 rgba(201,165,124,0.7),0 0 0 0 rgba(201,165,124,0.35)}
+  60%{box-shadow:0 0 0 16px rgba(201,165,124,0),0 0 0 28px rgba(201,165,124,0)}
+  100%{box-shadow:0 0 0 0 rgba(201,165,124,0),0 0 0 0 rgba(201,165,124,0)}
+}
 #stage-hero .hero-eyebrow{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.32em;text-transform:uppercase;color:var(--terracotta);margin-bottom:24px;display:inline-flex;align-items:center;gap:14px}
 #stage-hero .hero-eyebrow::before,#stage-hero .hero-eyebrow::after{content:"";width:24px;height:1px;background:var(--gold)}
 #stage-hero h1{margin:0 auto 22px;font-style:italic;font-weight:400;max-width:820px;letter-spacing:-0.005em}
@@ -441,16 +488,28 @@ body.has-timer{padding-top:48px}
 
 <!-- ============== STAGE: HERO ============== -->
 <section class="stage active" id="stage-hero">
+  <div class="hero-fx" aria-hidden="true">
+    <span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span>
+    <span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span>
+    <span class="hero-whisper">breathe</span>
+    <span class="hero-whisper">feel</span>
+    <span class="hero-whisper">return</span>
+    <span class="hero-whisper">listen</span>
+    <span class="hero-whisper">remember</span>
+    <span class="hero-whisper">honest</span>
+  </div>
   <div class="container">
     <div class="hero-eyebrow">The Reconnect Map</div>
     <h1>There are <span class="accent">5 kinds</span> of pleasure.<br>Most women only ever experience <span class="accent">two</span>.</h1>
     <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
     <p class="hero-meta">A 90-second test. Private. No email required.</p>
     <div id="resumeBanner"></div>
-    <button class="btn-primary" id="startBtn">
-      Show me where I am
-      <span class="btn-arrow">&rarr;</span>
-    </button>
+    <span class="cta-pulse-wrap">
+      <button class="btn-primary" id="startBtn">
+        Show me where I am
+        <span class="btn-arrow">&rarr;</span>
+      </button>
+    </span>
     <div class="hero-ornament" aria-hidden="true">
       <span class="line"></span>
       <span class="dot"></span>
