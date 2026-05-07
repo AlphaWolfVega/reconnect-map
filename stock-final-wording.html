@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Stock E1 wording variants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2; --line-strong:#C9B89C;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1280px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:36px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:760px;margin:0 auto;line-height:1.6}
+.global-counter{margin-top:14px;display:inline-block;padding:8px 16px;background:rgba(184,102,90,0.12);border:1px solid rgba(184,102,90,0.30);border-radius:99px;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;color:var(--terracotta-deep)}
+.global-counter strong{color:var(--terracotta-deep)}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:760px){ .grid{grid-template-columns:1fr} }
+
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:22px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(45,36,30,0.06)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.card-tag{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.20em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;font-style:italic;color:var(--espresso);margin-bottom:5px;line-height:1.2}
+.card-desc{font-size:12px;color:var(--espresso-soft);line-height:1.5}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid var(--line-strong);color:var(--whisper);padding:5px 11px;font-size:9.5px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+.modal-context{background:var(--cream);border-radius:var(--r-card);padding:24px 22px;text-align:center}
+.modal-eyebrow-good{font-family:'Lato',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-deep);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+.modal-eyebrow-good::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulseGold 1.4s ease-in-out infinite}
+@keyframes pulseGold{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+.modal-h{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--espresso);margin-bottom:14px;font-style:italic;line-height:1.25}
+
+.v3-bar-wrap{margin:14px 0 12px;position:relative}
+.v3-bar{height:10px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(184,102,90,0.20)}
+.v3-fill{position:absolute;top:0;left:0;bottom:0;background:repeating-linear-gradient(45deg,var(--terracotta) 0,var(--terracotta) 5px,#d97a6c 5px,#d97a6c 10px);border-radius:99px;animation:v3Stripes 1.2s linear infinite;transition:width 0.8s ease}
+@keyframes v3Stripes{from{background-position:0 0}to{background-position:20px 0}}
+.v3-marker{position:absolute;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--terracotta-deep);box-shadow:0 0 0 0 rgba(184,102,90,0.7);animation:v3MarkerPulse 1.4s ease-in-out infinite;transition:left 0.8s ease}
+@keyframes v3MarkerPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.7)}50%{box-shadow:0 0 0 8px rgba(184,102,90,0)}}
+@keyframes dotPing{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+
+.stock-line{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Lato',sans-serif;font-size:11.5px;letter-spacing:0.10em;text-transform:uppercase;font-weight:700}
+.stock-line.viewing{color:var(--terracotta-deep);margin-bottom:6px}
+.stock-line.viewing::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--terracotta);animation:dotPing 1s ease-in-out infinite}
+.stock-line.products{color:var(--whisper)}
+.stock-line.products strong{color:var(--terracotta-deep);font-weight:700;font-size:13px;animation:stockBump 0.8s ease-out;transition:color 0.4s ease}
+@keyframes stockBump{0%{transform:scale(1)}40%{transform:scale(1.25);color:var(--terracotta)}100%{transform:scale(1)}}
+.stock-line.products strong.bump{animation:stockBump 0.8s ease-out}
+
+.e1-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--espresso-soft);margin-top:14px;padding-top:12px;border-top:1px dashed rgba(184,102,90,0.30);line-height:1.55}
+.e1-msg strong{color:var(--terracotta-deep);font-weight:600;font-style:normal;font-family:'Lato',sans-serif;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;display:inline-block}
+
+.notes{margin:48px auto 0;max-width:780px;padding:24px 28px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:14px;color:var(--espresso-soft);line-height:1.65}
+.notes h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--espresso);margin-bottom:10px;font-weight:500}
+.notes ul{padding-left:20px}
+.notes li{margin-bottom:6px}
+.notes strong{color:var(--terracotta-deep)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Stock E1 — wording variants</h1>
+    <p>E1 base: subtle italic line under a dashed divider. Same V3 bar, same stacked viewing/products, same live drop cadence. <strong>What changes is how the static "promotion ends" message is phrased.</strong> All 6 share the same logic — pick the line that feels right.</p>
+    <div class="global-counter">Stock starts at <strong>7</strong> · drops at <strong>5s</strong>, <strong>15s</strong>, <strong>1min15s</strong>, then slows · floor at <strong>3</strong></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- W1 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">W1</div>
+          <div class="card-title">Once the stock runs out</div>
+          <div class="card-desc">Plain, premium, no drama. Most calm.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'W1')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill" data-bar="W1"></div><div class="v3-marker" data-marker="W1"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      </div>
+    </div>
+
+    <!-- W2 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">W2</div>
+          <div class="card-title">When the last product is gone</div>
+          <div class="card-desc">More personal/visual. Plays on "the last one".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'W2')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill" data-bar="W2"></div><div class="v3-marker" data-marker="W2"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">When the last product is gone, the promotion is gone <strong>with&nbsp;it.</strong></p>
+      </div>
+    </div>
+
+    <!-- W3 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">W3</div>
+          <div class="card-title">Stock is finite</div>
+          <div class="card-desc">Editorial / declarative. Two short phrases.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'W3')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill" data-bar="W3"></div><div class="v3-marker" data-marker="W3"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Stock is finite. <strong>This offer disappears with it.</strong></p>
+      </div>
+    </div>
+
+    <!-- W4 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">W4</div>
+          <div class="card-title">When this batch sells out</div>
+          <div class="card-desc">References the "batch" — narrative / bounded.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'W4')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill" data-bar="W4"></div><div class="v3-marker" data-marker="W4"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">When this batch sells out, <strong>the discount goes with it.</strong></p>
+      </div>
+    </div>
+
+    <!-- W5 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">W5</div>
+          <div class="card-title">When stock hits zero</div>
+          <div class="card-desc">Direct, no metaphor. Most operational.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'W5')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill" data-bar="W5"></div><div class="v3-marker" data-marker="W5"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">When stock hits zero, <strong>this promotion closes.</strong> No further restock at this price.</p>
+      </div>
+    </div>
+
+    <!-- W6 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">W6</div>
+          <div class="card-title">Once they're gone, they're gone</div>
+          <div class="card-desc">Conversational, almost spoken. Most "sister talking to sister".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'W6')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill" data-bar="W6"></div><div class="v3-marker" data-marker="W6"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Once they're gone, they're gone — <strong>and the offer goes with them.</strong></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>Live behaviour (same in all 6)</h3>
+    <ul>
+      <li><strong>Viewing</strong> · 9-20 drift, ~5 sec interval</li>
+      <li><strong>Stock</strong> · starts at <strong>7</strong>, never goes above. Drops scheduled: <strong>-1 at 5 sec</strong>, <strong>-1 at 15 sec</strong>, <strong>-1 at 1min15s</strong>, then slows progressively. Floor at <strong>3</strong>.</li>
+      <li><strong>Bar fill</strong> + marker position both shrink with each drop (visual feedback)</li>
+      <li><strong>Number bumps</strong> on each drop with a short scale animation in terracotta (so you actually see it move)</li>
+      <li>Pick a wording → I wire E1 + this exact cadence into the modal in <code>index.html</code></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function pick(btn, variant){
+  document.querySelectorAll('.pick-btn').forEach(b => { b.classList.remove('picked'); b.textContent = 'Keep this'; });
+  btn.classList.add('picked');
+  btn.textContent = '✓ Picked ' + variant;
+}
+
+// === LIVE BEHAVIOUR ===
+
+let watching = 11;
+function updateWatching(){
+  const drift = Math.random() < 0.85 ? (Math.random() < 0.5 ? -1 : 1) : (Math.random() < 0.5 ? -2 : 2);
+  watching = Math.max(9, Math.min(20, watching + drift));
+  document.querySelectorAll('[data-live="watching"]').forEach(el => el.textContent = watching);
+}
+setInterval(updateWatching, 4500 + Math.random() * 2500);
+
+// Stock starts at 7, drops on schedule, floor at 3
+const STOCK_INITIAL = 7;
+const STOCK_FLOOR = 3;
+let stock = STOCK_INITIAL;
+const dropDelaysMs = [5000, 15000, 75000, 195000, 360000, 540000]; // 5s, 15s, 1min15, 3min15, 6min, 9min — slows down
+function updateStockBar(){
+  const pct = ((stock - STOCK_FLOOR) / (STOCK_INITIAL - STOCK_FLOOR)) * 70 + 9;
+  // pct goes from 79% at start to 9% at floor — wide range, stays "almost empty" feel near the floor
+  // Actually let's invert: full=70 wide range to 9%. Tweak:
+  // At stock=7 → ~70%, at stock=3 → 9%
+  const widthPct = 9 + ((stock - STOCK_FLOOR) / (STOCK_INITIAL - STOCK_FLOOR)) * 61; // 9% to 70%
+  document.querySelectorAll('[data-bar]').forEach(el => el.style.width = widthPct + '%');
+  document.querySelectorAll('[data-marker]').forEach(el => el.style.left = widthPct + '%');
+}
+function dropStock(){
+  if(stock > STOCK_FLOOR){
+    stock -= 1;
+    document.querySelectorAll('[data-live="stock"]').forEach(el => {
+      el.textContent = stock;
+      el.classList.remove('bump');
+      void el.offsetWidth;
+      el.classList.add('bump');
+    });
+    updateStockBar();
+  }
+}
+// Set initial bar width (stock=7)
+updateStockBar();
+// Schedule the drops
+dropDelaysMs.forEach(ms => setTimeout(dropStock, ms));
+</script>
+</body>
+</html>
