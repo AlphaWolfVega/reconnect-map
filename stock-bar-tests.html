@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Bar fill levels (fixed, never moves)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2; --line-strong:#C9B89C;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1280px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:36px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:760px;margin:0 auto;line-height:1.6}
+.page-head strong{color:var(--terracotta-deep)}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:760px){ .grid{grid-template-columns:1fr} }
+
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:22px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(45,36,30,0.06)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.card-tag{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.20em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;font-style:italic;color:var(--espresso);margin-bottom:5px;line-height:1.2}
+.card-desc{font-size:12px;color:var(--espresso-soft);line-height:1.5}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid var(--line-strong);color:var(--whisper);padding:5px 11px;font-size:9.5px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+.modal-context{background:var(--cream);border-radius:var(--r-card);padding:24px 22px;text-align:center}
+.modal-eyebrow-good{font-family:'Lato',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-deep);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+.modal-eyebrow-good::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulseGold 1.4s ease-in-out infinite}
+@keyframes pulseGold{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+.modal-h{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--espresso);margin-bottom:14px;font-style:italic;line-height:1.25}
+
+@keyframes dotPing{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+@keyframes barMarkerPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.7)}50%{box-shadow:0 0 0 8px rgba(184,102,90,0)}}
+@keyframes barStripes{from{background-position:0 0}to{background-position:20px 0}}
+
+.bar-wrap{margin:14px 0 12px;position:relative}
+.bar{height:10px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(184,102,90,0.20)}
+.fill{position:absolute;top:0;left:0;bottom:0;border-radius:99px}
+.fill.stripes{background:repeating-linear-gradient(45deg,var(--terracotta) 0,var(--terracotta) 5px,#d97a6c 5px,#d97a6c 10px);animation:barStripes 1.2s linear infinite}
+.fill.solid{background:var(--terracotta)}
+.fill.gradient{background:linear-gradient(90deg,var(--terracotta-deep) 0%,var(--terracotta) 100%)}
+.marker{position:absolute;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:var(--terracotta-deep);animation:barMarkerPulse 1.4s ease-in-out infinite}
+
+/* === 6 variants of "almost empty" === */
+/* B1 — 4% fill, tiny marker */
+.b1 .fill{width:4%}
+.b1 .marker{left:4%;width:12px;height:12px}
+/* B2 — 6% fill, small marker, no stripes (solid terracotta) */
+.b2 .fill{width:6%}
+.b2 .marker{left:6%;width:14px;height:14px}
+/* B3 — 8% fill, medium marker, stripes */
+.b3 .fill{width:8%}
+.b3 .marker{left:8%;width:14px;height:14px}
+/* B4 — 10% fill, gradient, larger marker */
+.b4 .fill{width:10%}
+.b4 .marker{left:10%;width:16px;height:16px}
+/* B5 — 12% fill, stripes, larger marker (close to your screenshot) */
+.b5 .fill{width:12%}
+.b5 .marker{left:12%;width:18px;height:18px}
+/* B6 — 7% fill, faded stripes, slim marker */
+.b6 .fill{width:7%;opacity:0.85}
+.b6 .marker{left:7%;width:12px;height:12px;background:var(--terracotta)}
+
+.stock-line{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Lato',sans-serif;font-size:11.5px;letter-spacing:0.10em;text-transform:uppercase;font-weight:700}
+.stock-line.viewing{color:var(--terracotta-deep);margin-bottom:6px}
+.stock-line.viewing::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--terracotta);animation:dotPing 1s ease-in-out infinite}
+.stock-line.products{color:var(--whisper)}
+.stock-line.products strong{color:var(--terracotta-deep);font-weight:700;font-size:13px;transition:color 0.4s ease}
+.stock-line.products strong.bump{animation:stockBump 0.8s ease-out}
+@keyframes stockBump{0%{transform:scale(1)}40%{transform:scale(1.25);color:var(--terracotta)}100%{transform:scale(1)}}
+
+.e1-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--espresso-soft);margin-top:14px;padding-top:12px;border-top:1px dashed rgba(184,102,90,0.30);line-height:1.55}
+.e1-msg strong{color:var(--terracotta-deep);font-weight:600;font-style:normal;font-family:'Lato',sans-serif;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;display:inline-block}
+
+.notes{margin:48px auto 0;max-width:780px;padding:24px 28px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:14px;color:var(--espresso-soft);line-height:1.65}
+.notes h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--espresso);margin-bottom:10px;font-weight:500}
+.notes ul{padding-left:20px}
+.notes li{margin-bottom:6px}
+.notes strong{color:var(--terracotta-deep)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Stock bar — fill levels (fixed)</h1>
+    <p>6 visual variants of a stock bar <strong>almost empty from the start</strong> — and that <strong>never moves, ever</strong>. Whatever happens to the number "X products in stock" underneath, the bar stays exactly at the level shown here. Pick the one that matches what you want.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- B1 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">B1 · 4%</div>
+          <div class="card-title">Critical low</div>
+          <div class="card-desc">Tiniest fill. Most "danger zone" feel.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'B1')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="bar-wrap b1">
+          <div class="bar"><div class="fill stripes"></div><div class="marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      </div>
+    </div>
+
+    <!-- B2 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">B2 · 6%</div>
+          <div class="card-title">Almost empty (solid)</div>
+          <div class="card-desc">No stripes — solid terracotta. Cleaner / more elegant.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'B2')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="bar-wrap b2">
+          <div class="bar"><div class="fill solid"></div><div class="marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      </div>
+    </div>
+
+    <!-- B3 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">B3 · 8%</div>
+          <div class="card-title">Low (stripes)</div>
+          <div class="card-desc">Animated stripes give a "live" feel without making the bar grow.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'B3')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="bar-wrap b3">
+          <div class="bar"><div class="fill stripes"></div><div class="marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      </div>
+    </div>
+
+    <!-- B4 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">B4 · 10%</div>
+          <div class="card-title">Low (gradient)</div>
+          <div class="card-desc">Gradient deep→bright terracotta. Most premium / cinematic.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'B4')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="bar-wrap b4">
+          <div class="bar"><div class="fill gradient"></div><div class="marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      </div>
+    </div>
+
+    <!-- B5 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">B5 · 12%</div>
+          <div class="card-title">Low (your screenshot)</div>
+          <div class="card-desc">Closest match to the screenshot you sent. Stripes + marker dot.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'B5')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="bar-wrap b5">
+          <div class="bar"><div class="fill stripes"></div><div class="marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      </div>
+    </div>
+
+    <!-- B6 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">B6 · 7%</div>
+          <div class="card-title">Faded slim</div>
+          <div class="card-desc">Soft faded stripes + slim marker. Most discreet / understated.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'B6')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="bar-wrap b6">
+          <div class="bar"><div class="fill stripes"></div><div class="marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">7</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>What you're picking</h3>
+    <ul>
+      <li>The visual <strong>"how empty does the bar look at first sight"</strong> — that's the only difference between the 6.</li>
+      <li>In <strong>every variant</strong>: bar fill width is locked. The marker position is locked. <strong>Nothing on the bar moves</strong>. Only the stripes texture animates (visual life), but that's just a moving pattern, not a moving bar.</li>
+      <li>The number "7 products in stock" still drops on schedule (10s → 6, 30s → 5, 1min30 → 4, 3min30 → 3 floor) — but <strong>only the digit changes</strong>, not the bar.</li>
+      <li>Wording stays W1 ("Once the stock runs out…") in all 6 — we already locked that part. Only the bar level differs.</li>
+    </ul>
+    <p style="margin-top:14px">Pick (B1-B6) and I wire it into the modal in <code>index.html</code>.</p>
+  </div>
+</div>
+
+<script>
+function pick(btn, variant){
+  document.querySelectorAll('.pick-btn').forEach(b => { b.classList.remove('picked'); b.textContent = 'Keep this'; });
+  btn.classList.add('picked');
+  btn.textContent = '✓ Picked ' + variant;
+}
+
+// LIVE: viewing fluctuates
+let watching = 11;
+function updateWatching(){
+  const drift = Math.random() < 0.85 ? (Math.random() < 0.5 ? -1 : 1) : (Math.random() < 0.5 ? -2 : 2);
+  watching = Math.max(9, Math.min(20, watching + drift));
+  document.querySelectorAll('[data-live="watching"]').forEach(el => el.textContent = watching);
+}
+setInterval(updateWatching, 4500 + Math.random() * 2500);
+
+// Stock drops: 7 → 6 (10s) → 5 (30s) → 4 (1min30) → 3 floor (3min30). Bar NEVER moves.
+let stock = 7;
+const STOCK_FLOOR = 3;
+const drops = [10000, 30000, 90000, 210000];
+function dropStock(){
+  if(stock > STOCK_FLOOR){
+    stock -= 1;
+    document.querySelectorAll('[data-live="stock"]').forEach(el => {
+      el.textContent = stock;
+      el.classList.remove('bump');
+      void el.offsetWidth;
+      el.classList.add('bump');
+    });
+  }
+}
+drops.forEach(ms => setTimeout(dropStock, ms));
+</script>
+</body>
+</html>
