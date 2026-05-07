@@ -33,9 +33,8 @@
   --r:4px;--r-card:8px;
   --t:0.6s cubic-bezier(0.22,0.61,0.36,1);
 }
-@media (prefers-color-scheme:dark){
-  :root.auto-dark{--cream:#1F1A16;--cream-deep:#15110D;--sand:#2A231D;--espresso:#EBE0CB;--espresso-soft:#C9BBA6;--terracotta:#C97A6E;--gold:#D4B689;--whisper:rgba(235,224,203,0.55);--line:rgba(235,224,203,0.10)}
-}
+/* Force light palette regardless of device dark-mode setting */
+:root{color-scheme:light}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--cream);color:var(--espresso);font-family:'Lato',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:400;font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:clip}
 body{min-height:100vh;min-height:100dvh}
@@ -2414,13 +2413,8 @@ function trackEvent(name, payload){
   if(window.dataLayer){ window.dataLayer.push({event:name, ...payload}); }
 }
 
-/* ============================================================
-   DARK MODE (auto 22:00-06:00)
-   ============================================================ */
-function setupAutoDark(){
-  const h = new Date().getHours();
-  if(h >= 22 || h < 6){ document.documentElement.classList.add('auto-dark'); }
-}
+/* Auto-dark mode disabled — palette is always cream/light to match brand */
+function setupAutoDark(){ /* disabled */ }
 
 /* ============================================================
    STICKY OFFER TIMER (only on result, 11 min)
