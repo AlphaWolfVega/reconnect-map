@@ -268,19 +268,17 @@ body.has-timer{padding-top:48px}
 .narrative-bullets li{font-size:15px;color:var(--espresso-soft);padding:18px 20px 18px 64px;background:var(--cream-deep);border-radius:var(--r);border-left:2px solid var(--gold);line-height:1.55;position:relative;transition:transform 0.3s ease, box-shadow 0.3s ease}
 .narrative-bullets li:hover{transform:translateX(2px);box-shadow:0 4px 12px rgba(201,165,124,0.18)}
 .narrative-bullets li strong{color:var(--espresso);background:none;padding:0;display:block;font-size:12px;letter-spacing:0.10em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
-.narrative-bullets li .bullet-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:rgba(184,102,90,0.10);border-radius:50%;color:var(--terracotta);animation:bulletNeon 2.6s ease-in-out infinite}
-.narrative-bullets li .bullet-icon svg{width:18px;height:18px;filter:drop-shadow(0 0 2px rgba(184,102,90,0.4))}
-.narrative-bullets li:nth-child(1) .bullet-icon{color:var(--gold-deep);background:rgba(201,165,124,0.16);animation-delay:0s}
-.narrative-bullets li:nth-child(2) .bullet-icon{color:var(--terracotta);background:rgba(184,102,90,0.14);animation-delay:0.5s}
-.narrative-bullets li:nth-child(3) .bullet-icon{color:var(--terracotta-deep);background:rgba(156,84,74,0.14);animation-delay:1s}
-@keyframes bulletNeon{
-  0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0),inset 0 0 0 0 rgba(184,102,90,0);transform:translateY(-50%) scale(1)}
-  50%{box-shadow:0 0 0 8px rgba(184,102,90,0),0 0 14px rgba(184,102,90,0.55),inset 0 0 8px rgba(184,102,90,0.18);transform:translateY(-50%) scale(1.08)}
-}
-.narrative-bullets li:nth-child(1) .bullet-icon{animation-name:bulletNeonGold}
-@keyframes bulletNeonGold{
-  0%,100%{box-shadow:0 0 0 0 rgba(201,165,124,0);transform:translateY(-50%) scale(1)}
-  50%{box-shadow:0 0 14px rgba(201,165,124,0.65),inset 0 0 8px rgba(201,165,124,0.22);transform:translateY(-50%) scale(1.08)}
+.narrative-bullets li .bullet-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:rgba(184,102,90,0.10);border-radius:50%;color:var(--terracotta)}
+.narrative-bullets li .bullet-icon svg{width:18px;height:18px;transform-origin:center;animation:bulletIconScale 2.8s ease-in-out infinite}
+.narrative-bullets li:nth-child(1) .bullet-icon{color:var(--gold-deep);background:rgba(201,165,124,0.16)}
+.narrative-bullets li:nth-child(2) .bullet-icon{color:var(--terracotta);background:rgba(184,102,90,0.14)}
+.narrative-bullets li:nth-child(3) .bullet-icon{color:var(--terracotta-deep);background:rgba(156,84,74,0.14)}
+.narrative-bullets li:nth-child(1) .bullet-icon svg{animation-delay:0s}
+.narrative-bullets li:nth-child(2) .bullet-icon svg{animation-delay:0.5s}
+.narrative-bullets li:nth-child(3) .bullet-icon svg{animation-delay:1s}
+@keyframes bulletIconScale{
+  0%,100%{transform:scale(1);opacity:0.9}
+  50%{transform:scale(1.12);opacity:1}
 }
 
 /* CUSTOM RADAR (SVG) — replaces Chart.js radar with proper pulse animation */
@@ -322,11 +320,15 @@ body.has-timer{padding-top:48px}
 .stim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 auto 24px;max-width:680px}
 .stim-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px 14px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;position:relative}
 .stim-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(184,102,90,0.12);border-color:rgba(184,102,90,0.4)}
-.stim-card .stim-icon{width:38px;height:38px;border-radius:50%;background:rgba(184,102,90,0.10);color:var(--terracotta);display:flex;align-items:center;justify-content:center;animation:bulletNeon 2.6s ease-in-out infinite}
-.stim-card:nth-child(1) .stim-icon{animation-delay:0s}
-.stim-card:nth-child(2) .stim-icon{animation-delay:0.4s}
-.stim-card:nth-child(3) .stim-icon{animation-delay:0.8s}
-.stim-card .stim-icon svg{width:20px;height:20px}
+.stim-card .stim-icon{width:38px;height:38px;border-radius:50%;background:rgba(184,102,90,0.10);color:var(--terracotta);display:flex;align-items:center;justify-content:center}
+.stim-card .stim-icon svg{width:20px;height:20px;transform-origin:center;animation:stimIconScale 3s ease-in-out infinite}
+.stim-card:nth-child(1) .stim-icon svg{animation-delay:0s}
+.stim-card:nth-child(2) .stim-icon svg{animation-delay:0.4s}
+.stim-card:nth-child(3) .stim-icon svg{animation-delay:0.8s}
+@keyframes stimIconScale{
+  0%,100%{transform:scale(0.95);opacity:0.85}
+  50%{transform:scale(1.06);opacity:1}
+}
 .stim-card .stim-label{font-family:'Lato',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--espresso);line-height:1.3}
 .stim-card .stim-arrow{font-size:14px;color:var(--gold);line-height:1}
 .stim-card .stim-result{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--terracotta-deep);font-weight:500}
@@ -369,10 +371,20 @@ body.has-timer{padding-top:48px}
 .bundle-card.popular .bundle-includes li .neuro-icon{color:var(--terracotta-deep)}
 .bundle-includes li strong{display:block;font-size:12px;font-weight:700;color:var(--espresso);letter-spacing:0.01em}
 .bundle-includes li span{display:block;font-size:11.5px;color:var(--espresso-soft);font-style:italic;line-height:1.35}
-.bundle-cta{display:block;width:100%;padding:16px;background:var(--espresso);color:var(--cream);text-align:center;font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:var(--r);text-decoration:none;transition:all 0.3s ease;cursor:pointer;margin-top:auto}
-.bundle-cta:hover{background:var(--terracotta-deep);transform:translateY(-1px)}
-.bundle-card.popular .bundle-cta{background:var(--terracotta)}
+.bundle-cta{--cta-bg-base:var(--espresso);--cta-bg-tint:#3a2820;display:block;width:100%;padding:16px;background:var(--cta-bg-base);color:var(--cream);text-align:center;font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:var(--r);text-decoration:none;cursor:pointer;margin-top:auto;transform-origin:center;animation:ctaBreath 3.4s ease-in-out infinite;will-change:transform,background}
+.bundle-cta:hover{animation:none;background:var(--terracotta-deep);transform:translateY(-1px);transition:all 0.3s ease}
+.bundle-card.popular .bundle-cta{--cta-bg-base:var(--terracotta);--cta-bg-tint:var(--terracotta-deep)}
 .bundle-card.popular .bundle-cta:hover{background:var(--terracotta-deep)}
+.bundle-cta .cta-arrow,.modal-cta .cta-arrow{display:inline-block;animation:ctaArrowNudge 1.8s ease-in-out infinite;will-change:transform}
+.bundle-cta:hover .cta-arrow,.modal-cta:hover .cta-arrow{animation:none;transform:translateX(4px);transition:transform 0.3s ease}
+@keyframes ctaBreath{
+  0%,100%{transform:scale(1);background:var(--cta-bg-base)}
+  50%{transform:scale(1.022);background:var(--cta-bg-tint)}
+}
+@keyframes ctaArrowNudge{
+  0%,100%{transform:translateX(0)}
+  50%{transform:translateX(4px)}
+}
 .bundle-cta-sub{text-align:center;font-size:12px;color:var(--gold-deep);font-style:italic;margin-top:10px;letter-spacing:0.08em;display:flex;align-items:center;justify-content:center;gap:8px}
 .bundle-cta-sub::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 1.6s ease-in-out infinite}
 @media (max-width:720px){
@@ -432,8 +444,8 @@ body.has-timer{padding-top:48px}
 .modal-benefits li{padding:10px 14px 10px 40px;font-size:14px;color:var(--espresso-soft);position:relative;background:var(--cream-deep);border-radius:var(--r);margin-bottom:6px;line-height:1.45}
 .modal-benefits li::before{content:"\2713";position:absolute;left:14px;top:10px;color:var(--gold-deep);font-weight:700;font-size:14px}
 .modal-benefits li strong{color:var(--espresso);font-weight:700}
-.modal-cta{display:block;width:100%;padding:18px;background:var(--terracotta);color:var(--cream);text-align:center;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:var(--r);text-decoration:none;transition:all 0.3s ease;margin-bottom:8px}
-.modal-cta:hover{background:var(--terracotta-deep);transform:translateY(-1px);box-shadow:var(--shadow-card)}
+.modal-cta{--cta-bg-base:var(--terracotta);--cta-bg-tint:var(--terracotta-deep);display:block;width:100%;padding:18px;background:var(--cta-bg-base);color:var(--cream);text-align:center;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:var(--r);text-decoration:none;margin-bottom:8px;transform-origin:center;animation:ctaBreath 3.4s ease-in-out infinite;will-change:transform,background}
+.modal-cta:hover{animation:none;background:var(--terracotta-deep);transform:translateY(-1px);box-shadow:var(--shadow-card);transition:all 0.3s ease}
 .modal-close-btn{display:block;margin:6px auto 0;padding:8px 14px;background:transparent;color:var(--whisper);font-size:12px;letter-spacing:0.08em;font-weight:700;text-transform:uppercase;border:none;cursor:pointer;transition:color 0.25s ease}
 .modal-close-btn:hover{color:var(--espresso-soft)}
 
@@ -501,7 +513,7 @@ body.has-timer{padding-top:48px}
         <li><strong>Free discreet shipping</strong> across Australia, 3-7 business days.</li>
         <li><strong>52,000+ women</strong> already on this map. 4.8/5 across 3,853 verified reviews.</li>
       </ul>
-      <a class="modal-cta" id="modalCtaFinal" href="#" target="_blank" rel="noopener">Claim my offer now &rarr;</a>
+      <a class="modal-cta" id="modalCtaFinal" href="#" target="_blank" rel="noopener">Claim my offer now <span class="cta-arrow">&rarr;</span></a>
       <button class="modal-close-btn" id="modalCloseBtn">Not yet</button>
     </div>
   </div>
@@ -719,7 +731,7 @@ body.has-timer{padding-top:48px}
             </div>
             <div class="bundle-save-wrap"><span class="bundle-save" id="bundleSave1"></span></div>
             <ul class="bundle-includes" id="bundleIncludes1"></ul>
-            <a class="bundle-cta" id="bundleCta1" href="javascript:void(0)" data-href="#" rel="noopener">Check availability &rarr;</a>
+            <a class="bundle-cta" id="bundleCta1" href="javascript:void(0)" data-href="#" rel="noopener">Check availability <span class="cta-arrow">&rarr;</span></a>
           </div>
           <!-- Card 2 -->
           <div class="bundle-card" id="bundleCard2">
@@ -743,7 +755,7 @@ body.has-timer{padding-top:48px}
             </div>
             <div class="bundle-save-wrap"><span class="bundle-save" id="bundleSave2"></span></div>
             <ul class="bundle-includes" id="bundleIncludes2"></ul>
-            <a class="bundle-cta" id="bundleCta2" href="javascript:void(0)" data-href="#" rel="noopener">Check availability &rarr;</a>
+            <a class="bundle-cta" id="bundleCta2" href="javascript:void(0)" data-href="#" rel="noopener">Check availability <span class="cta-arrow">&rarr;</span></a>
           </div>
         </div>
       </div>
