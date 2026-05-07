@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Effects tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1280px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:36px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:680px;margin:0 auto;line-height:1.6}
+
+.section-block{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:28px;margin-bottom:32px}
+.section-head{margin-bottom:20px;text-align:center}
+.section-head h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;color:var(--terracotta-deep);margin-bottom:6px}
+.section-head p{font-size:13px;color:var(--espresso-soft)}
+.variants{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:900px){ .variants{grid-template-columns:1fr 1fr} }
+@media (max-width:600px){ .variants{grid-template-columns:1fr} }
+.variant{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-card);padding:18px;display:flex;flex-direction:column;gap:14px;min-height:200px}
+.v-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.v-tag{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.20em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.v-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;font-style:italic;color:var(--espresso);line-height:1.2;margin-bottom:4px}
+.v-desc{font-size:11.5px;color:var(--espresso-soft);line-height:1.45}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid #C9B89C;color:var(--whisper);padding:5px 10px;font-size:9px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+/* ====== BULLET ICON DEMO BLOCKS ====== */
+.bullet-demo{background:var(--cream-deep);border-radius:var(--r);padding:14px 16px 14px 64px;border-left:2px solid var(--gold);position:relative;line-height:1.5;font-size:13px;color:var(--espresso-soft)}
+.bullet-demo strong{display:block;color:var(--espresso);font-size:11px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;margin-bottom:4px}
+.bullet-demo .bicon{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(184,102,90,0.10);color:var(--terracotta);display:flex;align-items:center;justify-content:center}
+.bullet-demo .bicon svg{width:16px;height:16px}
+.bullet-demo .bicon::before{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none}
+
+/* === Bullet variants === */
+/* B1 — Inner glow (contained) */
+.b1 .bicon{box-shadow:inset 0 0 0 0 rgba(184,102,90,0);animation:b1Glow 3.2s ease-in-out infinite}
+@keyframes b1Glow{0%,100%{box-shadow:inset 0 0 6px rgba(184,102,90,0.10);background:rgba(184,102,90,0.10)}50%{box-shadow:inset 0 0 14px rgba(184,102,90,0.45);background:rgba(184,102,90,0.22)}}
+
+/* B2 — Color breath */
+.b2 .bicon{transition:color 0.6s ease, background 0.6s ease;animation:b2Color 4s ease-in-out infinite}
+@keyframes b2Color{0%,100%{color:var(--gold-deep);background:rgba(201,165,124,0.16)}50%{color:var(--terracotta-deep);background:rgba(184,102,90,0.20)}}
+
+/* B3 — SVG icon scale (contained, no halo) */
+.b3 .bicon svg{transform-origin:center;animation:b3Scale 2.8s ease-in-out infinite}
+@keyframes b3Scale{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.12);opacity:1}}
+
+/* B4 — Rotating ring inside circle */
+.b4 .bicon{overflow:hidden}
+.b4 .bicon::before{border:1.5px dashed rgba(184,102,90,0.4);animation:b4Rotate 6s linear infinite}
+@keyframes b4Rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* B5 — Static (no animation, hover only) */
+.b5 .bicon{transition:transform 0.3s ease, background 0.3s ease}
+.b5:hover .bicon{transform:translateY(-50%) scale(1.1);background:rgba(184,102,90,0.22)}
+
+/* B6 — Soft fade in/out (no scaling) */
+.b6 .bicon{animation:b6Fade 3.4s ease-in-out infinite}
+@keyframes b6Fade{0%,100%{opacity:0.65}50%{opacity:1}}
+
+/* ====== STIM CARD DEMO BLOCKS ====== */
+.stim-demo{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px 14px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;overflow:hidden}
+.stim-demo .sicon{width:42px;height:42px;border-radius:50%;background:rgba(184,102,90,0.10);color:var(--terracotta);display:flex;align-items:center;justify-content:center;position:relative}
+.stim-demo .sicon svg{width:22px;height:22px;position:relative;z-index:2}
+.stim-demo .slabel{font-family:'Lato',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--espresso);line-height:1.3}
+.stim-demo .sresult{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--terracotta-deep);font-weight:500}
+
+/* === Stim variants (all CONTAINED, no overflow) === */
+/* S1 — Inner pulsing dot inside icon */
+.s1 .sicon::before{content:"";position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle, rgba(184,102,90,0.5) 0%, rgba(184,102,90,0) 70%);animation:s1Inner 2.6s ease-in-out infinite}
+@keyframes s1Inner{0%,100%{opacity:0;transform:scale(0.6)}50%{opacity:1;transform:scale(1)}}
+
+/* S2 — Smooth colour breath (no scale, no overflow) */
+.s2 .sicon{animation:s2Breath 3.6s ease-in-out infinite}
+@keyframes s2Breath{0%,100%{background:rgba(184,102,90,0.10);color:var(--gold-deep)}50%{background:rgba(184,102,90,0.28);color:var(--terracotta-deep)}}
+
+/* S3 — Inner ring orbit */
+.s3 .sicon{overflow:hidden;position:relative}
+.s3 .sicon::after{content:"";position:absolute;inset:3px;border-radius:50%;border:1.2px solid rgba(184,102,90,0.5);border-top-color:transparent;animation:s3Spin 3.5s linear infinite}
+@keyframes s3Spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* S4 — SVG path animation (depending on icon) */
+.s4 .sicon svg{animation:s4Soft 3s ease-in-out infinite}
+@keyframes s4Soft{0%,100%{transform:scale(0.95);opacity:0.85}50%{transform:scale(1.06);opacity:1}}
+
+/* S5 — Subtle inner gradient sweep */
+.s5 .sicon{position:relative;overflow:hidden}
+.s5 .sicon::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,253,248,0.5) 50%,transparent 65%);transform:translateX(-100%);animation:s5Sweep 3.2s ease-in-out infinite}
+@keyframes s5Sweep{0%{transform:translateX(-100%)}55%,100%{transform:translateX(100%)}}
+
+/* S6 — Static + hover lift only */
+.s6 .sicon{transition:background 0.3s ease, transform 0.3s ease}
+.s6:hover .sicon{background:rgba(184,102,90,0.22);transform:scale(1.06)}
+
+/* ====== CTA BUTTON DEMO BLOCKS ====== */
+.cta-demo{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 26px;background:var(--espresso);color:var(--cream);border:none;font-family:'Lato',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:transform 0.25s ease;text-decoration:none;position:relative;overflow:hidden;margin:8px auto;align-self:center}
+.cta-demo .arrow{font-size:14px;line-height:1}
+.cta-demo:hover{transform:translateY(-1px)}
+
+/* === CTA variants === */
+/* C1 — Inner shimmer sweep */
+.c1::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,253,248,0.45) 50%,transparent 70%);transform:translateX(-100%);animation:c1Shine 3s ease-in-out infinite}
+@keyframes c1Shine{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
+
+/* C2 — Soft scale breath (very subtle) */
+.c2{animation:c2Breath 3s ease-in-out infinite}
+@keyframes c2Breath{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+
+/* C3 — Animated underline glow */
+.c3{padding-bottom:18px}
+.c3::after{content:"";position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:30%;height:1.5px;background:rgba(255,253,248,0.85);border-radius:99px;animation:c3Pulse 2s ease-in-out infinite}
+@keyframes c3Pulse{0%,100%{width:20%;opacity:0.5}50%{width:55%;opacity:1}}
+
+/* C4 — Border accent ring */
+.c4{outline:none}
+.c4::after{content:"";position:absolute;inset:-4px;border-radius:calc(var(--r) + 4px);border:1.5px solid rgba(184,102,90,0.5);animation:c4Ring 3s ease-in-out infinite}
+@keyframes c4Ring{0%,100%{opacity:0.3;transform:scale(0.97)}50%{opacity:1;transform:scale(1)}}
+
+/* C5 — Arrow nudge */
+.c5 .arrow{animation:c5Arrow 1.6s ease-in-out infinite}
+@keyframes c5Arrow{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+
+/* C6 — Background tint breath (terracotta hint) */
+.c6{animation:c6Tint 3.4s ease-in-out infinite}
+@keyframes c6Tint{0%,100%{background:var(--espresso)}50%{background:#3a2820}}
+
+.notes{margin:10px auto 0;max-width:780px;padding:18px 24px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:13.5px;color:var(--espresso-soft);line-height:1.65}
+.notes strong{color:var(--terracotta-deep)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Effects tests — bullet icons, stim cards, CTAs</h1>
+    <p>3 zones to validate. Pick one variant per zone — I&apos;ll wire them into <code>index.html</code>. All animations stay <strong>contained inside their boundaries</strong> (no halo escaping the box, no jitter).</p>
+  </div>
+
+  <!-- ====== ZONE 1 — BULLET ICONS ====== -->
+  <div class="section-block">
+    <div class="section-head">
+      <h2>Zone 1 · Bullet icons (What you have / What's missing / Why)</h2>
+      <p>The 3 round icons in the verdict narrative.</p>
+    </div>
+    <div class="variants">
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">B1</div><div class="v-title">Inner glow</div><div class="v-desc">Soft glow pulses INSIDE the circle. Nothing escapes the boundary.</div></div>
+          <button class="pick-btn" onclick="pick(this,'B1')">Keep</button>
+        </div>
+        <div class="bullet-demo b1">
+          <span class="bicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <strong>What you have</strong>Full-body diffuse response. Half the women never name it.
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">B2</div><div class="v-title">Color breath</div><div class="v-desc">Background colour breathes between gold and terracotta. No movement.</div></div>
+          <button class="pick-btn" onclick="pick(this,'B2')">Keep</button>
+        </div>
+        <div class="bullet-demo b2">
+          <span class="bicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <strong>What you have</strong>Full-body diffuse response. Half the women never name it.
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">B3</div><div class="v-title">Icon scale</div><div class="v-desc">Only the SVG inside scales 1 → 1.12 → 1. Smooth, contained.</div></div>
+          <button class="pick-btn" onclick="pick(this,'B3')">Keep</button>
+        </div>
+        <div class="bullet-demo b3">
+          <span class="bicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <strong>What you have</strong>Full-body diffuse response. Half the women never name it.
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">B4</div><div class="v-title">Rotating ring</div><div class="v-desc">A dashed ring rotates inside. Like a discreet compass.</div></div>
+          <button class="pick-btn" onclick="pick(this,'B4')">Keep</button>
+        </div>
+        <div class="bullet-demo b4">
+          <span class="bicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <strong>What you have</strong>Full-body diffuse response. Half the women never name it.
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">B5</div><div class="v-title">Static + hover</div><div class="v-desc">No idle animation. Only reacts on hover. Cleanest, no fatigue.</div></div>
+          <button class="pick-btn" onclick="pick(this,'B5')">Keep</button>
+        </div>
+        <div class="bullet-demo b5">
+          <span class="bicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <strong>What you have</strong>Full-body diffuse response. Half the women never name it.
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">B6</div><div class="v-title">Soft fade</div><div class="v-desc">Just opacity 0.65 → 1 → 0.65. The most discreet animation possible.</div></div>
+          <button class="pick-btn" onclick="pick(this,'B6')">Keep</button>
+        </div>
+        <div class="bullet-demo b6">
+          <span class="bicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          <strong>What you have</strong>Full-body diffuse response. Half the women never name it.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====== ZONE 2 — STIM CARDS ====== -->
+  <div class="section-block">
+    <div class="section-head">
+      <h2>Zone 2 · Stim card icons (Surface / Internal / Enveloping)</h2>
+      <p>The 3 cards inside the mechanism block. Animations <strong>strictly contained inside the round icon</strong>.</p>
+    </div>
+    <div class="variants">
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">S1</div><div class="v-title">Inner pulsing dot</div><div class="v-desc">A soft glow appears at the center, fades. Nothing leaves the circle.</div></div>
+          <button class="pick-btn" onclick="pick(this,'S1')">Keep</button>
+        </div>
+        <div class="stim-demo s1">
+          <span class="sicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="8.5" opacity="0.6"/></svg></span>
+          <span class="slabel">Surface pulses</span>
+          <span class="sresult">The Strike</span>
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">S2</div><div class="v-title">Colour breath</div><div class="v-desc">Background tints from gold to terracotta. Zero movement.</div></div>
+          <button class="pick-btn" onclick="pick(this,'S2')">Keep</button>
+        </div>
+        <div class="stim-demo s2">
+          <span class="sicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="8.5" opacity="0.6"/></svg></span>
+          <span class="slabel">Surface pulses</span>
+          <span class="sresult">The Strike</span>
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">S3</div><div class="v-title">Inner ring orbit</div><div class="v-desc">A 3/4 ring rotates inside the circle. Compass-like.</div></div>
+          <button class="pick-btn" onclick="pick(this,'S3')">Keep</button>
+        </div>
+        <div class="stim-demo s3">
+          <span class="sicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="8.5" opacity="0.6"/></svg></span>
+          <span class="slabel">Surface pulses</span>
+          <span class="sresult">The Strike</span>
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">S4</div><div class="v-title">SVG soft scale</div><div class="v-desc">Only the SVG icon scales subtly. Background stays still.</div></div>
+          <button class="pick-btn" onclick="pick(this,'S4')">Keep</button>
+        </div>
+        <div class="stim-demo s4">
+          <span class="sicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="8.5" opacity="0.6"/></svg></span>
+          <span class="slabel">Surface pulses</span>
+          <span class="sresult">The Strike</span>
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">S5</div><div class="v-title">Inner sweep</div><div class="v-desc">A light highlight slides across the icon's interior.</div></div>
+          <button class="pick-btn" onclick="pick(this,'S5')">Keep</button>
+        </div>
+        <div class="stim-demo s5">
+          <span class="sicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="8.5" opacity="0.6"/></svg></span>
+          <span class="slabel">Surface pulses</span>
+          <span class="sresult">The Strike</span>
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">S6</div><div class="v-title">Static + hover</div><div class="v-desc">Static at rest. Only the card lifts on hover. Cleanest.</div></div>
+          <button class="pick-btn" onclick="pick(this,'S6')">Keep</button>
+        </div>
+        <div class="stim-demo s6">
+          <span class="sicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="8.5" opacity="0.6"/></svg></span>
+          <span class="slabel">Surface pulses</span>
+          <span class="sresult">The Strike</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====== ZONE 3 — CTA BUTTONS ====== -->
+  <div class="section-block">
+    <div class="section-head">
+      <h2>Zone 3 · CTA buttons (Check availability / Claim my offer)</h2>
+      <p>The two main action buttons. Effect will apply to both.</p>
+    </div>
+    <div class="variants">
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">C1</div><div class="v-title">Inner shimmer</div><div class="v-desc">A soft highlight glides across the button. Premium / luxury feel.</div></div>
+          <button class="pick-btn" onclick="pick(this,'C1')">Keep</button>
+        </div>
+        <button class="cta-demo c1">Check availability <span class="arrow">→</span></button>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">C2</div><div class="v-title">Soft scale breath</div><div class="v-desc">Whole button breathes 1 → 1.025 → 1. Very subtle, intentional.</div></div>
+          <button class="pick-btn" onclick="pick(this,'C2')">Keep</button>
+        </div>
+        <button class="cta-demo c2">Check availability <span class="arrow">→</span></button>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">C3</div><div class="v-title">Underline pulse</div><div class="v-desc">A small line under the text expands and fades. Discreet "click me" cue.</div></div>
+          <button class="pick-btn" onclick="pick(this,'C3')">Keep</button>
+        </div>
+        <button class="cta-demo c3">Check availability <span class="arrow">→</span></button>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">C4</div><div class="v-title">Border ring</div><div class="v-desc">A terracotta ring sits just outside the button and fades in & out. Refined "ready" signal.</div></div>
+          <button class="pick-btn" onclick="pick(this,'C4')">Keep</button>
+        </div>
+        <button class="cta-demo c4">Check availability <span class="arrow">→</span></button>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">C5</div><div class="v-title">Arrow nudge</div><div class="v-desc">Only the arrow moves slightly right and back. Inviting, minimal.</div></div>
+          <button class="pick-btn" onclick="pick(this,'C5')">Keep</button>
+        </div>
+        <button class="cta-demo c5">Check availability <span class="arrow">→</span></button>
+      </div>
+
+      <div class="variant">
+        <div class="v-head">
+          <div><div class="v-tag">C6</div><div class="v-title">Background tint breath</div><div class="v-desc">Background colour shifts subtly. Like the button is breathing.</div></div>
+          <button class="pick-btn" onclick="pick(this,'C6')">Keep</button>
+        </div>
+        <button class="cta-demo c6">Check availability <span class="arrow">→</span></button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="notes">
+    Pick <strong>1 variant in each zone</strong> (e.g. <code>B3 + S1 + C5</code>) and tell me. I&apos;ll integrate them in <code>index.html</code> and redeploy.
+  </div>
+</div>
+
+<script>
+function pick(btn, variant){
+  // Find this card's section and unpick siblings only within the same section
+  const section = btn.closest('.section-block');
+  if(section){
+    section.querySelectorAll('.pick-btn').forEach(b => { b.classList.remove('picked'); b.textContent = 'Keep'; });
+  }
+  btn.classList.add('picked');
+  btn.textContent = '✓ ' + variant;
+}
+</script>
+</body>
+</html>
