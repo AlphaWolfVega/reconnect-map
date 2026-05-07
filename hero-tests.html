@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Hero animation tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1320px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:42px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:680px;margin:0 auto;line-height:1.6}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:720px){ .grid{grid-template-columns:1fr} }
+
+.test-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(45,36,30,0.06);display:flex;flex-direction:column}
+.test-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.test-tag{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.22em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.test-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;font-style:italic;color:var(--espresso);margin-bottom:4px;line-height:1.2}
+.test-desc{font-size:12px;color:var(--espresso-soft);line-height:1.5}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid #C9B89C;color:var(--whisper);padding:5px 11px;font-size:9.5px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+/* Hero stage — replicates real index.html hero look */
+.hero{position:relative;background:var(--cream);border-radius:var(--r-card);padding:38px 22px 48px;text-align:center;overflow:hidden;min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;isolation:isolate}
+.hero-eyebrow{font-family:'Lato',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--terracotta);margin-bottom:18px;display:flex;align-items:center;gap:12px;position:relative;z-index:2}
+.hero-eyebrow::before,.hero-eyebrow::after{content:"";width:24px;height:1px;background:var(--gold)}
+.hero-h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;font-weight:500;color:var(--espresso);line-height:1.25;margin-bottom:14px;max-width:340px;position:relative;z-index:2}
+.hero-h1 em{font-style:normal;color:var(--terracotta);font-weight:600}
+.hero-sub{font-family:'Lato',sans-serif;font-size:14px;color:var(--espresso-soft);line-height:1.55;margin-bottom:14px;max-width:300px;position:relative;z-index:2}
+.hero-meta{font-family:'Cormorant Garamond',serif;font-size:11.5px;font-style:italic;color:var(--whisper);margin-bottom:24px;position:relative;z-index:2}
+.hero-cta{position:relative;z-index:3;display:inline-flex;align-items:center;gap:10px;padding:14px 26px;background:var(--espresso);color:var(--cream);border:none;font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:transform 0.25s ease;text-decoration:none}
+.hero-cta:hover{transform:translateY(-1px)}
+.hero-cta .arrow{font-size:14px;line-height:1}
+.hero-ornament{margin-top:18px;display:flex;align-items:center;gap:10px;position:relative;z-index:2}
+.hero-ornament::before,.hero-ornament::after{content:"";width:30px;height:1px;background:var(--gold)}
+.hero-ornament-dot{width:5px;height:5px;border-radius:50%;background:var(--gold)}
+
+/* ============== Variant 1 — Pulse halo gold (button) ============== */
+.variant-1 .hero-cta{box-shadow:0 0 0 0 rgba(201,165,124,0.7);animation:pulseHalo 2.4s ease-in-out infinite}
+@keyframes pulseHalo{
+  0%{box-shadow:0 0 0 0 rgba(201,165,124,0.7),0 0 0 0 rgba(201,165,124,0.3)}
+  60%{box-shadow:0 0 0 14px rgba(201,165,124,0),0 0 0 24px rgba(201,165,124,0)}
+  100%{box-shadow:0 0 0 0 rgba(201,165,124,0),0 0 0 0 rgba(201,165,124,0)}
+}
+
+/* ============== Variant 2 — Shine sweep (button) ============== */
+.variant-2 .hero-cta{position:relative;overflow:hidden;z-index:3}
+.variant-2 .hero-cta::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,253,248,0.45) 50%,transparent 70%);transform:translateX(-100%);animation:shineSweep 3s ease-in-out infinite}
+@keyframes shineSweep{
+  0%{transform:translateX(-100%)}
+  60%,100%{transform:translateX(100%)}
+}
+
+/* ============== Variant 3 — Ripple ready (button) ============== */
+.variant-3 .hero-cta-wrap{position:relative;display:inline-block;z-index:3}
+.variant-3 .hero-cta-wrap::before,.variant-3 .hero-cta-wrap::after{content:"";position:absolute;inset:-2px;border-radius:calc(var(--r) + 2px);border:1.5px solid var(--terracotta);opacity:0;animation:rippleOut 2.6s ease-out infinite}
+.variant-3 .hero-cta-wrap::after{animation-delay:1.3s}
+@keyframes rippleOut{
+  0%{transform:scale(1);opacity:0.7}
+  100%{transform:scale(1.45);opacity:0}
+}
+
+/* ============== Variant 4 — Soft petals falling ============== */
+.variant-4 .hero{overflow:hidden}
+.petal{position:absolute;top:-30px;width:14px;height:14px;background:radial-gradient(ellipse at 30% 30%, rgba(232,198,180,0.85), rgba(184,102,90,0.5));border-radius:50% 0 50% 0;opacity:0;animation:petalFall 12s linear infinite;z-index:1}
+.petal:nth-child(1){left:8%;animation-duration:14s;animation-delay:0s;width:12px;height:12px}
+.petal:nth-child(2){left:22%;animation-duration:11s;animation-delay:2s;width:16px;height:16px}
+.petal:nth-child(3){left:38%;animation-duration:13s;animation-delay:4s;width:10px;height:10px}
+.petal:nth-child(4){left:55%;animation-duration:15s;animation-delay:1s;width:14px;height:14px}
+.petal:nth-child(5){left:72%;animation-duration:10s;animation-delay:5s;width:12px;height:12px}
+.petal:nth-child(6){left:88%;animation-duration:13s;animation-delay:3s;width:14px;height:14px}
+.petal:nth-child(7){left:15%;animation-duration:16s;animation-delay:7s;width:11px;height:11px}
+.petal:nth-child(8){left:65%;animation-duration:12s;animation-delay:8s;width:13px;height:13px}
+@keyframes petalFall{
+  0%{opacity:0;transform:translateY(0) translateX(0) rotate(0deg)}
+  10%{opacity:0.7}
+  90%{opacity:0.5}
+  100%{opacity:0;transform:translateY(540px) translateX(40px) rotate(360deg)}
+}
+
+/* ============== Variant 5 — Golden particles rising ============== */
+.variant-5 .hero{overflow:hidden}
+.particle-up{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:radial-gradient(circle,rgba(201,165,124,1),rgba(201,165,124,0));opacity:0;animation:particleRise 8s linear infinite;z-index:1;box-shadow:0 0 4px rgba(201,165,124,0.6)}
+.particle-up:nth-child(1){left:10%;animation-duration:9s;animation-delay:0s;width:3px;height:3px}
+.particle-up:nth-child(2){left:25%;animation-duration:11s;animation-delay:2s;width:4px;height:4px}
+.particle-up:nth-child(3){left:40%;animation-duration:8s;animation-delay:4s;width:2px;height:2px}
+.particle-up:nth-child(4){left:55%;animation-duration:10s;animation-delay:1s;width:3px;height:3px}
+.particle-up:nth-child(5){left:70%;animation-duration:12s;animation-delay:6s;width:4px;height:4px}
+.particle-up:nth-child(6){left:85%;animation-duration:9s;animation-delay:3s;width:2px;height:2px}
+.particle-up:nth-child(7){left:18%;animation-duration:13s;animation-delay:5s;width:3px;height:3px}
+.particle-up:nth-child(8){left:62%;animation-duration:10s;animation-delay:7s;width:3px;height:3px}
+.particle-up:nth-child(9){left:78%;animation-duration:11s;animation-delay:8s;width:2px;height:2px}
+.particle-up:nth-child(10){left:35%;animation-duration:12s;animation-delay:9s;width:3px;height:3px}
+@keyframes particleRise{
+  0%{opacity:0;transform:translateY(0) translateX(0)}
+  10%{opacity:0.85}
+  85%{opacity:0.6}
+  100%{opacity:0;transform:translateY(-520px) translateX(15px)}
+}
+
+/* ============== Variant 6 — Constellation stars (twinkling) ============== */
+.variant-6 .hero{overflow:hidden}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:rgba(201,165,124,0.9);box-shadow:0 0 6px rgba(201,165,124,0.7);animation:twinkle 3s ease-in-out infinite}
+.star::before,.star::after{content:"";position:absolute;background:rgba(201,165,124,0.7)}
+.star::before{top:50%;left:-3px;right:-3px;height:1px;transform:translateY(-50%)}
+.star::after{left:50%;top:-3px;bottom:-3px;width:1px;transform:translateX(-50%)}
+.star:nth-child(1){top:8%;left:14%;animation-delay:0s}
+.star:nth-child(2){top:18%;left:78%;animation-delay:0.6s}
+.star:nth-child(3){top:30%;left:6%;animation-delay:1.2s}
+.star:nth-child(4){top:55%;left:88%;animation-delay:0.3s}
+.star:nth-child(5){top:72%;left:18%;animation-delay:1.8s}
+.star:nth-child(6){top:85%;left:75%;animation-delay:0.9s}
+.star:nth-child(7){top:42%;left:92%;animation-delay:1.5s}
+.star:nth-child(8){top:65%;left:48%;animation-delay:2.1s}
+.star:nth-child(9){top:12%;left:50%;animation-delay:0.4s}
+.star:nth-child(10){top:90%;left:38%;animation-delay:2.4s}
+@keyframes twinkle{0%,100%{opacity:0.2;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* ============== Variant 7 — Aurora breathing gradient ============== */
+.variant-7 .hero{position:relative}
+.variant-7 .hero::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(ellipse 60% 40% at 20% 30%, rgba(201,165,124,0.30) 0%, rgba(201,165,124,0) 60%),
+  radial-gradient(ellipse 50% 50% at 80% 20%, rgba(184,102,90,0.18) 0%, rgba(184,102,90,0) 60%),
+  radial-gradient(ellipse 70% 60% at 50% 90%, rgba(232,198,180,0.30) 0%, rgba(232,198,180,0) 60%);
+  background-size:200% 200%;animation:auroraBreathe 11s ease-in-out infinite;z-index:0}
+@keyframes auroraBreathe{
+  0%,100%{background-position:0% 0%, 100% 0%, 50% 100%}
+  50%{background-position:30% 20%, 70% 30%, 60% 70%}
+}
+
+/* ============== Variant 8 — Whispers (floating words) ============== */
+.variant-8 .hero{overflow:hidden}
+.whisper{position:absolute;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:rgba(184,102,90,0.5);letter-spacing:0.04em;opacity:0;animation:whisperIn 9s ease-in-out infinite;pointer-events:none;z-index:1;white-space:nowrap}
+.whisper:nth-child(1){top:14%;left:6%;animation-delay:0s}
+.whisper:nth-child(2){top:24%;right:8%;animation-delay:1.5s}
+.whisper:nth-child(3){top:78%;left:10%;animation-delay:3s}
+.whisper:nth-child(4){top:88%;right:12%;animation-delay:4.5s}
+.whisper:nth-child(5){top:55%;left:5%;animation-delay:6s}
+.whisper:nth-child(6){top:42%;right:6%;animation-delay:7.5s}
+@keyframes whisperIn{
+  0%,100%{opacity:0;transform:translateY(8px)}
+  10%,40%{opacity:0.55;transform:translateY(0)}
+  50%{opacity:0;transform:translateY(-8px)}
+}
+
+/* ============== Variant 9 — Breathing halo + heartbeat waves ============== */
+.variant-9 .hero{position:relative}
+.variant-9 .breath-halo{position:absolute;top:50%;left:50%;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle, rgba(201,165,124,0.30) 0%, rgba(201,165,124,0.08) 50%, rgba(201,165,124,0) 75%);transform:translate(-50%,-50%) scale(0.85);animation:breathScale 5s ease-in-out infinite;z-index:0}
+@keyframes breathScale{0%,100%{transform:translate(-50%,-50%) scale(0.85);opacity:0.7}50%{transform:translate(-50%,-50%) scale(1.15);opacity:1}}
+.variant-9 .heartbeat-ring{position:absolute;top:50%;left:50%;width:160px;height:160px;border-radius:50%;border:1.5px solid rgba(184,102,90,0.5);transform:translate(-50%,-50%) scale(0.5);opacity:0;animation:heartbeatOut 4.2s ease-out infinite;z-index:0}
+.variant-9 .heartbeat-ring.delay-1{animation-delay:1.4s}
+.variant-9 .heartbeat-ring.delay-2{animation-delay:2.8s}
+@keyframes heartbeatOut{
+  0%{transform:translate(-50%,-50%) scale(0.4);opacity:0.8;border-width:1.5px}
+  100%{transform:translate(-50%,-50%) scale(2.6);opacity:0;border-width:0.5px}
+}
+
+.notes{margin:48px auto 0;max-width:780px;padding:24px 28px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:14px;color:var(--espresso-soft);line-height:1.65}
+.notes h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--espresso);margin-bottom:10px;font-weight:500}
+.notes ul{padding-left:20px}
+.notes li{margin-bottom:6px}
+.notes strong{color:var(--terracotta-deep)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Hero — animation tests</h1>
+    <p>9 ways to add subtle motion to the landing screen — from the CTA button itself to ambient effects across the page. Click <strong>Keep this</strong> on the variant you want me to ship into <code>index.html</code>. Multiple picks allowed (e.g. one button effect + one background effect = combo).</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ===== 1 ===== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">1 · Button</div>
+          <div class="test-title">Pulse halo gold</div>
+          <div class="test-desc">A warm gold halo pulses outward from the button. Most "ceremonial / inviting" feel.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'1')">Keep this</button>
+      </div>
+      <div class="hero variant-1">
+        <div class="hero-eyebrow">The Reconnect Map</div>
+        <h1 class="hero-h1">There are <em>5 kinds</em> of pleasure. Most women only ever experience <em>two</em>.</h1>
+        <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+        <p class="hero-meta">A 90-second test. Private. No email required.</p>
+        <button class="hero-cta">Show me where I am <span class="arrow">→</span></button>
+        <div class="hero-ornament"><span class="hero-ornament-dot"></span></div>
+      </div>
+    </div>
+
+    <!-- ===== 2 ===== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">2 · Button</div>
+          <div class="test-title">Shine sweep</div>
+          <div class="test-desc">A subtle highlight slides across the button every 3 seconds. Most "premium / luxury" feel.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'2')">Keep this</button>
+      </div>
+      <div class="hero variant-2">
+        <div class="hero-eyebrow">The Reconnect Map</div>
+        <h1 class="hero-h1">There are <em>5 kinds</em> of pleasure. Most women only ever experience <em>two</em>.</h1>
+        <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+        <p class="hero-meta">A 90-second test. Private. No email required.</p>
+        <button class="hero-cta">Show me where I am <span class="arrow">→</span></button>
+        <div class="hero-ornament"><span class="hero-ornament-dot"></span></div>
+      </div>
+    </div>
+
+    <!-- ===== 3 ===== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">3 · Button</div>
+          <div class="test-title">Ripple ready</div>
+          <div class="test-desc">Concentric terracotta rings emanate from the button, signalling "click me". Most "active / inviting".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'3')">Keep this</button>
+      </div>
+      <div class="hero variant-3">
+        <div class="hero-eyebrow">The Reconnect Map</div>
+        <h1 class="hero-h1">There are <em>5 kinds</em> of pleasure. Most women only ever experience <em>two</em>.</h1>
+        <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+        <p class="hero-meta">A 90-second test. Private. No email required.</p>
+        <span class="hero-cta-wrap"><button class="hero-cta">Show me where I am <span class="arrow">→</span></button></span>
+        <div class="hero-ornament"><span class="hero-ornament-dot"></span></div>
+      </div>
+    </div>
+
+    <!-- ===== 4 ===== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">4 · Background</div>
+          <div class="test-title">Soft petals falling</div>
+          <div class="test-desc">Warm rose-coloured petals drift slowly down behind the text. Most overtly feminine / sensorial.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'4')">Keep this</button>
+      </div>
+      <div class="hero variant-4">
+        <span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span>
+        <span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span>
+        <div class="hero-eyebrow">The Reconnect Map</div>
+        <h1 class="hero-h1">There are <em>5 kinds</em> of pleasure. Most women only ever experience <em>two</em>.</h1>
+        <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+        <p class="hero-meta">A 90-second test. Private. No email required.</p>
+        <button class="hero-cta">Show me where I am <span class="arrow">→</span></button>
+        <div class="hero-ornament"><span class="hero-ornament-dot"></span></div>
+      </div>
+    </div>
+
+    <!-- ===== 5 ===== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">5 · Background</div>
+          <div class="test-title">Golden particles rising</div>
+          <div class="test-desc">Tiny gold sparks rise slowly from the bottom edge. Suggests warmth waking, energy releasing.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'5')">Keep this</button>
+      </div>
+      <div class="hero variant-5">
+        <span class="particle-up"></span><span class="particle-up"></span><span class="particle-up"></span><span class="particle-up"></span><span class="particle-up"></span>
+        <span class="particle-up"></span><span class="particle-up"></span><span class="particle-up"></span><span class="particle-up"></span><span class="particle-up"></span>
+        <div class="hero-eyebrow">The Reconnect Map</div>
+        <h1 class="hero-h1">There are <em>5 kinds</em> of pleasure. Most women only ever experience <em>two</em>.</h1>
+        <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+        <p class="hero-meta">A 90-second test. Private. No email required.</p>
+        <button class="hero-cta">Show me where I am <span class="arrow">→</span></button>
+        <div class="hero-ornament"><span class="hero-ornament-dot"></span></div>
+      </div>
+    </div>
+
+    <!-- ===== 6 ===== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">6 · Background</div>
+          <div class="test-title">Constellation twinkles</div>
+          <div class="test-desc">Tiny stars twinkle in a slow rhythm across the screen. References the in-quiz constellation.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'6')">Keep this</button>
+      </div>
+      <div class="hero variant-6">
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        <span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span><span class="star"></span>
+        <div class="hero-eyebrow">The Reconnect Map</div>
+        <h1 class="hero-h1">There are <em>5 kinds</em> of pleasure. Most women only ever experience <em>two</em>.</h1>
+        <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+        <p class="hero-meta">A 90-second test. Private. No email required.</p>
+        <button class="hero-cta">Show me where I am <span class="arrow">→</span></button>
+        <div class="hero-ornament"><span class="hero-ornament-dot"></span></div>
+      </div>
+    </div>
+
+    <!-- ===== 7 ===== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">7 · Background</div>
+          <div class="test-title">Aurora breathing gradient</div>
+          <div class="test-desc">Three soft warm colour zones slowly drift behind everything. Most "atmospheric / immersive".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'7')">Keep this</button>
+      </div>
+      <div class="hero variant-7">
+        <div class="hero-eyebrow">The Reconnect Map</div>
+        <h1 class="hero-h1">There are <em>5 kinds</em> of pleasure. Most women only ever experience <em>two</em>.</h1>
+        <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+        <p class="hero-meta">A 90-second test. Private. No email required.</p>
+        <button class="hero-cta">Show me where I am <span class="arrow">→</span></button>
+        <div class="hero-ornament"><span class="hero-ornament-dot"></span></div>
+      </div>
+    </div>
+
+    <!-- ===== 8 ===== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">8 · Background</div>
+          <div class="test-title">Whispers (floating words)</div>
+          <div class="test-desc">Italic words appear and fade — <em>breathe, feel, return, know, listen, honest</em>. Most poetic / intimate.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'8')">Keep this</button>
+      </div>
+      <div class="hero variant-8">
+        <span class="whisper">breathe</span>
+        <span class="whisper">feel</span>
+        <span class="whisper">return</span>
+        <span class="whisper">know</span>
+        <span class="whisper">listen</span>
+        <span class="whisper">honest</span>
+        <div class="hero-eyebrow">The Reconnect Map</div>
+        <h1 class="hero-h1">There are <em>5 kinds</em> of pleasure. Most women only ever experience <em>two</em>.</h1>
+        <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+        <p class="hero-meta">A 90-second test. Private. No email required.</p>
+        <button class="hero-cta">Show me where I am <span class="arrow">→</span></button>
+        <div class="hero-ornament"><span class="hero-ornament-dot"></span></div>
+      </div>
+    </div>
+
+    <!-- ===== 9 ===== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">9 · Combined</div>
+          <div class="test-title">Breathing halo + heartbeat</div>
+          <div class="test-desc">A large halo behind the text breathes in and out. Soft heartbeat-like rings ripple outward. Most "embodied / somatic".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'9')">Keep this</button>
+      </div>
+      <div class="hero variant-9">
+        <div class="breath-halo"></div>
+        <div class="heartbeat-ring"></div>
+        <div class="heartbeat-ring delay-1"></div>
+        <div class="heartbeat-ring delay-2"></div>
+        <div class="hero-eyebrow">The Reconnect Map</div>
+        <h1 class="hero-h1">There are <em>5 kinds</em> of pleasure. Most women only ever experience <em>two</em>.</h1>
+        <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+        <p class="hero-meta">A 90-second test. Private. No email required.</p>
+        <button class="hero-cta">Show me where I am <span class="arrow">→</span></button>
+        <div class="hero-ornament"><span class="hero-ornament-dot"></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>How to read these</h3>
+    <ul>
+      <li><strong>Buttons (1-3)</strong> · Effects on the CTA only. Pick one button effect.</li>
+      <li><strong>Background (4-8)</strong> · Effects across the whole hero. Pick one background.</li>
+      <li><strong>Combined (9)</strong> · A self-contained ambient setup.</li>
+      <li>You can <strong>combine button effects with backgrounds</strong> — e.g. <code>1 + 4</code> = pulse halo gold + petals. Tell me which combo.</li>
+      <li>If none feels right, describe the vibe you want and I&apos;ll iterate.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function pick(btn, variant){
+  if(btn.classList.contains('picked')){
+    btn.classList.remove('picked');
+    btn.textContent = 'Keep this';
+    return;
+  }
+  btn.classList.add('picked');
+  btn.textContent = '✓ Picked ' + variant;
+}
+</script>
+</body>
+</html>
