@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Constellation Interaction Tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2; --line-strong:#C9B89C;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1280px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:48px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:640px;margin:0 auto}
+.page-head .controls{margin-top:18px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.global-btn{background:var(--espresso);color:var(--cream);border:none;padding:12px 22px;font-family:'Lato',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all 0.25s ease}
+.global-btn:hover{background:var(--terracotta-deep);transform:translateY(-1px)}
+.global-btn.ghost{background:transparent;color:var(--espresso);border:1px solid var(--line-strong)}
+.global-btn.ghost:hover{background:var(--cream-deep);transform:translateY(-1px)}
+.q-counter{font-size:13px;color:var(--whisper);font-style:italic;margin-top:8px}
+
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+@media (max-width:880px){ .grid{grid-template-columns:1fr} }
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:30px 24px 26px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(45,36,30,0.06);position:relative;overflow:hidden}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.card-tag{font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.22em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;font-style:italic;color:var(--espresso);margin-bottom:6px;line-height:1.2}
+.card-desc{font-size:13px;color:var(--espresso-soft);line-height:1.5;margin-bottom:6px}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid var(--line-strong);color:var(--whisper);padding:6px 12px;font-size:10px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+.viz-wrap{background:var(--cream);border-radius:var(--r);padding:18px 12px 12px;margin:14px 0;display:flex;flex-direction:column;align-items:center}
+.viz-eyebrow{font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.22em;font-weight:700;color:var(--terracotta-deep);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.viz-eyebrow::before,.viz-eyebrow::after{content:"";width:24px;height:1px;background:var(--gold)}
+.viz-svg{width:100%;max-width:340px;height:auto;display:block}
+.viz-caption{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--espresso-soft);margin-top:8px;min-height:18px}
+.viz-caption.strong{color:var(--terracotta-deep)}
+.scores-debug{font-family:'Lato',sans-serif;font-size:10px;color:var(--whisper);margin-top:8px;letter-spacing:0.04em}
+.scores-debug span{display:inline-block;margin:0 4px}
+.scores-debug strong{color:var(--terracotta-deep)}
+
+.actions{display:flex;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.action-btn{background:var(--cream-deep);border:1px solid var(--line);color:var(--espresso);padding:9px 16px;font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all 0.25s ease}
+.action-btn:hover{background:var(--cream);border-color:var(--terracotta);color:var(--terracotta)}
+.action-btn.primary{background:var(--terracotta);border-color:var(--terracotta);color:#fff}
+.action-btn.primary:hover{background:var(--terracotta-deep);border-color:var(--terracotta-deep);color:#fff}
+
+/* shared SVG basics */
+.dot{transition:r 0.7s cubic-bezier(0.34,1.56,0.64,1), fill 0.6s ease, opacity 0.6s ease;transform-origin:center;transform-box:fill-box}
+.dot.flash{animation:flashDot 0.9s cubic-bezier(0.22,0.61,0.36,1)}
+@keyframes flashDot{0%{transform:scale(1);filter:none}40%{transform:scale(1.7);filter:drop-shadow(0 0 8px rgba(184,102,90,0.95))}100%{transform:scale(1);filter:none}}
+.lbl{font-family:'Lato',sans-serif;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;fill:var(--whisper);transition:fill 0.5s ease}
+.lbl.active{fill:var(--terracotta-deep)}
+
+/* === Variant A — Radar Sweep === */
+.sweep-cone{transform-origin:170px 130px;animation:sweepRotate 4s linear infinite}
+@keyframes sweepRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.sweep-trail{transition:opacity 1.2s ease}
+
+/* === Variant B — Pulse Waves === */
+.wave{stroke:rgba(184,102,90,0.55);stroke-width:1.5;fill:none;opacity:0;transform-origin:170px 130px}
+.wave.go{animation:waveOut 2.4s ease-out forwards}
+@keyframes waveOut{
+  0%{r:0;opacity:0.85;stroke-width:2}
+  100%{r:160;opacity:0;stroke-width:0.5}
+}
+
+/* === Variant C — Particle Streams === */
+.particle{fill:var(--gold);opacity:0}
+
+/* === Variant D — Liquid Fill === */
+.fill-bg{fill:rgba(45,36,30,0.06);stroke:var(--line-strong);stroke-width:1}
+.fill-clip rect{transition:y 0.9s cubic-bezier(0.22,0.61,0.36,1), height 0.9s cubic-bezier(0.22,0.61,0.36,1)}
+.fill-liquid{transition:opacity 0.5s ease}
+
+/* === Variant E — Progressive web === */
+.web-line{stroke:var(--terracotta);stroke-width:1.4;fill:none;opacity:0;transition:opacity 0.9s ease}
+.web-line.draw{opacity:0.7;animation:drawLine 1.1s cubic-bezier(0.22,0.61,0.36,1) both}
+@keyframes drawLine{from{stroke-dashoffset:240}to{stroke-dashoffset:0}}
+
+/* === Variant F — Heartbeat === */
+.ekg-path{stroke:var(--terracotta);stroke-width:1.6;fill:none;stroke-dasharray:1000;stroke-dashoffset:1000;transition:stroke-dashoffset 1.4s ease, opacity 0.8s ease;filter:drop-shadow(0 0 4px rgba(184,102,90,0.4))}
+.ekg-pulse{transform-origin:center;transform-box:fill-box;animation:pulseBeat 1.6s ease-in-out infinite}
+@keyframes pulseBeat{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.15);opacity:1}}
+
+/* center dot shared */
+.center-pulse{animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:0.7}50%{opacity:1}}
+
+.notes{margin:48px auto 0;max-width:780px;padding:24px 28px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:14px;color:var(--espresso-soft);line-height:1.65}
+.notes h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--espresso);margin-bottom:10px;font-weight:500}
+.notes ul{padding-left:20px}
+.notes li{margin-bottom:6px}
+.notes strong{color:var(--terracotta-deep)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Constellation — interaction tests</h1>
+    <p>6 visual variants for the moment between two questions. Click <strong>Answer +1</strong> on each one to see how it evolves. Pick the version you want to keep.</p>
+    <div class="controls">
+      <button class="global-btn" onclick="advanceAll()">Answer +1 (all)</button>
+      <button class="global-btn ghost" onclick="resetAll()">Reset all</button>
+    </div>
+    <div class="q-counter" id="globalCounter">0 / 8 answered</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============== A. RADAR SWEEP ============== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">Variant A</div>
+          <div class="card-title">Radar sweep</div>
+          <div class="card-desc">A continuous beam rotates around the centre. When the sweep passes a dot whose score has risen, that dot lights up and pulses.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'A')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow"><span id="eyebrowA">Your map is forming</span></div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgA">
+          <defs>
+            <radialGradient id="centerGradA" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(201,165,124,0.55)"/>
+              <stop offset="60%" stop-color="rgba(201,165,124,0.18)"/>
+              <stop offset="100%" stop-color="rgba(201,165,124,0)"/>
+            </radialGradient>
+            <linearGradient id="sweepGradA" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" stop-color="rgba(184,102,90,0)"/>
+              <stop offset="80%" stop-color="rgba(184,102,90,0.35)"/>
+              <stop offset="100%" stop-color="rgba(184,102,90,0)"/>
+            </linearGradient>
+          </defs>
+          <!-- background concentric circles -->
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <!-- centre halo -->
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradA)" id="haloA"/>
+          <!-- the sweep cone -->
+          <g class="sweep-cone">
+            <path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradA)" opacity="0.8"/>
+          </g>
+          <!-- centre dot -->
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <!-- 5 dots at pentagon vertices -->
+          <circle class="dot" id="A-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="A-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="A-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="A-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="A-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="A-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="A-l-slowburn" x="298" y="108" text-anchor="middle">Slow Burn</text>
+          <text class="lbl" id="A-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="A-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="A-l-echo" x="42" y="108" text-anchor="middle">The Echo</text>
+        </svg>
+        <div class="viz-caption" id="captionA">Answer to begin</div>
+        <div class="scores-debug" id="debugA"></div>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('A')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('A')">Reset</button>
+      </div>
+    </div>
+
+    <!-- ============== B. PULSE WAVES ============== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">Variant B</div>
+          <div class="card-title">Pulse waves</div>
+          <div class="card-desc">Each answer fires a concentric wave from the centre. As it sweeps over a dot it lights it up. The strongest dots stay brighter after the wave passes.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'B')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow"><span id="eyebrowB">Your map is forming</span></div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgB">
+          <defs>
+            <radialGradient id="centerGradB" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(201,165,124,0.55)"/>
+              <stop offset="60%" stop-color="rgba(201,165,124,0.18)"/>
+              <stop offset="100%" stop-color="rgba(201,165,124,0)"/>
+            </radialGradient>
+          </defs>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradB)" id="haloB"/>
+          <g id="wavesB"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="B-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="B-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="B-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="B-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="B-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="B-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="B-l-slowburn" x="298" y="108" text-anchor="middle">Slow Burn</text>
+          <text class="lbl" id="B-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="B-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="B-l-echo" x="42" y="108" text-anchor="middle">The Echo</text>
+        </svg>
+        <div class="viz-caption" id="captionB">Answer to begin</div>
+        <div class="scores-debug" id="debugB"></div>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('B')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('B')">Reset</button>
+      </div>
+    </div>
+
+    <!-- ============== C. PARTICLE STREAMS ============== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">Variant C</div>
+          <div class="card-title">Particle streams</div>
+          <div class="card-desc">Each answer launches gold particles from the centre that flow toward the dots whose score just rose. Dots grow as particles arrive.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'C')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow"><span id="eyebrowC">Your map is forming</span></div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgC">
+          <defs>
+            <radialGradient id="centerGradC" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(201,165,124,0.55)"/>
+              <stop offset="60%" stop-color="rgba(201,165,124,0.18)"/>
+              <stop offset="100%" stop-color="rgba(201,165,124,0)"/>
+            </radialGradient>
+          </defs>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradC)" id="haloC"/>
+          <g id="particlesC"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="C-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="C-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="C-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="C-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="C-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="C-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="C-l-slowburn" x="298" y="108" text-anchor="middle">Slow Burn</text>
+          <text class="lbl" id="C-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="C-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="C-l-echo" x="42" y="108" text-anchor="middle">The Echo</text>
+        </svg>
+        <div class="viz-caption" id="captionC">Answer to begin</div>
+        <div class="scores-debug" id="debugC"></div>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('C')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('C')">Reset</button>
+      </div>
+    </div>
+
+    <!-- ============== D. LIQUID FILL ============== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">Variant D</div>
+          <div class="card-title">Liquid fill</div>
+          <div class="card-desc">The 5 dots become small vases. Each one fills up like a liquid as its score rises. Tactile and tangible.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'D')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow"><span id="eyebrowD">Your map is forming</span></div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgD">
+          <defs>
+            <linearGradient id="liquidD" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="rgba(184,102,90,0.85)"/>
+              <stop offset="100%" stop-color="rgba(156,84,74,0.95)"/>
+            </linearGradient>
+            <clipPath id="clipStrikeD"><circle cx="170" cy="38" r="14"/></clipPath>
+            <clipPath id="clipSlowburnD"><circle cx="268" cy="108" r="14"/></clipPath>
+            <clipPath id="clipTideD"><circle cx="235" cy="218" r="14"/></clipPath>
+            <clipPath id="clipHumD"><circle cx="105" cy="218" r="14"/></clipPath>
+            <clipPath id="clipEchoD"><circle cx="72" cy="108" r="14"/></clipPath>
+            <radialGradient id="centerGradD" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(201,165,124,0.5)"/>
+              <stop offset="100%" stop-color="rgba(201,165,124,0)"/>
+            </radialGradient>
+          </defs>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradD)" id="haloD"/>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <!-- Each "vase" = empty circle bg + filled rect clipped -->
+          <g>
+            <circle class="fill-bg" cx="170" cy="38" r="14"/>
+            <rect class="fill-liquid" x="156" y="52" width="28" height="0" fill="url(#liquidD)" clip-path="url(#clipStrikeD)" id="liq-D-strike"/>
+            <circle cx="170" cy="38" r="14" fill="none" stroke="var(--terracotta)" stroke-width="1.2" opacity="0.5" id="ring-D-strike"/>
+          </g>
+          <g>
+            <circle class="fill-bg" cx="268" cy="108" r="14"/>
+            <rect class="fill-liquid" x="254" y="122" width="28" height="0" fill="url(#liquidD)" clip-path="url(#clipSlowburnD)" id="liq-D-slowburn"/>
+            <circle cx="268" cy="108" r="14" fill="none" stroke="var(--terracotta)" stroke-width="1.2" opacity="0.5" id="ring-D-slowburn"/>
+          </g>
+          <g>
+            <circle class="fill-bg" cx="235" cy="218" r="14"/>
+            <rect class="fill-liquid" x="221" y="232" width="28" height="0" fill="url(#liquidD)" clip-path="url(#clipTideD)" id="liq-D-tide"/>
+            <circle cx="235" cy="218" r="14" fill="none" stroke="var(--terracotta)" stroke-width="1.2" opacity="0.5" id="ring-D-tide"/>
+          </g>
+          <g>
+            <circle class="fill-bg" cx="105" cy="218" r="14"/>
+            <rect class="fill-liquid" x="91" y="232" width="28" height="0" fill="url(#liquidD)" clip-path="url(#clipHumD)" id="liq-D-hum"/>
+            <circle cx="105" cy="218" r="14" fill="none" stroke="var(--terracotta)" stroke-width="1.2" opacity="0.5" id="ring-D-hum"/>
+          </g>
+          <g>
+            <circle class="fill-bg" cx="72" cy="108" r="14"/>
+            <rect class="fill-liquid" x="58" y="122" width="28" height="0" fill="url(#liquidD)" clip-path="url(#clipEchoD)" id="liq-D-echo"/>
+            <circle cx="72" cy="108" r="14" fill="none" stroke="var(--terracotta)" stroke-width="1.2" opacity="0.5" id="ring-D-echo"/>
+          </g>
+          <text class="lbl" id="D-l-strike" x="170" y="14" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="D-l-slowburn" x="298" y="108" text-anchor="middle">Slow Burn</text>
+          <text class="lbl" id="D-l-tide" x="248" y="246" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="D-l-hum" x="92" y="246" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="D-l-echo" x="42" y="108" text-anchor="middle">The Echo</text>
+        </svg>
+        <div class="viz-caption" id="captionD">Answer to begin</div>
+        <div class="scores-debug" id="debugD"></div>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('D')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('D')">Reset</button>
+      </div>
+    </div>
+
+    <!-- ============== E. PROGRESSIVE WEB ============== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">Variant E</div>
+          <div class="card-title">Progressive web</div>
+          <div class="card-desc">No fixed pentagon. Lines draw between active dots progressively, building a unique web shaped by the user's answers. Most "diagnostic feel".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'E')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow"><span id="eyebrowE">Your map is forming</span></div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgE">
+          <defs>
+            <radialGradient id="centerGradE" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(201,165,124,0.55)"/>
+              <stop offset="60%" stop-color="rgba(201,165,124,0.18)"/>
+              <stop offset="100%" stop-color="rgba(201,165,124,0)"/>
+            </radialGradient>
+          </defs>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradE)" id="haloE"/>
+          <g id="webLinesE"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="E-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="E-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="E-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="E-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="E-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="E-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="E-l-slowburn" x="298" y="108" text-anchor="middle">Slow Burn</text>
+          <text class="lbl" id="E-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="E-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="E-l-echo" x="42" y="108" text-anchor="middle">The Echo</text>
+        </svg>
+        <div class="viz-caption" id="captionE">Answer to begin</div>
+        <div class="scores-debug" id="debugE"></div>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('E')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('E')">Reset</button>
+      </div>
+    </div>
+
+    <!-- ============== F. HEARTBEAT ============== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">Variant F</div>
+          <div class="card-title">Heartbeat path</div>
+          <div class="card-desc">A live curve threads through the active dots, like a soft EKG. The line redraws and the dots throb. Most embodied / somatic feel.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'F')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow"><span id="eyebrowF">Your map is forming</span></div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgF">
+          <defs>
+            <radialGradient id="centerGradF" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(201,165,124,0.55)"/>
+              <stop offset="60%" stop-color="rgba(201,165,124,0.18)"/>
+              <stop offset="100%" stop-color="rgba(201,165,124,0)"/>
+            </radialGradient>
+          </defs>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradF)" id="haloF"/>
+          <path class="ekg-path" id="ekgPathF" d="M 0 130"/>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="F-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="F-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="F-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="F-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="F-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="F-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="F-l-slowburn" x="298" y="108" text-anchor="middle">Slow Burn</text>
+          <text class="lbl" id="F-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="F-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="F-l-echo" x="42" y="108" text-anchor="middle">The Echo</text>
+        </svg>
+        <div class="viz-caption" id="captionF">Answer to begin</div>
+        <div class="scores-debug" id="debugF"></div>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('F')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('F')">Reset</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>How to read these</h3>
+    <ul>
+      <li><strong>A — Radar sweep</strong> · technical / clinical (closer to a body scan)</li>
+      <li><strong>B — Pulse waves</strong> · ceremonial / meditative (each answer feels like a breath)</li>
+      <li><strong>C — Particle streams</strong> · magical / sensory (gold flowing toward the body parts that just spoke)</li>
+      <li><strong>D — Liquid fill</strong> · tactile / unmistakable progress (you SEE the level rising)</li>
+      <li><strong>E — Progressive web</strong> · diagnostic / cartographic (the map is built, not pre-drawn)</li>
+      <li><strong>F — Heartbeat path</strong> · somatic / intimate (the body responds, line by line)</li>
+    </ul>
+    <p style="margin-top:14px">Hit <strong>Answer +1</strong> 8 times on the variant you like best — that simulates a full quiz pass. Then hit "Keep this" on your favourite. I&apos;ll wire it into <code>index.html</code>.</p>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Shared scoring engine — same for all variants
+   ============================================================ */
+const KINDS = ['strike','slowburn','tide','hum','echo'];
+const TOTAL_QUESTIONS = 8;
+// Pre-baked answer sequence — each row adds points to specific kinds.
+// Simulates a "Slow Burn dominant + Hum secondary" profile gradually emerging.
+const ANSWER_DELTAS = [
+  {strike:0.4, slowburn:1.4, tide:0.2, hum:0.6, echo:0.0},
+  {strike:0.0, slowburn:1.6, tide:0.0, hum:0.8, echo:0.0},
+  {strike:0.2, slowburn:0.6, tide:0.2, hum:1.4, echo:0.4},
+  {strike:0.0, slowburn:1.2, tide:0.4, hum:0.4, echo:0.6},
+  {strike:0.0, slowburn:0.8, tide:0.0, hum:1.6, echo:0.2},
+  {strike:0.0, slowburn:1.0, tide:0.2, hum:0.6, echo:0.8},
+  {strike:0.4, slowburn:1.4, tide:0.0, hum:1.0, echo:0.0},
+  {strike:0.2, slowburn:0.8, tide:0.2, hum:0.6, echo:0.6}
+];
+
+/* ============================================================
+   Per-variant state
+   ============================================================ */
+const STATE = {};
+['A','B','C','D','E','F'].forEach(v => {
+  STATE[v] = {step:0, scores:{strike:0, slowburn:0, tide:0, hum:0, echo:0}, prevScores:{strike:0, slowburn:0, tide:0, hum:0, echo:0}};
+});
+
+const VERTICES = {
+  strike:{x:170, y:38},
+  slowburn:{x:268, y:108},
+  tide:{x:235, y:218},
+  hum:{x:105, y:218},
+  echo:{x:72, y:108}
+};
+const LABELS = {strike:'The Strike', slowburn:'Slow Burn', tide:'The Tide', hum:'The Hum', echo:'The Echo'};
+
+function copyScores(s){ return {strike:s.strike, slowburn:s.slowburn, tide:s.tide, hum:s.hum, echo:s.echo}; }
+
+function advanceAll(){ ['A','B','C','D','E','F'].forEach(v => advance(v, true)); }
+function resetAll(){ ['A','B','C','D','E','F'].forEach(v => resetOne(v, true)); document.getElementById('globalCounter').textContent = '0 / '+TOTAL_QUESTIONS+' answered'; }
+
+function advance(variant, silent){
+  const st = STATE[variant];
+  if(st.step >= TOTAL_QUESTIONS) return;
+  st.prevScores = copyScores(st.scores);
+  const d = ANSWER_DELTAS[st.step];
+  KINDS.forEach(k => { st.scores[k] = Math.min(10, st.scores[k] + (d[k] || 0)); });
+  st.step += 1;
+  RENDER[variant](st);
+  if(!silent) updateGlobalCounter();
+}
+
+function resetOne(variant, silent){
+  const st = STATE[variant];
+  st.step = 0;
+  st.prevScores = {strike:0, slowburn:0, tide:0, hum:0, echo:0};
+  st.scores = {strike:0, slowburn:0, tide:0, hum:0, echo:0};
+  RENDER[variant](st);
+  if(!silent) updateGlobalCounter();
+}
+
+function updateGlobalCounter(){
+  // Use max step among all variants
+  const maxStep = Math.max.apply(null, ['A','B','C','D','E','F'].map(v => STATE[v].step));
+  document.getElementById('globalCounter').textContent = maxStep + ' / ' + TOTAL_QUESTIONS + ' answered';
+}
+
+function pick(btn, variant){
+  document.querySelectorAll('.pick-btn').forEach(b => b.classList.remove('picked'));
+  btn.classList.add('picked');
+  btn.textContent = '✓ Picked';
+  // also update other buttons that may have been picked
+  setTimeout(() => {
+    document.querySelectorAll('.pick-btn:not(.picked)').forEach(b => b.textContent = 'Keep this');
+  }, 400);
+}
+
+/* ============================================================
+   Common helpers — eyebrow text + caption + dot updates
+   ============================================================ */
+function updateEyebrowAndCaption(variant, st){
+  const illuminated = KINDS.filter(k => st.scores[k] >= 4.5).length;
+  const eb = document.getElementById('eyebrow' + variant);
+  const cap = document.getElementById('caption' + variant);
+  if(eb){
+    if(st.step === 0) eb.textContent = 'Your map is forming';
+    else if(illuminated <= 1) eb.textContent = 'Your map is forming';
+    else if(illuminated <= 3) eb.textContent = 'Your map is taking shape';
+    else eb.textContent = 'Your map is almost complete';
+  }
+  if(cap){
+    if(st.step === 0){ cap.textContent = 'Answer to begin'; cap.classList.remove('strong'); }
+    else {
+      const word = illuminated === 1 ? 'kind' : 'kinds';
+      cap.textContent = illuminated + ' of 5 ' + word + ' emerging';
+      if(illuminated >= 2) cap.classList.add('strong'); else cap.classList.remove('strong');
+    }
+  }
+  // Debug
+  const dbg = document.getElementById('debug' + variant);
+  if(dbg){
+    dbg.innerHTML = KINDS.map(k => '<span>' + LABELS[k].slice(0,3).toUpperCase() + ' <strong>' + st.scores[k].toFixed(1) + '</strong></span>').join('');
+  }
+}
+
+function updateDots(variant, st){
+  KINDS.forEach(k => {
+    const dot = document.getElementById(variant + '-' + k);
+    const lbl = document.getElementById(variant + '-l-' + k);
+    if(!dot) return;
+    const score = st.scores[k];
+    const intensity = Math.min(1, score / 9);
+    dot.setAttribute('r', (2 + intensity * 8).toString());
+    dot.style.opacity = (0.35 + intensity * 0.65).toString();
+    dot.setAttribute('fill', 'rgba(184,102,90,' + (0.25 + intensity * 0.75) + ')');
+    if(score >= 4.5){ if(lbl) lbl.classList.add('active'); }
+    else { if(lbl) lbl.classList.remove('active'); }
+    // flash on meaningful delta
+    if(Math.abs(score - st.prevScores[k]) >= 0.6){
+      dot.classList.remove('flash');
+      void dot.getBoundingClientRect();
+      dot.classList.add('flash');
+    }
+  });
+}
+
+function updateHalo(variant, st){
+  const halo = document.getElementById('halo' + variant);
+  if(!halo) return;
+  const intensity = Math.min(1, st.step / 7);
+  halo.setAttribute('r', (12 + intensity * 100).toString());
+  halo.style.opacity = (0.25 + intensity * 0.65).toString();
+}
+
+/* ============================================================
+   RENDER per variant
+   ============================================================ */
+const RENDER = {};
+
+/* === A. Radar sweep === */
+RENDER.A = function(st){
+  updateEyebrowAndCaption('A', st);
+  updateDots('A', st);
+  updateHalo('A', st);
+  // No extra action needed - sweep is continuously rotating via CSS
+};
+
+/* === B. Pulse waves === */
+RENDER.B = function(st){
+  updateEyebrowAndCaption('B', st);
+  updateDots('B', st);
+  updateHalo('B', st);
+  // Spawn a wave on each advance
+  if(st.step > 0){
+    const g = document.getElementById('wavesB');
+    const wave = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    wave.setAttribute('cx','170');
+    wave.setAttribute('cy','130');
+    wave.setAttribute('r','0');
+    wave.setAttribute('class','wave go');
+    g.appendChild(wave);
+    setTimeout(() => wave.remove(), 2500);
+  }
+};
+
+/* === C. Particle streams === */
+RENDER.C = function(st){
+  updateEyebrowAndCaption('C', st);
+  updateDots('C', st);
+  updateHalo('C', st);
+  if(st.step === 0) return;
+  // Find which kind moved the most this step
+  const deltas = KINDS.map(k => ({k, d:st.scores[k] - st.prevScores[k]})).filter(o => o.d > 0).sort((a,b) => b.d-a.d);
+  const targets = deltas.slice(0,2);
+  targets.forEach(t => spawnParticles('C', t.k, Math.ceil(t.d * 4)));
+};
+
+function spawnParticles(variant, kind, count){
+  const svg = document.getElementById('svg' + variant);
+  const g = document.getElementById('particles' + variant);
+  if(!g) return;
+  const target = VERTICES[kind];
+  for(let i=0; i<count; i++){
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    p.setAttribute('cx','170');
+    p.setAttribute('cy','130');
+    p.setAttribute('r', (1 + Math.random()*1.5).toFixed(1));
+    p.setAttribute('class','particle');
+    g.appendChild(p);
+    const delay = i * 80 + Math.random()*60;
+    const duration = 900 + Math.random()*200;
+    // Animate
+    p.animate(
+      [
+        {cx:170, cy:130, opacity:0, offset:0},
+        {cx:170, cy:130, opacity:0.85, offset:0.1},
+        {cx:target.x, cy:target.y, opacity:1, offset:0.85},
+        {cx:target.x, cy:target.y, opacity:0, offset:1}
+      ],
+      {duration:duration, delay:delay, easing:'cubic-bezier(0.4, 0, 0.2, 1)', fill:'forwards'}
+    );
+    setTimeout(() => p.remove(), delay + duration + 100);
+  }
+}
+
+/* === D. Liquid fill === */
+RENDER.D = function(st){
+  // Don't update dots traditionally - we update the liquid rect
+  KINDS.forEach(k => {
+    const liq = document.getElementById('liq-D-' + k);
+    const ring = document.getElementById('ring-D-' + k);
+    const lbl = document.getElementById('D-l-' + k);
+    const v = VERTICES[k];
+    const score = st.scores[k];
+    const fillRatio = Math.min(1, score / 9);
+    const fillHeight = fillRatio * 28; // diameter
+    const newY = v.y + 14 - fillHeight;
+    if(liq){
+      liq.setAttribute('y', newY.toString());
+      liq.setAttribute('height', fillHeight.toString());
+    }
+    if(ring){
+      ring.setAttribute('stroke-width', (1.2 + fillRatio * 1.5).toString());
+      ring.setAttribute('opacity', (0.5 + fillRatio * 0.5).toString());
+    }
+    if(score >= 4.5){ if(lbl) lbl.classList.add('active'); }
+    else { if(lbl) lbl.classList.remove('active'); }
+  });
+  updateEyebrowAndCaption('D', st);
+  updateHalo('D', st);
+};
+
+/* === E. Progressive web === */
+RENDER.E = function(st){
+  updateEyebrowAndCaption('E', st);
+  updateDots('E', st);
+  updateHalo('E', st);
+  // Find active kinds
+  const active = KINDS.filter(k => st.scores[k] >= 3);
+  // Draw lines: from centre → each active vertex; AND between consecutive active dots (sorted by score)
+  const g = document.getElementById('webLinesE');
+  // Track existing lines to avoid duplicate animation; we redraw fully each step for simplicity
+  g.innerHTML = '';
+  // Centre to each active dot
+  active.forEach(k => {
+    const v = VERTICES[k];
+    const intensity = Math.min(1, st.scores[k] / 9);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1','170'); line.setAttribute('y1','130');
+    line.setAttribute('x2', v.x.toString()); line.setAttribute('y2', v.y.toString());
+    line.setAttribute('stroke', 'rgba(184,102,90,' + (0.25 + intensity * 0.5) + ')');
+    line.setAttribute('stroke-width', (0.8 + intensity * 1.2).toString());
+    line.setAttribute('class','web-line');
+    line.setAttribute('stroke-dasharray','240');
+    line.setAttribute('stroke-dashoffset','240');
+    g.appendChild(line);
+    // Animate
+    setTimeout(() => {
+      line.style.opacity = '0.85';
+      line.style.transition = 'stroke-dashoffset 1s cubic-bezier(0.22,0.61,0.36,1)';
+      line.setAttribute('stroke-dashoffset','0');
+    }, 30);
+  });
+  // Between active dots — pairwise (forms a polygon-ish shape)
+  if(active.length >= 2){
+    for(let i=0; i<active.length; i++){
+      for(let j=i+1; j<active.length; j++){
+        const a = VERTICES[active[i]];
+        const b = VERTICES[active[j]];
+        const intensity = (Math.min(st.scores[active[i]], st.scores[active[j]]) / 9);
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', a.x.toString()); line.setAttribute('y1', a.y.toString());
+        line.setAttribute('x2', b.x.toString()); line.setAttribute('y2', b.y.toString());
+        line.setAttribute('stroke','rgba(201,165,124,' + (0.2 + intensity * 0.4) + ')');
+        line.setAttribute('stroke-width','1');
+        line.setAttribute('class','web-line');
+        g.appendChild(line);
+        setTimeout(() => { line.style.opacity = '0.7'; }, 80);
+      }
+    }
+  }
+};
+
+/* === F. Heartbeat === */
+RENDER.F = function(st){
+  updateEyebrowAndCaption('F', st);
+  updateDots('F', st);
+  updateHalo('F', st);
+  // Build a path that snakes through the active dots in order
+  const active = KINDS.filter(k => st.scores[k] >= 2.5).sort((a,b) => st.scores[b] - st.scores[a]);
+  if(active.length === 0) return;
+  // Path: start left, weave to each vertex with mid-point bumps, end right
+  let d = 'M 0 130';
+  // Build sequence: enter from left, snake through actives sorted by angle for smoother visual
+  const sorted = active.slice().sort((a,b) => {
+    const va = VERTICES[a], vb = VERTICES[b];
+    return Math.atan2(va.y - 130, va.x - 170) - Math.atan2(vb.y - 130, vb.x - 170);
+  });
+  const points = [{x:0,y:130}, ...sorted.map(k => VERTICES[k]), {x:340,y:130}];
+  for(let i=1; i<points.length; i++){
+    const prev = points[i-1];
+    const cur = points[i];
+    // small bump before each beat
+    const midX = (prev.x + cur.x)/2;
+    const midY = (prev.y + cur.y)/2 - 6;
+    d += ' Q ' + midX.toFixed(1) + ' ' + midY.toFixed(1) + ' ' + cur.x + ' ' + cur.y;
+  }
+  const path = document.getElementById('ekgPathF');
+  path.setAttribute('d', d);
+  path.setAttribute('stroke-dasharray','1000');
+  path.setAttribute('stroke-dashoffset','1000');
+  // Force reflow
+  void path.getBoundingClientRect();
+  path.style.transition = 'stroke-dashoffset 1.4s ease';
+  path.setAttribute('stroke-dashoffset','0');
+};
+
+/* ============================================================
+   Initial render
+   ============================================================ */
+['A','B','C','D','E','F'].forEach(v => RENDER[v](STATE[v]));
+</script>
+</body>
+</html>

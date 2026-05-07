@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Reconnect Map — Content Brief v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F4ECDC; --cream-deep:#EBE0CB; --sand:#E5D9C3;
+  --espresso:#2D241E; --espresso-soft:#4A3D33;
+  --terracotta:#B8665A; --terracotta-deep:#9C4D42;
+  --aubergine:#5A3F4A;
+  --gold:#C9A57C; --gold-deep:#A88858;
+  --whisper:rgba(45,36,30,0.55);
+  --line:rgba(45,36,30,0.12); --line-strong:rgba(45,36,30,0.22);
+  --shadow:0 1px 3px rgba(45,36,30,0.06),0 8px 24px rgba(45,36,30,0.05);
+  --r:6px;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--cream);color:var(--espresso);font-family:'Lato',-apple-system,BlinkMacSystemFont,sans-serif;font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+body{min-height:100vh}
+
+/* HEADER */
+.brief-header{background:var(--espresso);color:var(--cream);padding:28px 32px;position:sticky;top:0;z-index:30;border-bottom:1px solid var(--line)}
+.brief-header-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.brief-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold)}
+.brief-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:26px;font-weight:500;margin:4px 0 0}
+.brief-meta{font-size:12px;color:rgba(244,236,220,0.65);font-style:italic;text-align:right}
+.brief-status{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700}
+.brief-status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+/* LAYOUT */
+.brief-wrap{max-width:1280px;margin:0 auto;padding:32px;display:grid;grid-template-columns:240px 1fr;gap:48px}
+@media(max-width:900px){.brief-wrap{grid-template-columns:1fr;padding:24px;gap:24px}}
+
+/* TOC */
+.toc{position:sticky;top:120px;align-self:start;font-size:14px}
+.toc-title{font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.20em;text-transform:uppercase;font-weight:700;color:var(--whisper);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.toc ol{list-style:none;padding:0;margin:0;counter-reset:toc}
+.toc li{counter-increment:toc;margin-bottom:9px;line-height:1.4}
+.toc li::before{content:counter(toc,decimal-leading-zero) ".";color:var(--gold-deep);font-weight:700;font-size:11px;letter-spacing:0.08em;margin-right:8px}
+.toc a{color:var(--espresso-soft);text-decoration:none;transition:color 0.2s ease}
+.toc a:hover{color:var(--terracotta)}
+@media(max-width:900px){.toc{position:static;background:var(--cream-deep);padding:20px 22px;border-radius:var(--r);margin-bottom:0}}
+
+/* CONTENT */
+.brief-content{max-width:780px}
+.brief-content section{margin-bottom:64px;padding-top:12px}
+.brief-content section:target{scroll-margin-top:120px}
+.section-num{font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.section-num::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 100%)}
+
+h1.section-h{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:36px;line-height:1.2;margin:0 0 24px;color:var(--espresso);letter-spacing:-0.005em}
+h1.section-h em{color:var(--terracotta);font-style:italic}
+h2{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:24px;line-height:1.3;margin:34px 0 14px;color:var(--espresso);font-style:italic}
+h3{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:19px;margin:24px 0 10px;color:var(--espresso)}
+h4{font-family:'Lato',sans-serif;font-weight:700;font-size:13px;letter-spacing:0.10em;text-transform:uppercase;color:var(--terracotta-deep);margin:20px 0 10px}
+
+p{margin:0 0 14px}
+strong{color:var(--espresso);font-weight:700}
+em{font-style:italic;color:var(--espresso)}
+
+ul,ol{padding-left:22px;margin:0 0 16px}
+li{margin-bottom:6px}
+
+/* CALLOUT */
+.callout{background:var(--cream-deep);border-left:3px solid var(--gold);padding:16px 22px;margin:18px 0;border-radius:0 var(--r) var(--r) 0;font-size:15px}
+.callout-strong{background:linear-gradient(135deg,rgba(201,165,124,0.12) 0%,rgba(184,102,90,0.08) 100%);border-left-color:var(--terracotta);padding:18px 24px}
+.callout-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;line-height:1.5;color:var(--espresso);font-weight:500}
+
+/* STATEMENT (validated taglines etc) */
+.statement{font-family:'Cormorant Garamond',serif;font-size:21px;font-style:italic;color:var(--terracotta-deep);line-height:1.4;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);padding:18px 0;margin:18px 0;text-align:center}
+
+/* TABLES */
+.table-wrap{overflow-x:auto;margin:14px 0 22px;border-radius:var(--r);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:11px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--espresso);font-weight:700;background:var(--cream-deep);border-bottom:1px solid var(--line-strong)}
+tr:last-child td{border-bottom:none}
+tr:nth-child(even) td{background:rgba(229,217,195,0.30)}
+td strong{display:block;color:var(--terracotta-deep);font-size:13px;letter-spacing:0.04em;margin-bottom:2px}
+
+/* CODE / TREE */
+pre{background:var(--cream-deep);border-radius:var(--r);padding:18px 22px;overflow-x:auto;font-family:'JetBrains Mono','SF Mono',monospace;font-size:13px;line-height:1.5;color:var(--espresso-soft);border:1px solid var(--line);margin:14px 0 22px}
+code{font-family:'JetBrains Mono',monospace;font-size:0.92em;background:rgba(45,36,30,0.06);padding:2px 6px;border-radius:3px;color:var(--terracotta-deep)}
+pre code{background:none;padding:0;color:inherit}
+
+/* PATH / PROFILE CARDS */
+.card{background:var(--cream-deep);border:1px solid var(--line);border-left:3px solid var(--terracotta);border-radius:0 var(--r) var(--r) 0;padding:22px 26px;margin:18px 0}
+.card-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.card-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;font-weight:600;color:var(--espresso);margin:0}
+.card-tag{font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold-deep);background:rgba(201,165,124,0.18);padding:4px 10px;border-radius:99px}
+.card .question{margin-top:14px}
+.q-prompt{font-weight:700;color:var(--espresso);margin-bottom:4px}
+.q-helper{font-size:13px;color:var(--whisper);font-style:italic;margin-bottom:8px}
+.q-options{list-style:none;padding-left:0;margin:0}
+.q-options li{padding:5px 0 5px 16px;position:relative;font-size:14px;color:var(--espresso-soft)}
+.q-options li::before{content:"○";position:absolute;left:0;color:var(--gold);font-size:14px}
+
+/* PROFILE NARRATIVE BOX */
+.profile-box{background:var(--cream);border:1px solid var(--gold);border-radius:var(--r);padding:24px 28px;margin:22px 0;box-shadow:var(--shadow)}
+.profile-box-head{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;font-weight:600;color:var(--terracotta-deep);margin:0 0 14px}
+.profile-lead{font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.5;font-style:italic;border-left:3px solid var(--terracotta);padding:4px 0 4px 18px;margin-bottom:14px}
+.profile-body{font-size:15px;line-height:1.65;margin-bottom:14px}
+.profile-bullets{list-style:none;padding-left:0;margin:0}
+.profile-bullets li{padding:10px 14px;margin-bottom:8px;background:var(--cream-deep);border-radius:var(--r);border-left:2px solid var(--gold);font-size:14px;line-height:1.5}
+.profile-bullets li strong{display:block;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--terracotta-deep);margin-bottom:2px}
+
+/* BUNDLE BOX */
+.bundle-box{background:var(--cream);border:1.5px solid var(--gold);border-radius:var(--r);padding:24px 28px;margin:18px 0;box-shadow:var(--shadow);position:relative}
+.bundle-box.popular{border-color:var(--terracotta)}
+.bundle-popular-badge{position:absolute;top:-1px;right:24px;background:var(--terracotta);color:var(--cream);padding:5px 12px 6px;font-size:10px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;border-radius:0 0 var(--r) var(--r)}
+.bundle-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:24px;color:var(--espresso);margin:0 0 6px}
+.bundle-prices{display:flex;align-items:baseline;gap:14px;margin:8px 0 14px;flex-wrap:wrap}
+.bundle-strike{font-size:15px;color:var(--whisper);text-decoration:line-through}
+.bundle-price{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:30px;color:var(--terracotta)}
+.bundle-save{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-deep);background:rgba(201,165,124,0.20);padding:4px 10px;border-radius:99px}
+.bundle-includes{list-style:none;padding-left:0;margin:0}
+.bundle-includes li{padding:7px 0;border-top:1px solid var(--line);font-size:14px;color:var(--espresso-soft)}
+.bundle-includes li:first-child{border-top:none;padding-top:0}
+
+/* SOFT EXIT */
+.exit-box{background:linear-gradient(135deg,rgba(90,63,74,0.05) 0%,rgba(90,63,74,0.02) 100%);border:1px solid var(--aubergine);border-radius:var(--r);padding:22px 26px;margin:18px 0}
+.exit-head{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;font-weight:600;color:var(--aubergine);margin:0 0 8px}
+.exit-trigger{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--aubergine);background:rgba(90,63,74,0.10);padding:3px 10px;border-radius:99px;display:inline-block;margin-bottom:10px}
+
+/* TESTIMONIALS */
+.testimonial{background:var(--cream-deep);border-left:3px solid var(--gold);padding:18px 22px;margin:14px 0;border-radius:0 var(--r) var(--r) 0}
+.testimonial-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;line-height:1.5;color:var(--espresso);margin-bottom:8px}
+.testimonial-quote::before{content:"\201C";font-size:32px;color:var(--gold);line-height:0;vertical-align:-0.4em;margin-right:3px}
+.testimonial-author{font-size:13px;color:var(--whisper)}
+.testimonial-author strong{color:var(--espresso-soft);font-style:normal}
+.testimonial-tag{font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--terracotta);margin-bottom:8px}
+
+/* AUDIT LIST */
+.audit-list{list-style:none;padding:0;counter-reset:audit}
+.audit-list li{counter-increment:audit;background:var(--cream-deep);border-radius:var(--r);padding:16px 20px 16px 56px;margin-bottom:10px;position:relative;border-left:3px solid var(--gold);font-size:14px;line-height:1.55}
+.audit-list li::before{content:counter(audit,decimal-leading-zero);position:absolute;left:18px;top:18px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:18px;color:var(--terracotta);font-style:italic}
+.audit-list strong{display:block;color:var(--espresso);font-size:14px;margin-bottom:4px}
+
+/* FOOTER */
+.brief-footer{max-width:1280px;margin:48px auto 0;padding:32px;border-top:1px solid var(--line);font-size:13px;color:var(--whisper);font-style:italic;text-align:center}
+
+@media print{
+  .brief-header{position:static}
+  .toc{display:none}
+  .brief-wrap{grid-template-columns:1fr;padding:0}
+  .brief-content{max-width:none}
+  .card,.profile-box,.bundle-box,.exit-box,.testimonial{break-inside:avoid;page-break-inside:avoid}
+  body{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<header class="brief-header">
+  <div class="brief-header-inner">
+    <div>
+      <div class="brief-eyebrow">Reconnect Map</div>
+      <div class="brief-title">Content Brief — Version 2</div>
+    </div>
+    <div class="brief-meta">
+      <div class="brief-status">Awaiting validation + 6-agent audit</div>
+      <div>Build 2026-05-07 · 13 sections · 25 verdicts</div>
+    </div>
+  </div>
+</header>
+
+<div class="brief-wrap">
+
+<aside class="toc" aria-label="Table of contents">
+  <div class="toc-title">Sections</div>
+  <ol>
+    <li><a href="#s0">Strategic frame</a></li>
+    <li><a href="#s1">The 5 kinds of pleasure</a></li>
+    <li><a href="#s2">Architecture</a></li>
+    <li><a href="#s3">Question 1 — Age</a></li>
+    <li><a href="#s4">Path-specific questions</a></li>
+    <li><a href="#s5">Common questions (8)</a></li>
+    <li><a href="#s6">Scoring logic</a></li>
+    <li><a href="#s7">Verdict — modular</a></li>
+    <li><a href="#s8">Soft exit (4 cases)</a></li>
+    <li><a href="#s9">Testimonials</a></li>
+    <li><a href="#s10">Animation decision</a></li>
+    <li><a href="#s11">What this is not</a></li>
+    <li><a href="#s12">Audit targets (6)</a></li>
+  </ol>
+</aside>
+
+<main class="brief-content">
+
+<!-- SECTION 0 -->
+<section id="s0">
+  <div class="section-num">Section 00</div>
+  <h1 class="section-h">Strategic <em>frame</em></h1>
+
+  <h4>Headline (validated)</h4>
+  <div class="statement">There are 5 kinds of pleasure.<br>Most women only ever experience two.<br>Find out which one is yours — and which one is missing.</div>
+
+  <h4>Sub-headline (validated)</h4>
+  <p class="callout-quote">Take 90 seconds. Find out which two are yours — and which three you've never met.</p>
+
+  <h4>CTA (validated)</h4>
+  <p><strong>Show me where I am →</strong></p>
+
+  <h4>Big Idea (Schwartz)</h4>
+  <div class="callout callout-strong">Pleasure is not a binary (have / don't have). It is composed of <strong>5 distinct sensations</strong>. Most women only experience 1–2 because most devices stimulate one zone. Reaching all 5 requires three coordinated stimulations simultaneously — which is exactly what Elysia is built for.</div>
+
+  <h4>Voice</h4>
+  <p>Direct, sensual but classy, peer-to-peer, never clinical, never condescending. Australian English (<em>recognise</em> / <em>behaviour</em> / <em>colour</em>). No moralising. No shaming. The reader leaves the test feeling smarter about herself, not pitched at.</p>
+
+  <h4>Audience</h4>
+  <p>English-speaking adult women, Australia primary market. Ages 18–60+, with conditional flow that adapts the questions and verdict to the decade.</p>
+
+  <h4>Routes to</h4>
+  <p>Pleasuary <strong>Elysia</strong> (V1) — toggleable to POPPY in 1 line of code.</p>
+</section>
+
+<!-- SECTION 1 -->
+<section id="s1">
+  <div class="section-num">Section 01</div>
+  <h1 class="section-h">The <em>5 kinds</em> of pleasure</h1>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>#</th><th>Name</th><th>Sensation</th><th>Mechanism</th><th>Elysia stim that delivers it</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>The Strike</strong></td><td>Focal, immediate, sharp peak</td><td>Direct clitoral stimulation, fast nerve response</td><td>Clitoral pulses</td></tr>
+      <tr><td>2</td><td><strong>The Slow Burn</strong></td><td>Anticipation, rising heat, presence</td><td>Parasympathetic ramp, low-intensity prolonged</td><td>Emerges when 3 stims start gentle + cortisol drops</td></tr>
+      <tr><td>3</td><td><strong>The Tide</strong></td><td>Deep, internal, rolling waves</td><td>G-spot + internal zone response</td><td>Back-and-forth internal motion</td></tr>
+      <tr><td>4</td><td><strong>The Hum</strong></td><td>Full-body, ambient, enveloping</td><td>Diffuse vibration response across nervous system</td><td>Enveloping vibration</td></tr>
+      <tr><td>5</td><td><strong>The Echo</strong></td><td>Post-peak afterglow, integration, surrender</td><td>Integrated nervous-system response after multi-zone stim</td><td>Emerges only when all 3 stims fire simultaneously</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>Mechanism phrase (used in every verdict)</h4>
+  <div class="callout callout-strong">
+    <p class="callout-quote">"Most devices stimulate one zone. One zone gives you 1, maybe 2 of these. Reaching all five requires three coordinated stimulations simultaneously — which is exactly what Elysia is built for."</p>
+  </div>
+</section>
+
+<!-- SECTION 2 -->
+<section id="s2">
+  <div class="section-num">Section 02</div>
+  <h1 class="section-h">Architecture — <em>conditional flow</em></h1>
+
+<pre>Q1 (AGE — always asked first, gates the path)
+        ↓
+   ┌────┼────┬────┬────┐
+   ↓    ↓    ↓    ↓    ↓
+ PATH PATH PATH PATH PATH
+   A    B    C    D    E
+ 18-29 30-39 40-49 50-59 60+
+   │    │    │    │    │
+   └────┴────┴────┴────┘
+        ↓
+  COMMON QUESTIONS (8) — same for all paths,
+  measure the 5 pleasures
+        ↓
+  Result page (verdict assembled from
+  age opener + profile narrative +
+  mechanism + bundle reco OR soft exit)</pre>
+
+  <p><strong>Total per user:</strong> Q1 (age) + 3–4 path-specific questions + 8 common questions = <strong>12–13 questions</strong>.</p>
+</section>
+
+<!-- SECTION 3 -->
+<section id="s3">
+  <div class="section-num">Section 03</div>
+  <h1 class="section-h">Question 1 — <em>Age</em> (always first)</h1>
+
+  <div class="card">
+    <div class="card-head">
+      <h3 class="card-title">Q1 — Age range</h3>
+      <span class="card-tag">Gating question</span>
+    </div>
+    <p class="q-prompt">Before we begin — what's your age range? The map adjusts to where you are.</p>
+    <p class="q-helper">We ask first because the body and the questions both differ across decades. Honest answer is the most useful.</p>
+    <ul class="q-options">
+      <li>18–29</li>
+      <li>30–39</li>
+      <li>40–49</li>
+      <li>50–59</li>
+      <li>60+</li>
+    </ul>
+  </div>
+  <p><em>Routing:</em> Q1 answer assigns Path A/B/C/D/E for the next 3–4 questions, then merges into the 8 common questions.</p>
+</section>
+
+<!-- SECTION 4 -->
+<section id="s4">
+  <div class="section-num">Section 04</div>
+  <h1 class="section-h">Path-specific <em>questions</em> (3–4 per path)</h1>
+
+  <h2>Path A · 18–29 — <em>Exploration / Discovery</em></h2>
+
+  <div class="card">
+    <h3 class="card-title">A1 · Are you in a relationship right now?</h3>
+    <ul class="q-options">
+      <li>Yes, long-term</li>
+      <li>Yes, recent or new</li>
+      <li>No, single</li>
+      <li>It's complicated</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">A2 · Your experience with intimate exploration so far?</h3>
+    <ul class="q-options">
+      <li>I've explored quite a bit and know what I like</li>
+      <li>I've tried a few things, still figuring it out</li>
+      <li>I'm just starting to figure it out</li>
+      <li>Honestly, very little</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">A3 · What's pulling you to take this test?</h3>
+    <ul class="q-options">
+      <li>Discovering what works for me</li>
+      <li>Reconnecting with my body after a stressful period</li>
+      <li>Building confidence in what I want</li>
+      <li>Curiosity — I just want to know</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">A4 · Slider 0–10</h3>
+    <p class="q-prompt">When did you last feel really, truly comfortable in your own body?</p>
+    <p class="q-helper">0 = honestly I'm not sure I ever have / 10 = today</p>
+  </div>
+
+  <h2>Path B · 30–39 — <em>Pressure / Reality</em></h2>
+
+  <div class="card">
+    <h3 class="card-title">B1 · Which describe you right now? (multi-select)</h3>
+    <ul class="q-options">
+      <li>In a long-term relationship or marriage</li>
+      <li>With young children (0–5 years)</li>
+      <li>Recently postpartum (within last 18 months)</li>
+      <li>Single or recently single</li>
+      <li>In a career-intense phase</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">B2 · Stress level the past 6 months</h3>
+    <ul class="q-options">
+      <li>Manageable</li>
+      <li>Heavy but I'm coping</li>
+      <li>Constant — it's been a year or more</li>
+      <li>Honestly, off the scale</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">B3 · Has your relationship to your own body shifted?</h3>
+    <ul class="q-options">
+      <li>I feel disconnected from it</li>
+      <li>I feel like I don't recognise it</li>
+      <li>It's still mine, just different</li>
+      <li>It feels okay</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">B4 · Last time alone, just for yourself?</h3>
+    <ul class="q-options">
+      <li>This week</li>
+      <li>This month</li>
+      <li>I honestly can't remember</li>
+      <li>Don't make me think about it</li>
+    </ul>
+  </div>
+
+  <h2>Path C · 40–49 — <em>Transition / Perimenopause</em></h2>
+
+  <div class="card">
+    <h3 class="card-title">C1 · Where are you with perimenopause?</h3>
+    <p class="q-helper">Periods irregular, hot flushes, sleep disrupted, mood shifts...</p>
+    <ul class="q-options">
+      <li>Not yet — it hasn't started</li>
+      <li>Yes — symptoms started in the past year</li>
+      <li>Yes — I've been in it for a while</li>
+      <li>I'm not sure</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">C2 · Has your drive, desire or sensitivity shifted noticeably?</h3>
+    <ul class="q-options">
+      <li>Yes, and I don't like it</li>
+      <li>Yes, but I'm not sure how to feel about it</li>
+      <li>A little, but it's manageable</li>
+      <li>No, not really</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">C3 · Has anyone said this is "normal at your age"?</h3>
+    <ul class="q-options">
+      <li>Yes, and I half-believe it</li>
+      <li>Yes, and I don't believe it</li>
+      <li>No, I haven't talked about it with anyone</li>
+      <li>I've never thought of it that way</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">C4 · Word that fits the past six months best?</h3>
+    <ul class="q-options">
+      <li>Tired</li><li>Disconnected</li><li>Fine</li><li>Numb</li><li>Okay</li><li>Invisible</li>
+    </ul>
+  </div>
+
+  <h2>Path D · 50–59 — <em>Menopause + Resignation</em></h2>
+
+  <div class="card">
+    <h3 class="card-title">D1 · Where are you with menopause?</h3>
+    <ul class="q-options">
+      <li>Postmenopause (12+ months without a period)</li>
+      <li>Late peri — unpredictable</li>
+      <li>I'm not sure</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">D2 · Has your doctor told you "it's normal at your age"?</h3>
+    <ul class="q-options">
+      <li>Yes, no real solution offered</li>
+      <li>Yes, with HRT or similar prescription</li>
+      <li>No, they took it seriously</li>
+      <li>I haven't asked</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">D3 · How you talk to yourself at 1am?</h3>
+    <ul class="q-options">
+      <li>"I'm managing this phase fine."</li>
+      <li>"My drive is gone and I miss it."</li>
+      <li>"It's just life after 50."</li>
+      <li>"My intimate life feels over."</li>
+      <li>"I want to feel alive in my body again."</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">D4 · Have you tried something already? (multi-select)</h3>
+    <ul class="q-options">
+      <li>HRT</li>
+      <li>Lubricants or moisturisers</li>
+      <li>Talk therapy or counselling</li>
+      <li>An intimate device — it didn't deliver</li>
+      <li>Nothing yet</li>
+      <li>Something else</li>
+    </ul>
+  </div>
+
+  <h2>Path E · 60+ — <em>Repositioning / Late discovery</em></h2>
+
+  <div class="card">
+    <h3 class="card-title">E1 · Your relationship status</h3>
+    <ul class="q-options">
+      <li>Long partner, sexually active still</li>
+      <li>Long partner, intimacy has faded</li>
+      <li>Widowed</li>
+      <li>Divorced or separated</li>
+      <li>Single by choice</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">E2 · How long since you felt fully alive intimately?</h3>
+    <ul class="q-options">
+      <li>Less than a year</li>
+      <li>1–3 years</li>
+      <li>5+ years</li>
+      <li>I honestly can't remember</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">E3 · Your relationship with your body now</h3>
+    <ul class="q-options">
+      <li>I've made peace with where it is</li>
+      <li>I miss who I was</li>
+      <li>I'd like to feel something again, even occasionally</li>
+      <li>I'd rather not think about it</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">E4 · Have you wondered if it's still possible at your age?</h3>
+    <ul class="q-options">
+      <li>Yes, often</li>
+      <li>Sometimes</li>
+      <li>I've decided it isn't</li>
+      <li>I haven't let myself wonder</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 5 -->
+<section id="s5">
+  <div class="section-num">Section 05</div>
+  <h1 class="section-h">Common <em>questions</em> (8 — same for all paths)</h1>
+  <p>These measure the 5 pleasures. Scoring rules in Section 06.</p>
+
+  <div class="card">
+    <h3 class="card-title">Q-COMMON 1 · Where does it land?</h3>
+    <p class="q-prompt">When you imagine a deeply satisfying intimate moment — does it land in one focused spot, or does it spread out across your body?</p>
+    <ul class="q-options">
+      <li>Sharply focused on one spot</li>
+      <li>Mostly focused, with some spread</li>
+      <li>Spread evenly through the body</li>
+      <li>Both — depends on the moment</li>
+      <li>I haven't thought about it that specifically</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Q-COMMON 2 · Speed your body actually wants</h3>
+    <ul class="q-options">
+      <li>Quick and intense — get there</li>
+      <li>Steady and rising — let it build</li>
+      <li>Slow and deep — make it last</li>
+      <li>Variable — depends on the day</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Q-COMMON 3 · External or internal?</h3>
+    <ul class="q-options">
+      <li>External, surface, skin level</li>
+      <li>Internal, deeper</li>
+      <li>Both equally</li>
+      <li>I'm not sure</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Q-COMMON 4 · Where does your mind go?</h3>
+    <ul class="q-options">
+      <li>The peak itself, the moment</li>
+      <li>The build-up, the anticipation</li>
+      <li>The afterglow — how I feel after</li>
+      <li>All of it equally</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Q-COMMON 5 · Vibration — your relationship</h3>
+    <ul class="q-options">
+      <li>Yes, more is better</li>
+      <li>Specific kinds only — I'm picky</li>
+      <li>Not really my thing</li>
+      <li>I haven't experienced real, well-designed vibration</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Q-COMMON 6 · Letting go completely</h3>
+    <p class="q-prompt">How important is being able to let go completely (not having to think about anything during)?</p>
+    <ul class="q-options">
+      <li>Essential — if I can't, nothing happens</li>
+      <li>Helpful but not required</li>
+      <li>I prefer staying present and aware</li>
+      <li>I've never really let go</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Q-COMMON 7 · Sensations you've experienced (multi-select)</h3>
+    <p class="q-helper">Recognised as truly yours.</p>
+    <ul class="q-options">
+      <li>A sharp, focused peak (Strike)</li>
+      <li>A slow rising heat that built and built (Slow Burn)</li>
+      <li>A deep, rolling internal wave (Tide)</li>
+      <li>A full-body hum or tingling (Hum)</li>
+      <li>A long, integrating afterglow (Echo)</li>
+      <li>I'm honestly not sure I've felt any of these clearly</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Q-COMMON 8 · Sensations you've wondered about (multi-select)</h3>
+    <p class="q-helper">Curious about, but haven't had.</p>
+    <ul class="q-options">
+      <li>A sharp, focused peak (Strike)</li>
+      <li>A slow rising heat that built and built (Slow Burn)</li>
+      <li>A deep, rolling internal wave (Tide)</li>
+      <li>A full-body hum or tingling (Hum)</li>
+      <li>A long, integrating afterglow (Echo)</li>
+      <li>None — I'm content with what I have</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 6 -->
+<section id="s6">
+  <div class="section-num">Section 06</div>
+  <h1 class="section-h">Scoring — <em>which 2 are hers, which 3 are missing</em></h1>
+  <p>For each of the 5 pleasures, compute a 0–10 score from her answers.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Pleasure</th><th>Boosted by (+)</th><th>Reduced by (−)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Strike</strong></td><td>Q-C1 "focused", Q-C2 "quick", Q-C3 "external", Q-C4 "the peak", Q-C7 includes Strike</td><td>Q-C1 "spread", Q-C2 "slow"</td></tr>
+      <tr><td><strong>Slow Burn</strong></td><td>Q-C2 "steady"/"slow", Q-C4 "build-up", Q-C6 "essential"/"helpful", Q-C7 includes Slow Burn</td><td>Q-C2 "quick", Path E2 "5+ years"</td></tr>
+      <tr><td><strong>Tide</strong></td><td>Q-C3 "internal", Q-C2 "slow and deep", Q-C7 includes Tide</td><td>Q-C3 "external" only</td></tr>
+      <tr><td><strong>Hum</strong></td><td>Q-C1 "spread", Q-C5 "yes more"/"specific", Q-C7 includes Hum</td><td>Q-C5 "not my thing"</td></tr>
+      <tr><td><strong>Echo</strong></td><td>Q-C4 "afterglow", Q-C6 "essential", Q-C7 includes Echo</td><td>Q-C6 "never let go"</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>"Hers" (the 2 dominant)</h4>
+  <p>Q-C7 multi-select gives the explicit "yes I've had this" baseline. Combined with high scores from Q-C1–Q-C6, identifies the 1–2 dominant pleasures.</p>
+
+  <h4>"Missing" (the 3 gaps)</h4>
+  <p>Q-C8 multi-select gives explicit "wondered about". Combined with low/zero scores, identifies the 3 missing.</p>
+
+  <h4>Edge cases</h4>
+  <ul>
+    <li><strong>"She's already there":</strong> If Q-C7 = 4 or 5 selected → trigger soft exit (8A).</li>
+    <li><strong>"She's at zero":</strong> If Q-C7 = 0 selected AND age path indicates exploration (Path A) → soft exit (8C).</li>
+  </ul>
+</section>
+
+<!-- SECTION 7 -->
+<section id="s7">
+  <div class="section-num">Section 07</div>
+  <h1 class="section-h">Verdict — <em>modular assembly</em></h1>
+
+<pre>[AGE OPENER (1 of 5)]
+    +
+[PROFILE NARRATIVE (1 of 5 — based on dominant pleasure)]
+    +
+[MECHANISM EXPLANATION (universal)]
+    +
+[BUNDLE RECO (Spark or Wildfire)]</pre>
+
+  <p>5 paths × 5 profiles = 25 verdicts assembled at runtime. Plus 4 soft exits (Section 08).</p>
+
+  <h2>7A · Age openers (5)</h2>
+
+  <div class="callout"><strong>Path A (18–29):</strong> "You're at the start. Most women your age are still discovering what their body responds to — and most never get a clear map of it. Yours is below."</div>
+
+  <div class="callout"><strong>Path B (30–39):</strong> "Your decade is the most under-reported in our verbatims. Stress, kids, careers, postpartum — they don't show up on a doctor's chart but they show up everywhere else. Including here."</div>
+
+  <div class="callout"><strong>Path C (40–49):</strong> "Perimenopause shifts the map underneath you, often before anyone names it. The good news: the shift is mappable, and most of what you're feeling is more reversible than you've been told."</div>
+
+  <div class="callout"><strong>Path D (50–59):</strong> "Most women in your decade have been told some version of 'it's just life now'. The map below is the second opinion you didn't get."</div>
+
+  <div class="callout"><strong>Path E (60+):</strong> "Most diagnostics never address your decade honestly. We do. The map below was built knowing exactly who's reading it."</div>
+
+  <h2>7B · Profile narratives (5)</h2>
+
+  <div class="profile-box">
+    <div class="profile-box-head">Profile · The Strike</div>
+    <div class="profile-lead">"You know <strong>The Strike</strong>. The sharp, focused peak. Most women who score this way also know <strong>The Hum</strong> or <strong>The Tide</strong> — but rarely all three."</div>
+    <div class="profile-body">Your map suggests your body responds quickly and clearly to focused stimulation. That's a gift — the response system is intact. What's missing isn't the response. It's the range.</div>
+    <ul class="profile-bullets">
+      <li><strong>What you have</strong>A reliable, focused peak. Most women never get a clear one.</li>
+      <li><strong>What's missing</strong>The slow build-up, the deep internal wave, the integrating afterglow. Most women never know these exist as distinct experiences.</li>
+      <li><strong>Why</strong>Devices that deliver The Strike are everywhere. Devices that deliver all five are not.</li>
+    </ul>
+  </div>
+
+  <div class="profile-box">
+    <div class="profile-box-head">Profile · The Slow Burn</div>
+    <div class="profile-lead">"You know <strong>The Slow Burn</strong>. The rising heat. The presence. The way time slows down before anything has even happened."</div>
+    <div class="profile-body">Your map suggests you live more in the build than in the peak — and that's actually rarer and harder than the peak itself. It requires a parasympathetic nervous system that knows how to drop, which most women's never quite gets to.</div>
+    <ul class="profile-bullets">
+      <li><strong>What you have</strong>Presence and anticipation. The hardest of the five to access. Most women rush past it.</li>
+      <li><strong>What's missing</strong>The Strike (focal release), The Tide (internal wave), The Echo (the integrating afterglow that the build was preparing for).</li>
+      <li><strong>Why</strong>You've trained the build but no device coordinated the rest. Build without release becomes its own kind of stuck.</li>
+    </ul>
+  </div>
+
+  <div class="profile-box">
+    <div class="profile-box-head">Profile · The Tide</div>
+    <div class="profile-lead">"You know <strong>The Tide</strong>. The deep internal rolling. The wave that rises and falls inside you, not in one spot."</div>
+    <div class="profile-body">Your map suggests internal sensitivity and a body that responds to depth — not surface. This is the rarer half of the response system, and the half most external-focused devices ignore entirely.</div>
+    <ul class="profile-bullets">
+      <li><strong>What you have</strong>Deep internal rolling response. Half the women in our verbatims have never identified this as distinct.</li>
+      <li><strong>What's missing</strong>The external Strike, the parasympathetic Slow Burn, the full-body Hum.</li>
+      <li><strong>Why</strong>A device that delivers The Tide alone leaves the surface, the build, and the wider body unaddressed.</li>
+    </ul>
+  </div>
+
+  <div class="profile-box">
+    <div class="profile-box-head">Profile · The Hum</div>
+    <div class="profile-lead">"You know <strong>The Hum</strong>. The full-body ambient response. Pleasure that doesn't sit in one zone — it spreads."</div>
+    <div class="profile-body">Your map suggests a nervous system that responds diffusely and broadly. That's a rare wiring, and it explains why most one-zone devices have left you flat — they were aimed at the wrong target entirely.</div>
+    <ul class="profile-bullets">
+      <li><strong>What you have</strong>Full-body diffuse response. Often described as "tingling" or "wave that wraps around you".</li>
+      <li><strong>What's missing</strong>The focal Strike, the rising Slow Burn, the deep internal Tide.</li>
+      <li><strong>Why</strong>Your wiring needs the combination of all three stims simultaneously — vibration alone or pulses alone leaves the others dark.</li>
+    </ul>
+  </div>
+
+  <div class="profile-box">
+    <div class="profile-box-head">Profile · The Echo</div>
+    <div class="profile-lead">"You know <strong>The Echo</strong>. The afterglow. The integration. The way your body settles into itself after."</div>
+    <div class="profile-body">Your map suggests you experience pleasure as much in what comes after as in what comes during. This is the most sophisticated of the five and also the most overlooked — most women never name it as a distinct pleasure at all.</div>
+    <ul class="profile-bullets">
+      <li><strong>What you have</strong>The afterglow. The settling. The integration. The reason most women describe pleasure as "feeling like myself" rather than "the climax".</li>
+      <li><strong>What's missing</strong>The actual climaxes that produce the Echo — Strike, Slow Burn, Tide, Hum. The afterglow without the multi-zone build is a half-experience.</li>
+      <li><strong>Why</strong>The Echo emerges when all three stims fire simultaneously and integrate. Without that, you're getting flashes of it instead of full versions.</li>
+    </ul>
+  </div>
+
+  <h2>7C · Mechanism explanation (universal)</h2>
+  <div class="callout callout-strong">
+    <h3 style="margin-top:0">How three stimulations deliver five pleasures</h3>
+    <p>Roughly 80% of women need clitoral stimulation to reach a full peak. Roughly 99% of intimate devices stimulate one zone at a time.</p>
+    <p>Elysia is built around three coordinated stimulation patterns running together, not in sequence:</p>
+    <ul>
+      <li><strong>Pulses on the surface</strong> → delivers <strong>The Strike</strong></li>
+      <li><strong>Back-and-forth motion internally</strong> → delivers <strong>The Tide</strong></li>
+      <li><strong>Enveloping vibration across the body</strong> → delivers <strong>The Hum</strong></li>
+    </ul>
+    <p>When all three fire at once, two more pleasures emerge that one-zone devices physically cannot produce:</p>
+    <ul>
+      <li><strong>The Slow Burn</strong> — when low-intensity multi-zone stim activates the parasympathetic system instead of the sympathetic one</li>
+      <li><strong>The Echo</strong> — when the integrated multi-zone climax produces a fully integrated nervous-system afterglow</li>
+    </ul>
+    <p><strong>One zone gives you one or two pleasures. Three coordinated zones give you all five.</strong></p>
+  </div>
+
+  <h2>7D · Bundle recommendations</h2>
+
+  <div class="bundle-box">
+    <div class="bundle-name">The Spark</div>
+    <div class="bundle-prices">
+      <span class="bundle-strike">$194.99 AUD</span>
+      <span class="bundle-price">$99.99 AUD</span>
+      <span class="bundle-save">Save $95</span>
+    </div>
+    <p>Recommended for <strong>Strike-dominant</strong> and <strong>Tide-dominant</strong> profiles. These two pleasures respond to direct mechanical stimulation. The single device delivers all three coordinated stims, sufficient to unlock the missing pleasures.</p>
+    <ul class="bundle-includes">
+      <li>Elysia 3-in-1 device</li>
+      <li>Discreet Drawstring Pouch</li>
+      <li>3 guided rituals</li>
+      <li>Plain packaging, generic bank statement</li>
+      <li>30-day full refund — even after opening</li>
+    </ul>
+  </div>
+
+  <div class="bundle-box popular">
+    <div class="bundle-popular-badge">Most Popular</div>
+    <div class="bundle-name">The Wildfire</div>
+    <div class="bundle-prices">
+      <span class="bundle-strike">$229.99 AUD</span>
+      <span class="bundle-price">$129.99 AUD</span>
+      <span class="bundle-save">Save $100</span>
+    </div>
+    <p>Recommended for <strong>Slow Burn</strong>, <strong>Hum</strong>, and <strong>Echo-dominant</strong> profiles. These three pleasures depend on parasympathetic activation. The Wildfire bundle adds Ylang-Ylang oil (linalool + geraniol) that drops cortisol — without that, the device's potential goes unrealised.</p>
+    <ul class="bundle-includes">
+      <li>Elysia 3-in-1 device</li>
+      <li>Discreet Drawstring Pouch</li>
+      <li>30ml Ylang-Ylang Essential Oil — primes the mind so the body feels everything</li>
+      <li>3 guided rituals</li>
+      <li>Plain packaging, 30-day full refund</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 8 -->
+<section id="s8">
+  <div class="section-num">Section 08</div>
+  <h1 class="section-h">Soft exit — <em>4 activation cases</em></h1>
+  <p>The soft exit fires <em>instead</em> of the bundle pitch when one of these conditions is met. Trust-building, not selling. The most converting tool in the kit, paradoxically.</p>
+
+  <div class="exit-box">
+    <span class="exit-trigger">Trigger 8A</span>
+    <h3 class="exit-head">"You're already there"</h3>
+    <p><em>Activation:</em> Q-C7 = 4 or 5 selected.</p>
+    <p><strong>Body:</strong> "Your map is rare. Most women never identify this many pleasures as distinct. We could try to upsell you something. We won't. What's likely useful for you is staying tuned to your nervous system over the years — that's how people in your map keep what they have."</p>
+    <p><strong>Resource:</strong> 1 free guide — "Maintaining nervous-system response over decades".</p>
+  </div>
+
+  <div class="exit-box">
+    <span class="exit-trigger">Trigger 8B</span>
+    <h3 class="exit-head">Relational gap, not physiological</h3>
+    <p><em>Activation:</em> Path D/E + relational signals + low matter score.</p>
+    <p><strong>Body:</strong> "The pattern of your answers points to a connection gap, not a physiological one. A 3-in-1 device addresses the body. It doesn't address what's between two people. We'd rather not waste your money or your trust."</p>
+    <p><strong>Resources:</strong> 3 free worksheets — The Honest Conversation / What to Hand Your Doctor / Distinguishing Physiological from Relational Drift.</p>
+  </div>
+
+  <div class="exit-box">
+    <span class="exit-trigger">Trigger 8C</span>
+    <h3 class="exit-head">Path A, very early body literacy</h3>
+    <p><em>Activation:</em> Path A 18–22 + Q-C7 zero selections + low Q-A4 score.</p>
+    <p><strong>Body:</strong> "Your map shows you haven't yet identified any of the 5 pleasures as distinct in your own experience. That's not a deficit — it's a starting point. The right first step is body literacy, not a 3-in-1 device."</p>
+    <p><strong>Resource:</strong> 1 free guide — "The 5 pleasures, explained, with no product".</p>
+  </div>
+
+  <div class="exit-box">
+    <span class="exit-trigger">Trigger 8D</span>
+    <h3 class="exit-head">Path E health red flags</h3>
+    <p><em>Activation:</em> Path E 60+ + any pain mention OR uncertainty about safety.</p>
+    <p><strong>Body:</strong> "Some of your answers suggest a conversation with a women's health practitioner is the right first step before any intimate device. We won't recommend Elysia until you've had that conversation — your safety matters more than our sale."</p>
+    <p><strong>Resource:</strong> AU women's health practitioner directory (Jean Hailes, Australasian Menopause Society).</p>
+  </div>
+</section>
+
+<!-- SECTION 9 -->
+<section id="s9">
+  <div class="section-num">Section 09</div>
+  <h1 class="section-h">Testimonials — <em>5</em> (one per profile, age-anchored)</h1>
+  <p><strong>Disclosure:</strong> All testimonials are paid models; quotes are anonymised verbatim composites from the 459-respondent survey. Disclosed in the result page footer.</p>
+
+  <div class="testimonial">
+    <div class="testimonial-tag">Strike profile · Path A or B</div>
+    <div class="testimonial-quote">I always assumed the sharp peak was 'it'. Then I read this and realised I'd been having one fifth of what was possible. Three weeks in, I get what they meant.</div>
+    <div class="testimonial-author"><strong>Lisa</strong>, 31, Sydney</div>
+  </div>
+
+  <div class="testimonial">
+    <div class="testimonial-tag">Slow Burn profile · Path B or C</div>
+    <div class="testimonial-quote">I'd been calling it 'the build'. The map called it the Slow Burn and named what was missing after it. Now I know what to expect — and what I'd been settling for.</div>
+    <div class="testimonial-author"><strong>Sienna</strong>, 38, Melbourne</div>
+  </div>
+
+  <div class="testimonial">
+    <div class="testimonial-tag">Tide profile · Path C</div>
+    <div class="testimonial-quote">I knew I was 'internal' but I didn't know that was a kind. The map gave me the language. Three weeks in, I had the wave I'd been describing for years.</div>
+    <div class="testimonial-author"><strong>Helen</strong>, 49, Brisbane</div>
+  </div>
+
+  <div class="testimonial">
+    <div class="testimonial-tag">Hum profile · Path D</div>
+    <div class="testimonial-quote">My doctor said it was normal. I nodded. I went home. Five years later, this map called it the Hum. And then it gave me the device. Karen. I cried.</div>
+    <div class="testimonial-author"><strong>Margaret</strong>, 58, Adelaide</div>
+  </div>
+
+  <div class="testimonial">
+    <div class="testimonial-tag">Echo profile · Path E</div>
+    <div class="testimonial-quote">At 64 I'd stopped imagining. The map told me I'd been having Echo-only experiences and what was missing. The kit changed it in two weeks. I'm not done yet.</div>
+    <div class="testimonial-author"><strong>Karen</strong>, 64, Perth</div>
+  </div>
+</section>
+
+<!-- SECTION 10 -->
+<section id="s10">
+  <div class="section-num">Section 10</div>
+  <h1 class="section-h">Animation — <em>decision pending</em></h1>
+  <p><strong>Previously rejected by Alpha:</strong></p>
+  <ul>
+    <li>Topo map (parchment + contours) — "I don't understand what's happening"</li>
+    <li>Sun rising (sky + horizon) — "looks like a bug"</li>
+  </ul>
+  <p><strong>Current state:</strong> No animation. Hero is centred vertically with a small gold ornament under the CTA.</p>
+
+  <h4>Options to consider for the questions stage</h4>
+  <ul>
+    <li><strong>5-bar visual</strong> that fills in as common Q1–Q8 are answered — each bar = one of the 5 pleasures. Directly visualises the Big Idea.</li>
+    <li><strong>Single soft pulsing dot</strong> that intensifies as the map completes.</li>
+    <li><strong>No animation</strong> — minimal, premium, distraction-free.</li>
+  </ul>
+  <p><strong>Recommended:</strong> the 5-bar visual. Decision deferred until verdict design is finalised.</p>
+</section>
+
+<!-- SECTION 11 -->
+<section id="s11">
+  <div class="section-num">Section 11</div>
+  <h1 class="section-h">What this <em>is not</em></h1>
+  <ul>
+    <li>Not the final code. Code happens after audit + Alpha sign-off.</li>
+    <li>Not 25 fully written verdicts — verdicts are assembled at runtime via age opener × profile narrative + universal mechanism + bundle reco.</li>
+    <li>Not the analytics events. Added at code time.</li>
+    <li>Not the legal disclaimer. Existing disclaimer in index.html stays (paid models, verbatim composites, no medical claims).</li>
+  </ul>
+</section>
+
+<!-- SECTION 12 -->
+<section id="s12">
+  <div class="section-num">Section 12</div>
+  <h1 class="section-h">Audit targets — <em>6 sub-agents</em></h1>
+  <p>After Alpha validates this brief, six audits run in parallel. Each auditor reads the brief and outputs a short report (PASS / NEEDS REVISION / CRITICAL) plus specific revisions.</p>
+
+  <ol class="audit-list">
+    <li><strong>Persona-fit auditor</strong>Does each path × profile combination feel like a real woman would recognise herself? Verbatim consistency check across the persona file and the brief.</li>
+    <li><strong>Sex-positive ethics auditor</strong>Zero shaming, zero condescension, zero medicalisation of normal variation, zero "broken" framing.</li>
+    <li><strong>Mechanism cohérence auditor</strong>Are the 5 pleasures defensible physiologically? Is the mapping to 3 stims medically/anatomically accurate? Anti-overclaim check.</li>
+    <li><strong>Conversion CRO auditor</strong>Completion rate forecast, hero hook strength, time-to-CTA, friction audit.</li>
+    <li><strong>TGA-AU compliance auditor</strong>Therapeutic Goods Administration regulations Australia. No therapeutic claim outside scope. Discretionary product positioning.</li>
+    <li><strong>Age-conditional flow auditor</strong>Each path A/B/C/D/E feels authentic to its decade. Vocabulary appropriate. No jarring crossover. No missing real-life concern.</li>
+  </ol>
+
+  <p>Iteration loop until consensus, then code.</p>
+</section>
+
+</main>
+</div>
+
+<footer class="brief-footer">
+  Brief prepared 2026-05-07 · Reconnect Map V2 · Awaiting Alpha review and 6-agent audit on his go.
+</footer>
+
+</body>
+</html>

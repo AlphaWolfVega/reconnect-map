@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Bundle Card Gallery Tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2; --line-strong:#C9B89C;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1280px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:42px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:680px;margin:0 auto;line-height:1.6}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:760px){ .grid{grid-template-columns:1fr} }
+
+.test-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:22px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(45,36,30,0.06)}
+.test-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.test-tag{font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.22em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.test-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;font-style:italic;color:var(--espresso);margin-bottom:4px;line-height:1.2}
+.test-desc{font-size:12.5px;color:var(--espresso-soft);line-height:1.5}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid var(--line-strong);color:var(--whisper);padding:6px 12px;font-size:10px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+/* === Bundle card base === */
+.bundle-card{background:var(--cream);border:1px solid var(--gold);border-radius:var(--r-card);padding:22px 20px 22px;position:relative;overflow:hidden;text-align:center;display:flex;flex-direction:column}
+.bundle-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold) 0%,var(--terracotta) 50%,var(--gold) 100%);z-index:1}
+.bundle-card.popular{border-color:var(--terracotta);border-width:1.5px;box-shadow:0 2px 10px rgba(184,102,90,0.20),0 18px 52px rgba(45,36,30,0.12)}
+.bundle-card.popular::before{background:var(--terracotta);height:4px}
+.bundle-popular-badge{position:absolute;top:-1px;right:18px;background:var(--terracotta);color:var(--cream);padding:6px 12px 7px;font-family:'Lato',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-radius:0 0 var(--r) var(--r);box-shadow:0 2px 6px rgba(184,102,90,0.35);z-index:2}
+.bundle-fit{font-family:'Lato',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px;margin-top:6px}
+.bundle-card.popular .bundle-fit{color:var(--terracotta-deep)}
+.bundle-name{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:500;color:var(--espresso);margin-bottom:8px;font-style:italic;line-height:1.1}
+.bundle-summary{font-size:13.5px;color:var(--espresso-soft);margin-bottom:18px;font-style:italic;line-height:1.45;max-width:300px;margin-left:auto;margin-right:auto}
+
+/* === Common gallery base === */
+.gallery{margin:0 -20px 18px;position:relative}
+.gallery-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding:0 20px;gap:12px;scrollbar-width:none}
+.gallery-track::-webkit-scrollbar{display:none}
+.gallery-slide{flex:0 0 100%;scroll-snap-align:center;border-radius:var(--r-card);overflow:hidden;position:relative;background:var(--cream-deep);aspect-ratio:1/1}
+.gallery-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-dots{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.gallery-dot{width:6px;height:6px;border-radius:50%;background:rgba(45,36,30,0.18);border:none;cursor:pointer;transition:all 0.3s ease;padding:0}
+.gallery-dot.active{background:var(--terracotta);width:18px;border-radius:99px}
+.gallery-arrows{position:absolute;top:50%;left:0;right:0;display:flex;justify-content:space-between;padding:0 4px;transform:translateY(-50%);pointer-events:none;z-index:2}
+.gallery-arrow{pointer-events:auto;background:rgba(255,253,248,0.88);backdrop-filter:blur(4px);border:1px solid rgba(201,165,124,0.4);width:34px;height:34px;border-radius:50%;font-size:18px;color:var(--espresso);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.25s ease;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.gallery-arrow:hover{background:#fff;border-color:var(--terracotta);color:var(--terracotta);transform:scale(1.06)}
+.gallery-arrow:disabled{opacity:0.35;cursor:default;transform:none}
+.gallery-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(45,36,30,0.78);color:var(--cream);padding:6px 14px;border-radius:99px;font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;pointer-events:none;animation:hintFade 4.5s ease forwards;z-index:2;display:flex;align-items:center;gap:8px}
+@keyframes hintFade{0%{opacity:0;transform:translate(-50%,8px)}10%,55%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+.gallery-hint .arrow{animation:arrowSlide 1.6s ease-in-out infinite}
+@keyframes arrowSlide{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+
+/* === Variant A — Halo radial pulse === */
+.gallery.variant-a .gallery-track{padding:0 20px}
+.gallery.variant-a .gallery-slide::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, rgba(201,165,124,0) 60%, rgba(201,165,124,0.5) 90%, rgba(184,102,90,0.7) 100%);mix-blend-mode:screen;animation:haloPulse 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes haloPulse{0%,100%{opacity:0.45}50%{opacity:0.95}}
+.gallery.variant-a .gallery-slide::before{content:"";position:absolute;inset:-12px;background:radial-gradient(circle at 50% 50%, rgba(201,165,124,0.35) 0%, rgba(201,165,124,0) 60%);animation:glowAmbient 4.8s ease-in-out infinite;pointer-events:none;z-index:-1}
+@keyframes glowAmbient{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+
+/* === Variant B — Shimmer border === */
+.gallery.variant-b .gallery-slide{padding:3px;background:linear-gradient(120deg,var(--gold) 0%,var(--terracotta) 50%,var(--gold) 100%);background-size:200% 100%;animation:borderShimmer 3.6s linear infinite}
+@keyframes borderShimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+.gallery.variant-b .gallery-slide img{border-radius:calc(var(--r-card) - 3px)}
+.gallery.variant-b .gallery-track{padding:8px 20px 0}
+.gallery.variant-b .gallery-slide::after{content:"";position:absolute;inset:3px;border-radius:calc(var(--r-card) - 3px);background:radial-gradient(circle at 50% 100%, rgba(184,102,90,0.25) 0%, transparent 60%);pointer-events:none;animation:bottomGlow 3s ease-in-out infinite}
+@keyframes bottomGlow{0%,100%{opacity:0.4}50%{opacity:0.85}}
+
+/* === Variant C — Cinema peek + ambient glow === */
+.gallery.variant-c .gallery-track{padding:0 38px;gap:10px}
+.gallery.variant-c .gallery-slide{flex:0 0 calc(100% - 24px);transition:transform 0.5s ease, opacity 0.5s ease;opacity:0.55;transform:scale(0.94)}
+.gallery.variant-c .gallery-slide.center{opacity:1;transform:scale(1)}
+.gallery.variant-c{position:relative}
+.gallery.variant-c::before{content:"";position:absolute;inset:-8px -20px;background:radial-gradient(ellipse at 50% 50%, rgba(184,102,90,0.18) 0%, transparent 65%);animation:ambientPulse 4s ease-in-out infinite;z-index:-1;pointer-events:none}
+@keyframes ambientPulse{0%,100%{opacity:0.45;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+.gallery.variant-c .gallery-slide img{border-radius:var(--r-card)}
+.gallery.variant-c .gallery-slide.center img{box-shadow:0 8px 32px rgba(184,102,90,0.25), 0 0 0 1px rgba(201,165,124,0.5);transition:box-shadow 0.6s ease}
+
+/* Common bundle elements after gallery */
+.bundle-divider{position:relative;height:1px;background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%);margin:6px 0 16px;animation:dividerShimmer 3.2s ease-in-out infinite}
+@keyframes dividerShimmer{0%,100%{opacity:0.55}50%{opacity:1}}
+.bundle-divider::before{content:"";position:absolute;top:50%;left:50%;width:6px;height:6px;border-radius:50%;background:var(--gold);transform:translate(-50%,-50%);animation:dividerDot 3.2s ease-in-out infinite}
+.bundle-card.popular .bundle-divider{background:linear-gradient(90deg,transparent 0%,var(--terracotta) 50%,transparent 100%)}
+.bundle-card.popular .bundle-divider::before{background:var(--terracotta)}
+@keyframes dividerDot{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.4);box-shadow:0 0 0 6px rgba(201,165,124,0.18)}}
+.bundle-price-row{display:flex;align-items:baseline;justify-content:center;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.bundle-strike{font-family:'Lato',sans-serif;font-size:16px;color:var(--whisper);text-decoration:line-through;text-decoration-thickness:1.5px}
+.bundle-price{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:600;color:var(--terracotta);line-height:1}
+.bundle-card.popular .bundle-price{color:var(--terracotta-deep)}
+.bundle-save-wrap{text-align:center;margin-bottom:18px}
+.bundle-save{display:inline-block;font-size:10.5px;color:var(--gold-deep);background:rgba(201,165,124,0.20);padding:5px 12px;border-radius:99px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;font-family:'Lato',sans-serif}
+.bundle-card.popular .bundle-save{color:var(--terracotta-deep);background:rgba(184,102,90,0.14)}
+
+/* === Includes 2x3 LOCKED === */
+.bundle-includes{margin:0 0 18px;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bundle-includes li{font-size:13px;color:var(--espresso);padding:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;line-height:1.4;background:var(--cream-deep);border-radius:var(--r);padding:14px 10px}
+.bundle-includes li .neuro-icon{width:28px;height:28px;color:var(--terracotta);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.bundle-includes li .neuro-icon svg{width:100%;height:100%}
+.bundle-card.popular .bundle-includes li .neuro-icon{color:var(--terracotta-deep)}
+.bundle-includes li strong{display:block;font-size:12px;font-weight:700;color:var(--espresso)}
+.bundle-includes li span:not(.neuro-icon){display:block;font-size:11.5px;color:var(--espresso-soft);font-style:italic;line-height:1.35}
+
+.bundle-cta{display:block;width:100%;padding:14px;background:var(--espresso);color:var(--cream);text-align:center;font-family:'Lato',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:var(--r);text-decoration:none;transition:all 0.3s ease;cursor:pointer;margin-top:auto}
+.bundle-cta:hover{background:var(--terracotta-deep);transform:translateY(-1px)}
+.bundle-card.popular .bundle-cta{background:var(--terracotta)}
+.bundle-card.popular .bundle-cta:hover{background:var(--terracotta-deep)}
+
+.notes{margin:48px auto 0;max-width:780px;padding:24px 28px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:14px;color:var(--espresso-soft);line-height:1.65}
+.notes h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--espresso);margin-bottom:10px;font-weight:500}
+.notes ul{padding-left:20px}
+.notes li{margin-bottom:8px}
+.notes strong{color:var(--terracotta-deep)}
+
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Bundle gallery — interaction tests</h1>
+    <p>3 ways to present the product images inside the bundle card. Each variant uses a horizontal scroll-snap slider with dots + arrows + a "swipe" hint, but the surrounding effect differs. Click <strong>Keep this</strong> on the one you want me to ship into <code>index.html</code>.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============== VARIANT A ============== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">Variant A</div>
+          <div class="test-title">Halo radial pulse</div>
+          <div class="test-desc">A warm gold halo breathes behind the image, with a soft outer glow. Most "ceremonial / luxury" feel.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'A')">Keep this</button>
+      </div>
+      <div class="bundle-card">
+        <div class="bundle-fit">For Strike &amp; Tide profiles</div>
+        <div class="bundle-name">The Spark</div>
+        <div class="bundle-summary">Elysia 3-in-1 device — the C-shape that maps to two of the five.</div>
+        <div class="gallery variant-a" data-images="A-spark">
+          <div class="gallery-track" id="trackA"></div>
+          <div class="gallery-arrows">
+            <button class="gallery-arrow" onclick="scrollTo_('A',-1)">‹</button>
+            <button class="gallery-arrow" onclick="scrollTo_('A',1)">›</button>
+          </div>
+          <div class="gallery-hint">Swipe <span class="arrow">›</span></div>
+          <div class="gallery-dots" id="dotsA"></div>
+        </div>
+        <div class="bundle-divider"></div>
+        <div class="bundle-price-row">
+          <span class="bundle-strike">$194.99 AUD</span>
+          <span class="bundle-price">$89.99 AUD</span>
+        </div>
+        <div class="bundle-save-wrap"><span class="bundle-save">Save $105 today</span></div>
+        <ul class="bundle-includes" id="includesA"></ul>
+        <a class="bundle-cta">Check availability →</a>
+      </div>
+    </div>
+
+    <!-- ============== VARIANT B ============== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">Variant B</div>
+          <div class="test-title">Shimmer border + bottom glow</div>
+          <div class="test-desc">Animated gold-to-terracotta border around the image, plus a warm glow rising from the bottom. Most "premium / editorial" feel.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'B')">Keep this</button>
+      </div>
+      <div class="bundle-card">
+        <div class="bundle-fit">For Strike &amp; Tide profiles</div>
+        <div class="bundle-name">The Spark</div>
+        <div class="bundle-summary">Elysia 3-in-1 device — the C-shape that maps to two of the five.</div>
+        <div class="gallery variant-b" data-images="B-spark">
+          <div class="gallery-track" id="trackB"></div>
+          <div class="gallery-arrows">
+            <button class="gallery-arrow" onclick="scrollTo_('B',-1)">‹</button>
+            <button class="gallery-arrow" onclick="scrollTo_('B',1)">›</button>
+          </div>
+          <div class="gallery-hint">Swipe <span class="arrow">›</span></div>
+          <div class="gallery-dots" id="dotsB"></div>
+        </div>
+        <div class="bundle-divider"></div>
+        <div class="bundle-price-row">
+          <span class="bundle-strike">$194.99 AUD</span>
+          <span class="bundle-price">$89.99 AUD</span>
+        </div>
+        <div class="bundle-save-wrap"><span class="bundle-save">Save $105 today</span></div>
+        <ul class="bundle-includes" id="includesB"></ul>
+        <a class="bundle-cta">Check availability →</a>
+      </div>
+    </div>
+
+    <!-- ============== VARIANT C — Wildfire ============== -->
+    <div class="test-wrap">
+      <div class="test-head">
+        <div>
+          <div class="test-tag">Variant C</div>
+          <div class="test-title">Cinema peek + ambient glow</div>
+          <div class="test-desc">Adjacent slides peek on each side. Ambient terracotta glow behind. The active slide pops forward. Most "discovery / immersive" feel. <strong>Wildfire bundle shown</strong> (5 images including ylang-ylang).</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'C')">Keep this</button>
+      </div>
+      <div class="bundle-card popular">
+        <div class="bundle-popular-badge">Recommended for you</div>
+        <div class="bundle-fit">For Slow Burn, Hum &amp; Echo profiles</div>
+        <div class="bundle-name">The Wildfire</div>
+        <div class="bundle-summary">Elysia + Ylang-Ylang oil — primes the mind so the body feels everything.</div>
+        <div class="gallery variant-c" data-images="C-wildfire">
+          <div class="gallery-track" id="trackC"></div>
+          <div class="gallery-arrows">
+            <button class="gallery-arrow" onclick="scrollTo_('C',-1)">‹</button>
+            <button class="gallery-arrow" onclick="scrollTo_('C',1)">›</button>
+          </div>
+          <div class="gallery-hint">Swipe <span class="arrow">›</span></div>
+          <div class="gallery-dots" id="dotsC"></div>
+        </div>
+        <div class="bundle-divider"></div>
+        <div class="bundle-price-row">
+          <span class="bundle-strike">$229.99 AUD</span>
+          <span class="bundle-price">$109.99 AUD</span>
+        </div>
+        <div class="bundle-save-wrap"><span class="bundle-save">Save $120 today</span></div>
+        <ul class="bundle-includes" id="includesC"></ul>
+        <a class="bundle-cta">Check availability →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>How to test</h3>
+    <ul>
+      <li>Each gallery is a real horizontal scroll. <strong>Drag</strong> on touch / <strong>scroll wheel + click arrows</strong> on desktop.</li>
+      <li>Dots at the bottom update as you scroll, and clicking a dot jumps to that slide.</li>
+      <li>Includes are <strong>locked to a clean 2 × 3 grid</strong> on all three variants — exactly the symmetry you asked for.</li>
+      <li><strong>Variant A</strong> · gold halo, ceremonial. <strong>Variant B</strong> · shimmer border, premium. <strong>Variant C</strong> · cinema peek, immersive. Variant C also shows the Wildfire bundle with the exclusive ylang-ylang image included.</li>
+      <li>When you pick one, I&apos;ll wire it into <code>index.html</code> for both Spark (4 images) and Wildfire (5 images including ylang-ylang). The 5th image is auto-conditional.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const SHOPIFY_BASE = 'https://cdn.shopify.com/s/files/1/0997/0044/1471/files/';
+// Common to both bundles (Spark + Wildfire)
+const COMMON_IMAGES = [
+  SHOPIFY_BASE + 'image_3f2c6ec4-8824-4abc-891a-b4dc31fce103.webp?v=1776853699',
+  SHOPIFY_BASE + 'image_936e3ec0-dcf0-4510-9973-08bf6643726f.webp?v=1776732168',
+  SHOPIFY_BASE + 'avis4.png?v=1777130426',
+  SHOPIFY_BASE + 'elysia_6.png?v=1777829562'
+];
+// Wildfire only
+const WILDFIRE_EXTRA = SHOPIFY_BASE + 'Essential-Oil-ylang-ylang_ElysiaV2.webp?v=1777743434';
+
+const ALT_TEXTS = [
+  'Elysia C-shape device — front view',
+  'Elysia in hand — scale reference',
+  'Customer review on packaging',
+  'Elysia opened — discreet packaging',
+  'Ylang-Ylang essential oil bottle' // wildfire only
+];
+
+const NEURO_ICONS = {
+  device: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12c0-3.5 2.5-6 7-6s7 2.5 7 6-2.5 6-7 6c-1.7 0-3-.4-4-1"/><path d="M5 12v3.5"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/></svg>',
+  intensity: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17v-3"/><path d="M9 17v-6"/><path d="M13 17v-9"/><path d="M17 17v-12"/></svg>',
+  pouch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8c0-1 .5-2 2-2h8c1.5 0 2 1 2 2"/><path d="M5 9h14l-1 9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 9z"/></svg>',
+  ritual: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V8a3 3 0 1 1 6 0v10"/><circle cx="12" cy="20" r="1.2" fill="currentColor"/></svg>',
+  refund: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.5-7.1"/><path d="M21 4v5h-5"/></svg>',
+  package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>',
+  triple: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c0-3 2-5 5-5"/><path d="M4 12c0 3 2 5 5 5"/><path d="M20 12c0-3-2-5-5-5"/><path d="M20 12c0 3-2 5-5 5"/><circle cx="12" cy="12" r="2.2"/></svg>',
+  oil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6v3l1 2v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l1-2V4z"/><path d="M11 13c0 1 .5 1.6 1 1.6s1-.6 1-1.6"/></svg>'
+};
+
+const SPARK_INCLUDES = [
+  {icon:'device', label:'Elysia 3-in-1 device', text:'medical-grade C-shape'},
+  {icon:'intensity', label:'20 intensity levels', text:'start where you are'},
+  {icon:'pouch', label:'Discreet pouch', text:'fits any drawer'},
+  {icon:'ritual', label:'3 guided rituals', text:'5–10 min private audio'},
+  {icon:'package', label:'Plain packaging', text:'no brand on parcel'},
+  {icon:'refund', label:'30-day refund', text:'even after opening'}
+];
+const WILDFIRE_INCLUDES = [
+  {icon:'device', label:'Elysia 3-in-1 device', text:'medical-grade silicone'},
+  {icon:'triple', label:'Triple coordinated stim', text:'three patterns at once'},
+  {icon:'oil', label:'Ylang-Ylang oil (30ml)', text:'drops cortisol, up to 3× sensation'},
+  {icon:'ritual', label:'3 guided rituals', text:'private audio'},
+  {icon:'pouch', label:'Discreet pouch', text:'fits any drawer'},
+  {icon:'refund', label:'30-day refund', text:'even after opening'}
+];
+
+const CFG = {
+  A: {trackId:'trackA', dotsId:'dotsA', images:COMMON_IMAGES, includes:SPARK_INCLUDES, includesId:'includesA', isPopular:false},
+  B: {trackId:'trackB', dotsId:'dotsB', images:COMMON_IMAGES, includes:SPARK_INCLUDES, includesId:'includesB', isPopular:false},
+  C: {trackId:'trackC', dotsId:'dotsC', images:[...COMMON_IMAGES, WILDFIRE_EXTRA], includes:WILDFIRE_INCLUDES, includesId:'includesC', isPopular:true}
+};
+
+function buildVariant(key){
+  const cfg = CFG[key];
+  const track = document.getElementById(cfg.trackId);
+  track.innerHTML = cfg.images.map((src, i) =>
+    '<div class="gallery-slide' + (key==='C' && i===0 ? ' center' : '') + '">' +
+      '<img loading="lazy" src="' + src + '" alt="' + (ALT_TEXTS[i] || '') + '"/>' +
+    '</div>'
+  ).join('');
+  const dots = document.getElementById(cfg.dotsId);
+  dots.innerHTML = cfg.images.map((_, i) =>
+    '<button class="gallery-dot' + (i===0 ? ' active' : '') + '" data-idx="' + i + '" aria-label="Go to slide ' + (i+1) + '"></button>'
+  ).join('');
+  // Includes 2x3 fixed grid
+  const inc = document.getElementById(cfg.includesId);
+  inc.innerHTML = cfg.includes.map(i =>
+    '<li><span class="neuro-icon">' + (NEURO_ICONS[i.icon] || '') + '</span><strong>' + i.label + '</strong><span>' + i.text + '</span></li>'
+  ).join('');
+  // Wire scroll → dots, dots → scroll
+  const updateDots = () => {
+    const slides = track.querySelectorAll('.gallery-slide');
+    const trackRect = track.getBoundingClientRect();
+    let bestIdx = 0;
+    let bestDelta = Infinity;
+    slides.forEach((s, i) => {
+      const sr = s.getBoundingClientRect();
+      const delta = Math.abs((sr.left + sr.right)/2 - (trackRect.left + trackRect.right)/2);
+      if(delta < bestDelta){ bestDelta = delta; bestIdx = i; }
+    });
+    dots.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i===bestIdx));
+    if(key === 'C'){
+      slides.forEach((s, i) => s.classList.toggle('center', i===bestIdx));
+    }
+    // Update arrow disabled state
+    const arrows = track.parentElement.querySelectorAll('.gallery-arrow');
+    if(arrows.length === 2){
+      arrows[0].disabled = (bestIdx === 0);
+      arrows[1].disabled = (bestIdx === slides.length - 1);
+    }
+  };
+  let scrollTimer = null;
+  track.addEventListener('scroll', () => {
+    if(scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(updateDots, 30);
+  });
+  dots.addEventListener('click', e => {
+    const btn = e.target.closest('.gallery-dot');
+    if(!btn) return;
+    const idx = parseInt(btn.getAttribute('data-idx'), 10);
+    const slides = track.querySelectorAll('.gallery-slide');
+    if(slides[idx]) slides[idx].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+  });
+  // Initial
+  updateDots();
+  // Save reference
+  CFG[key].track = track;
+  CFG[key].updateDots = updateDots;
+}
+
+function scrollTo_(key, dir){
+  const cfg = CFG[key];
+  const track = cfg.track;
+  const slides = track.querySelectorAll('.gallery-slide');
+  // Find current best
+  const trackRect = track.getBoundingClientRect();
+  let curIdx = 0;
+  let bestDelta = Infinity;
+  slides.forEach((s, i) => {
+    const sr = s.getBoundingClientRect();
+    const delta = Math.abs((sr.left + sr.right)/2 - (trackRect.left + trackRect.right)/2);
+    if(delta < bestDelta){ bestDelta = delta; curIdx = i; }
+  });
+  const nextIdx = Math.max(0, Math.min(slides.length - 1, curIdx + dir));
+  slides[nextIdx].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+}
+
+function pick(btn, variant){
+  document.querySelectorAll('.pick-btn').forEach(b => { b.classList.remove('picked'); b.textContent = 'Keep this'; });
+  btn.classList.add('picked');
+  btn.textContent = '✓ Picked variant ' + variant;
+}
+
+['A','B','C'].forEach(buildVariant);
+</script>
+</body>
+</html>
