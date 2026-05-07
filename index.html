@@ -197,6 +197,22 @@ body.has-timer{padding-top:48px}
 @keyframes dotFlash{0%{transform:scale(1)}40%{transform:scale(1.6);filter:drop-shadow(0 0 6px rgba(184,102,90,0.9))}100%{transform:scale(1);filter:none}}
 .constellation-sweep{transform-origin:170px 125px;animation:sweepRotate 4s linear infinite}
 @keyframes sweepRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* T2 — dashed line draw trail (CSS-driven for max compatibility) */
+.const-trail-line{
+  stroke:rgba(184,102,90,0.95);
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-dasharray:5 5;
+  fill:none;
+  filter:drop-shadow(0 0 4px rgba(184,102,90,0.65));
+  animation:constTrailDraw 1.3s cubic-bezier(0.22,0.61,0.36,1) forwards;
+}
+@keyframes constTrailDraw{
+  0%   {opacity:0;       stroke-dashoffset:var(--trail-len)}
+  20%  {opacity:1;       stroke-dashoffset:calc(var(--trail-len) * 0.7)}
+  70%  {opacity:1;       stroke-dashoffset:0}
+  100% {opacity:0;       stroke-dashoffset:calc(var(--trail-len) * -0.4)}
+}
 .constellation-label{font-family:'Lato',sans-serif;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;fill:var(--whisper);transition:fill 0.5s ease, font-size 0.5s ease}
 .constellation-label.active{fill:var(--terracotta-deep)}
 .constellation-glow{transition:opacity 1.2s ease, r 1.2s cubic-bezier(0.22,0.61,0.36,1)}
@@ -1669,7 +1685,7 @@ const CONST_VERTICES = {
 const CONST_CENTER = {x:170, y:125};
 
 function spawnConstellationTrail(kind, intensity){
-  // T2 — Dashed line draw: a dashed line draws itself from centre to dot, then fades.
+  // T2 — Dashed line draw using CSS @keyframes (max browser compatibility).
   const g = document.getElementById('constellationTrails');
   if(!g) return;
   const v = CONST_VERTICES[kind];
@@ -1679,24 +1695,12 @@ function spawnConstellationTrail(kind, intensity){
   ln.setAttribute('y1', CONST_CENTER.y);
   ln.setAttribute('x2', v.x);
   ln.setAttribute('y2', v.y);
-  ln.setAttribute('stroke', 'rgba(184,102,90,0.85)');
-  ln.setAttribute('stroke-width', '1.5');
-  ln.setAttribute('stroke-linecap', 'round');
-  ln.setAttribute('stroke-dasharray', '4 4');
-  ln.setAttribute('fill', 'none');
-  g.appendChild(ln);
   const total = Math.hypot(v.x - CONST_CENTER.x, v.y - CONST_CENTER.y);
-  ln.setAttribute('stroke-dashoffset', total.toString());
-  ln.animate(
-    [
-      {strokeDashoffset:total, opacity:0, offset:0},
-      {strokeDashoffset:total * 0.5, opacity:1, offset:0.3},
-      {strokeDashoffset:0, opacity:1, offset:0.75},
-      {strokeDashoffset:-total * 0.4, opacity:0, offset:1}
-    ],
-    {duration:1100, easing:'cubic-bezier(0.22,0.61,0.36,1)', fill:'forwards'}
-  );
-  setTimeout(() => ln.remove(), 1200);
+  ln.style.setProperty('--trail-len', total);
+  ln.setAttribute('stroke-dashoffset', total);
+  ln.setAttribute('class', 'const-trail-line');
+  g.appendChild(ln);
+  setTimeout(() => ln.remove(), 1400);
 }
 function updateConstellation(opts){
   opts = opts || {};
