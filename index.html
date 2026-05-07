@@ -122,8 +122,8 @@ body.has-timer{padding-top:48px}
 @keyframes dotPulse{0%,100%{opacity:0.85;transform:scale(1)}50%{opacity:1;transform:scale(1.22)}}
 .constellation-dot.flash{animation:dotFlash 0.9s cubic-bezier(0.22,0.61,0.36,1)}
 @keyframes dotFlash{0%{transform:scale(1)}40%{transform:scale(1.6);filter:drop-shadow(0 0 6px rgba(184,102,90,0.9))}100%{transform:scale(1);filter:none}}
-.constellation-line{transition:opacity 1s ease, stroke-dashoffset 1.4s cubic-bezier(0.22,0.61,0.36,1)}
-.constellation-ray{transition:stroke 0.9s ease, opacity 0.9s ease;opacity:0}
+.constellation-sweep{transform-origin:170px 125px;animation:sweepRotate 4s linear infinite}
+@keyframes sweepRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .constellation-label{font-family:'Lato',sans-serif;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;fill:var(--whisper);transition:fill 0.5s ease, font-size 0.5s ease}
 .constellation-label.active{fill:var(--terracotta-deep)}
 .constellation-glow{transition:opacity 1.2s ease, r 1.2s cubic-bezier(0.22,0.61,0.36,1)}
@@ -301,11 +301,30 @@ body.has-timer{padding-top:48px}
 .bundle-cta-sub::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 1.6s ease-in-out infinite}
 @media (max-width:720px){
   .bundle-grid{grid-template-columns:1fr;gap:16px}
-  .bundle-includes{grid-template-columns:1fr 1fr}
 }
-@media (max-width:420px){
-  .bundle-includes{grid-template-columns:1fr}
-}
+/* Includes locked to 2x3 on all sizes */
+
+/* GALLERY — variant A (halo radial pulse) */
+.gallery{margin:0 -20px 18px;position:relative}
+.gallery-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding:0 20px;gap:12px;scrollbar-width:none}
+.gallery-track::-webkit-scrollbar{display:none}
+.gallery-slide{flex:0 0 100%;scroll-snap-align:center;border-radius:var(--r-card);overflow:hidden;position:relative;background:var(--cream-deep);aspect-ratio:1/1}
+.gallery-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-slide::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, rgba(201,165,124,0) 60%, rgba(201,165,124,0.5) 90%, rgba(184,102,90,0.7) 100%);mix-blend-mode:screen;animation:haloPulse 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes haloPulse{0%,100%{opacity:0.45}50%{opacity:0.95}}
+.gallery-slide::before{content:"";position:absolute;inset:-12px;background:radial-gradient(circle at 50% 50%, rgba(201,165,124,0.35) 0%, rgba(201,165,124,0) 60%);animation:glowAmbient 4.8s ease-in-out infinite;pointer-events:none;z-index:-1}
+@keyframes glowAmbient{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+.gallery-dots{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.gallery-dot{width:6px;height:6px;border-radius:50%;background:rgba(45,36,30,0.18);border:none;cursor:pointer;transition:all 0.3s ease;padding:0}
+.gallery-dot.active{background:var(--terracotta);width:18px;border-radius:99px}
+.gallery-arrows{position:absolute;top:50%;left:0;right:0;display:flex;justify-content:space-between;padding:0 4px;transform:translateY(-50%);pointer-events:none;z-index:2}
+.gallery-arrow{pointer-events:auto;background:rgba(255,253,248,0.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(201,165,124,0.4);width:34px;height:34px;border-radius:50%;font-size:18px;color:var(--espresso);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.25s ease;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.gallery-arrow:hover{background:#fff;border-color:var(--terracotta);color:var(--terracotta);transform:scale(1.06)}
+.gallery-arrow:disabled{opacity:0.35;cursor:default;transform:none}
+.gallery-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(45,36,30,0.78);color:var(--cream);padding:6px 14px;border-radius:99px;font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;pointer-events:none;animation:hintFade 5.5s ease forwards;z-index:2;display:flex;align-items:center;gap:8px}
+@keyframes hintFade{0%{opacity:0;transform:translate(-50%,8px)}10%,55%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+.gallery-hint .arrow{animation:arrowSlide 1.6s ease-in-out infinite}
+@keyframes arrowSlide{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
 
 /* AVAILABILITY MODAL — loading + available */
 .modal-overlay{position:fixed;inset:0;background:rgba(45,36,30,0.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fadeIn 0.3s ease both}
@@ -452,7 +471,7 @@ body.has-timer{padding-top:48px}
       </button>
     </div>
 
-    <!-- CONSTELLATION — 5 dots in pentagon, illuminate as the user progresses -->
+    <!-- CONSTELLATION — radar sweep variant -->
     <div class="constellation-wrap" id="constellationWrap" aria-hidden="true">
       <div class="constellation-eyebrow"><span id="constellationEyebrowText">Your map is forming</span></div>
       <svg class="constellation-svg" viewBox="0 0 340 260" id="constellationSvg">
@@ -462,38 +481,36 @@ body.has-timer{padding-top:48px}
             <stop offset="60%" stop-color="rgba(201,165,124,0.18)"/>
             <stop offset="100%" stop-color="rgba(201,165,124,0)"/>
           </radialGradient>
-          <radialGradient id="dotGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="rgba(184,102,90,1)"/>
-            <stop offset="100%" stop-color="rgba(184,102,90,0.4)"/>
-          </radialGradient>
+          <linearGradient id="sweepGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stop-color="rgba(184,102,90,0)"/>
+            <stop offset="80%" stop-color="rgba(184,102,90,0.35)"/>
+            <stop offset="100%" stop-color="rgba(184,102,90,0)"/>
+          </linearGradient>
         </defs>
+        <!-- background concentric circles (radar grid) -->
+        <circle cx="170" cy="125" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+        <circle cx="170" cy="125" r="78" fill="none" stroke="rgba(184,102,90,0.10)"/>
+        <circle cx="170" cy="125" r="116" fill="none" stroke="rgba(184,102,90,0.10)"/>
         <!-- expanding glow halo -->
         <circle class="constellation-glow" id="constellationGlow" cx="170" cy="125" r="0" fill="url(#centerGrad)"/>
-        <!-- 5 rays from center to each dot (drawn progressively per pleasure score) -->
-        <line class="constellation-ray" id="ray-strike" x1="170" y1="125" x2="170" y2="38" stroke="rgba(184,102,90,0.0)" stroke-width="1.5" stroke-linecap="round"/>
-        <line class="constellation-ray" id="ray-slowburn" x1="170" y1="125" x2="268" y2="108" stroke="rgba(184,102,90,0.0)" stroke-width="1.5" stroke-linecap="round"/>
-        <line class="constellation-ray" id="ray-tide" x1="170" y1="125" x2="235" y2="218" stroke="rgba(184,102,90,0.0)" stroke-width="1.5" stroke-linecap="round"/>
-        <line class="constellation-ray" id="ray-hum" x1="170" y1="125" x2="105" y2="218" stroke="rgba(184,102,90,0.0)" stroke-width="1.5" stroke-linecap="round"/>
-        <line class="constellation-ray" id="ray-echo" x1="170" y1="125" x2="72" y2="108" stroke="rgba(184,102,90,0.0)" stroke-width="1.5" stroke-linecap="round"/>
-        <!-- pentagon connecting lines (drawn progressively) -->
-        <polygon id="constellationPoly" points="170,38 268,108 235,218 105,218 72,108"
-                 fill="none" stroke="rgba(184,102,90,0.55)" stroke-width="1.2"
-                 stroke-dasharray="600" stroke-dashoffset="600"
-                 class="constellation-line" opacity="0"/>
+        <!-- rotating sweep cone -->
+        <g class="constellation-sweep">
+          <path d="M 170 125 L 295 125 A 125 125 0 0 0 230 30 Z" fill="url(#sweepGrad)" opacity="0.85"/>
+        </g>
         <!-- center pulse dot -->
-        <circle class="constellation-center" id="constellationCenter" cx="170" cy="125" r="3" fill="rgba(201,165,124,0.7)"/>
+        <circle class="constellation-center" id="constellationCenter" cx="170" cy="125" r="3" fill="rgba(201,165,124,0.85)"/>
         <!-- 5 dots at pentagon vertices (start tiny + dim) -->
         <circle class="constellation-dot" id="dot-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
         <circle class="constellation-dot" id="dot-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
         <circle class="constellation-dot" id="dot-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
         <circle class="constellation-dot" id="dot-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
         <circle class="constellation-dot" id="dot-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
-        <!-- labels -->
-        <text class="constellation-label" id="lbl-strike" x="170" y="22" text-anchor="middle">The Strike</text>
-        <text class="constellation-label" id="lbl-slowburn" x="298" y="108" text-anchor="middle">Slow Burn</text>
+        <!-- labels (Slow Burn shifted right, Echo shifted left to avoid being masked when dots grow) -->
+        <text class="constellation-label" id="lbl-strike" x="170" y="20" text-anchor="middle">The Strike</text>
+        <text class="constellation-label" id="lbl-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
         <text class="constellation-label" id="lbl-tide" x="248" y="238" text-anchor="middle">The Tide</text>
         <text class="constellation-label" id="lbl-hum" x="92" y="238" text-anchor="middle">The Hum</text>
-        <text class="constellation-label" id="lbl-echo" x="42" y="108" text-anchor="middle">The Echo</text>
+        <text class="constellation-label" id="lbl-echo" x="56" y="108" text-anchor="end">The Echo</text>
       </svg>
       <div class="constellation-caption" id="constellationCaption">Answer to begin</div>
     </div>
@@ -560,6 +577,15 @@ body.has-timer{padding-top:48px}
             <div class="bundle-fit" id="bundleFit1"></div>
             <div class="bundle-name" id="bundleName1"></div>
             <div class="bundle-summary" id="bundleSummary1"></div>
+            <div class="gallery variant-a">
+              <div class="gallery-track" id="galleryTrack1"></div>
+              <div class="gallery-arrows">
+                <button class="gallery-arrow" data-card="1" data-dir="-1" aria-label="Previous image">&lsaquo;</button>
+                <button class="gallery-arrow" data-card="1" data-dir="1" aria-label="Next image">&rsaquo;</button>
+              </div>
+              <div class="gallery-hint">Swipe <span class="arrow">&rsaquo;</span></div>
+              <div class="gallery-dots" id="galleryDots1"></div>
+            </div>
             <div class="bundle-divider"></div>
             <div class="bundle-price-row">
               <span class="bundle-strike" id="bundleStrike1"></span>
@@ -575,6 +601,15 @@ body.has-timer{padding-top:48px}
             <div class="bundle-fit" id="bundleFit2"></div>
             <div class="bundle-name" id="bundleName2"></div>
             <div class="bundle-summary" id="bundleSummary2"></div>
+            <div class="gallery variant-a">
+              <div class="gallery-track" id="galleryTrack2"></div>
+              <div class="gallery-arrows">
+                <button class="gallery-arrow" data-card="2" data-dir="-1" aria-label="Previous image">&lsaquo;</button>
+                <button class="gallery-arrow" data-card="2" data-dir="1" aria-label="Next image">&rsaquo;</button>
+              </div>
+              <div class="gallery-hint">Swipe <span class="arrow">&rsaquo;</span></div>
+              <div class="gallery-dots" id="galleryDots2"></div>
+            </div>
             <div class="bundle-divider"></div>
             <div class="bundle-price-row">
               <span class="bundle-strike" id="bundleStrike2"></span>
@@ -1122,6 +1157,16 @@ const NEURO_ICONS = {
   cortisol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13c2-2 5-2 7 0s5 2 7 0"/><path d="M12 4v6"/><circle cx="12" cy="13" r="1.4" fill="currentColor"/></svg>'
 };
 
+/* Shopify CDN — Pleasuary product images */
+const SHOPIFY_BASE = 'https://cdn.shopify.com/s/files/1/0997/0044/1471/files/';
+const COMMON_IMAGES = [
+  {src: SHOPIFY_BASE + 'image_3f2c6ec4-8824-4abc-891a-b4dc31fce103.webp?v=1776853699', alt: 'Elysia C-shape device — front view'},
+  {src: SHOPIFY_BASE + 'image_936e3ec0-dcf0-4510-9973-08bf6643726f.webp?v=1776732168', alt: 'Elysia in hand — scale reference'},
+  {src: SHOPIFY_BASE + 'avis4.png?v=1777130426', alt: 'Customer review on packaging'},
+  {src: SHOPIFY_BASE + 'elysia_6.png?v=1777829562', alt: 'Elysia opened — discreet packaging'}
+];
+const WILDFIRE_EXTRA = {src: SHOPIFY_BASE + 'Essential-Oil-ylang-ylang_ElysiaV2.webp?v=1777743434', alt: 'Ylang-Ylang essential oil bottle'};
+
 const BUNDLES = {
   spark:{
     label:'The accessible entry',
@@ -1130,6 +1175,7 @@ const BUNDLES = {
     summary:'Elysia 3-in-1 device — the C-shape that maps to two of the five.',
     popular:false,
     price:'$89.99', currency:'AUD', strike:'$194.99', save:'$105',
+    images: COMMON_IMAGES,
     includes:[
       {icon:'device', label:'Elysia 3-in-1 device', text:'medical-grade C-shape'},
       {icon:'intensity', label:'20 intensity levels', text:'start where you are'},
@@ -1146,6 +1192,7 @@ const BUNDLES = {
     summary:'Elysia + Ylang-Ylang oil — primes the mind so the body feels everything.',
     popular:true,
     price:'$109.99', currency:'AUD', strike:'$229.99', save:'$120',
+    images: [...COMMON_IMAGES, WILDFIRE_EXTRA],
     includes:[
       {icon:'device', label:'Elysia 3-in-1 device', text:'medical-grade silicone'},
       {icon:'triple', label:'Triple coordinated stim', text:'three patterns at once'},
@@ -1427,13 +1474,6 @@ function updateConstellation(opts){
   // count answered questions — gives an "early-feedback" lever
   const answered = Object.keys(STATE.answers || {}).filter(k => k !== 'age').length;
 
-  // Pentagon outline
-  const poly = document.getElementById('constellationPoly');
-  if(poly){
-    const progress = Math.min(1, answered / 6);
-    poly.style.opacity = progress > 0.05 ? (0.25 + progress * 0.65).toString() : '0';
-    poly.setAttribute('stroke-dashoffset', (600 * (1 - progress)).toString());
-  }
   // Center glow halo
   const glow = document.getElementById('constellationGlow');
   if(glow){
@@ -1448,12 +1488,11 @@ function updateConstellation(opts){
     center.setAttribute('r', (3 + intensity * 6).toString());
     center.setAttribute('fill', `rgba(201,165,124,${0.6 + intensity * 0.4})`);
   }
-  // Update each dot + ray based on its score
+  // Update each dot based on its score
   let illuminated = 0;
   PLEASURES.forEach(p => {
     const dot = document.getElementById('dot-' + p);
     const lbl = document.getElementById('lbl-' + p);
-    const ray = document.getElementById('ray-' + p);
     if(!dot) return;
     const score = Math.max(0, s[p]);
     const intensity = Math.min(1, score / 9);
@@ -1461,10 +1500,6 @@ function updateConstellation(opts){
     dot.setAttribute('r', r.toString());
     dot.style.opacity = (0.35 + intensity * 0.65).toString();
     dot.setAttribute('fill', `rgba(184,102,90,${0.25 + intensity * 0.75})`);
-    if(ray){
-      ray.setAttribute('stroke', `rgba(184,102,90,${0.10 + intensity * 0.55})`);
-      ray.style.opacity = (0.15 + intensity * 0.75).toString();
-    }
     if(score >= 4.5){ dot.classList.add('active'); if(lbl) lbl.classList.add('active'); illuminated++; }
     else { dot.classList.remove('active'); if(lbl) lbl.classList.remove('active'); }
 
@@ -1748,6 +1783,9 @@ function renderResult(){
       if(isReco){ card.classList.add('popular'); popBadge.style.display = 'block'; popBadge.textContent = 'Recommended for you'; }
       else { card.classList.remove('popular'); popBadge.style.display = 'none'; }
 
+      // Gallery: populate slides + dots + wire interactions
+      buildGallery(slot, bundle.images);
+
       const cta = document.getElementById('bundleCta' + slot);
       cta.setAttribute('data-href', ctaHref);
       const newCta = cta.cloneNode(true);
@@ -1766,6 +1804,83 @@ function renderResult(){
 /* ============================================================
    SVG CUSTOM RADAR — replaces Chart.js, full pulse control
    ============================================================ */
+/* ============================================================
+   GALLERY — populate + wire scroll-snap, dots, arrows
+   ============================================================ */
+function buildGallery(slot, images){
+  const track = document.getElementById('galleryTrack' + slot);
+  const dots = document.getElementById('galleryDots' + slot);
+  if(!track || !dots) return;
+  track.innerHTML = images.map(img =>
+    '<div class="gallery-slide"><img loading="lazy" src="' + img.src + '" alt="' + img.alt + '"/></div>'
+  ).join('');
+  dots.innerHTML = images.map((_, i) =>
+    '<button class="gallery-dot' + (i===0 ? ' active' : '') + '" data-idx="' + i + '" aria-label="Go to slide ' + (i+1) + '"></button>'
+  ).join('');
+
+  let scrollTimer = null;
+  // Detach prior listeners by replacing nodes (renderResult may run more than once)
+  const newTrack = track.cloneNode(false);
+  newTrack.innerHTML = track.innerHTML;
+  track.parentNode.replaceChild(newTrack, track);
+  const newDots = dots.cloneNode(false);
+  newDots.innerHTML = dots.innerHTML;
+  dots.parentNode.replaceChild(newDots, dots);
+
+  newTrack.addEventListener('scroll', () => {
+    if(scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => updateDotsForTrack(newTrack, newDots, slot), 30);
+  });
+  newDots.addEventListener('click', e => {
+    const btn = e.target.closest('.gallery-dot');
+    if(!btn) return;
+    const idx = parseInt(btn.getAttribute('data-idx'), 10);
+    const slides = newTrack.querySelectorAll('.gallery-slide');
+    if(slides[idx]) slides[idx].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+  });
+  // Wire arrows (replaceListener-safe)
+  const arrowsContainer = newTrack.parentElement.querySelector('.gallery-arrows');
+  if(arrowsContainer){
+    arrowsContainer.querySelectorAll('.gallery-arrow').forEach(arrowBtn => {
+      const dir = parseInt(arrowBtn.getAttribute('data-dir'), 10);
+      const newArrow = arrowBtn.cloneNode(true);
+      arrowBtn.parentNode.replaceChild(newArrow, arrowBtn);
+      newArrow.addEventListener('click', () => {
+        const slides = newTrack.querySelectorAll('.gallery-slide');
+        const trackRect = newTrack.getBoundingClientRect();
+        let curIdx = 0;
+        let bestDelta = Infinity;
+        slides.forEach((s, i) => {
+          const sr = s.getBoundingClientRect();
+          const delta = Math.abs((sr.left + sr.right)/2 - (trackRect.left + trackRect.right)/2);
+          if(delta < bestDelta){ bestDelta = delta; curIdx = i; }
+        });
+        const nextIdx = Math.max(0, Math.min(slides.length - 1, curIdx + dir));
+        if(slides[nextIdx]) slides[nextIdx].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+      });
+    });
+  }
+  updateDotsForTrack(newTrack, newDots, slot);
+}
+
+function updateDotsForTrack(track, dots, slot){
+  const slides = track.querySelectorAll('.gallery-slide');
+  const trackRect = track.getBoundingClientRect();
+  let bestIdx = 0;
+  let bestDelta = Infinity;
+  slides.forEach((s, i) => {
+    const sr = s.getBoundingClientRect();
+    const delta = Math.abs((sr.left + sr.right)/2 - (trackRect.left + trackRect.right)/2);
+    if(delta < bestDelta){ bestDelta = delta; bestIdx = i; }
+  });
+  dots.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i===bestIdx));
+  const arrows = track.parentElement.querySelectorAll('.gallery-arrow');
+  if(arrows.length === 2){
+    arrows[0].disabled = (bestIdx === 0);
+    arrows[1].disabled = (bestIdx === slides.length - 1);
+  }
+}
+
 function renderRadarSVG(){
   const s = STATE.scores;
   const labels = ['The Strike','The Slow Burn','The Tide','The Hum','The Echo'];
