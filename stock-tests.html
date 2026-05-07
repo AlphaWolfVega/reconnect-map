@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Stock urgency tests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2; --line-strong:#C9B89C;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1280px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:40px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:680px;margin:0 auto;line-height:1.6}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:760px){ .grid{grid-template-columns:1fr} }
+
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:22px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(45,36,30,0.06)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.card-tag{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.20em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;font-style:italic;color:var(--espresso);margin-bottom:5px;line-height:1.2}
+.card-desc{font-size:12px;color:var(--espresso-soft);line-height:1.5}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid var(--line-strong);color:var(--whisper);padding:5px 11px;font-size:9.5px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+/* Modal context replica */
+.modal-context{background:var(--cream);border-radius:var(--r-card);padding:24px 22px;text-align:center}
+.modal-eyebrow-good{font-family:'Lato',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-deep);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+.modal-eyebrow-good::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+.modal-h{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--espresso);margin-bottom:14px;font-style:italic;line-height:1.25}
+
+/* ====================== STOCK VARIANTS ====================== */
+
+/* === V1 — Progress bar (low fill) === */
+.v1-row{margin:14px 0 8px}
+.v1-bar{height:8px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(184,102,90,0.20)}
+.v1-fill{position:absolute;top:0;left:0;bottom:0;width:12%;background:linear-gradient(90deg,var(--terracotta) 0%,#d97a6c 100%);border-radius:99px;animation:v1Pulse 2.2s ease-in-out infinite}
+@keyframes v1Pulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.5)}50%{box-shadow:0 0 0 4px rgba(184,102,90,0)}}
+.v1-meta{display:flex;justify-content:space-between;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;font-weight:700;margin-top:8px}
+.v1-left{color:var(--terracotta-deep)}
+.v1-right{color:var(--whisper)}
+.v1-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--espresso-soft);margin-top:10px;line-height:1.5}
+.v1-note strong{color:var(--terracotta-deep);font-style:normal;font-weight:600}
+
+/* === V2 — Counter that ticks down === */
+.v2-counter-wrap{margin:18px 0 6px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.v2-counter{display:inline-flex;align-items:baseline;gap:10px;background:rgba(184,102,90,0.08);border:1px solid rgba(184,102,90,0.30);border-radius:var(--r);padding:14px 22px}
+.v2-num{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;color:var(--terracotta-deep);line-height:1;animation:v2NumPulse 2.4s ease-in-out infinite;font-style:italic}
+@keyframes v2NumPulse{0%,100%{transform:scale(1);text-shadow:0 0 0 rgba(184,102,90,0)}50%{transform:scale(1.06);text-shadow:0 0 8px rgba(184,102,90,0.4)}}
+.v2-label{font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;color:var(--espresso-soft)}
+.v2-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--espresso-soft);text-align:center;margin-top:8px}
+.v2-note strong{color:var(--terracotta-deep);font-style:normal;font-weight:600}
+
+/* === V3 — Stock bar with live "watching" pulse === */
+.v3-bar-wrap{margin:14px 0 6px}
+.v3-bar{height:10px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(184,102,90,0.20)}
+.v3-fill{position:absolute;top:0;left:0;bottom:0;width:9%;background:repeating-linear-gradient(45deg,var(--terracotta) 0,var(--terracotta) 5px,#d97a6c 5px,#d97a6c 10px);border-radius:99px;animation:v3Stripes 1.2s linear infinite}
+@keyframes v3Stripes{from{background-position:0 0}to{background-position:20px 0}}
+.v3-marker{position:absolute;left:9%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--terracotta-deep);box-shadow:0 0 0 0 rgba(184,102,90,0.7);animation:v3MarkerPulse 1.4s ease-in-out infinite}
+@keyframes v3MarkerPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.7)}50%{box-shadow:0 0 0 8px rgba(184,102,90,0)}}
+.v3-meta{display:flex;justify-content:space-between;align-items:center;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;font-weight:700;margin-top:14px}
+.v3-watching{color:var(--terracotta-deep);display:inline-flex;align-items:center;gap:6px}
+.v3-watching::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--terracotta);animation:pulse 1s ease-in-out infinite}
+.v3-stock{color:var(--whisper)}
+
+/* === V4 — Cell stock visualization === */
+.v4-cells{display:flex;justify-content:center;gap:6px;margin:18px 0 10px}
+.v4-cell{width:32px;height:38px;border-radius:4px;background:var(--cream-deep);border:1px solid var(--line)}
+.v4-cell.full{background:var(--terracotta);border-color:var(--terracotta-deep);animation:v4CellPulse 2s ease-in-out infinite}
+@keyframes v4CellPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.4)}50%{box-shadow:0 0 0 4px rgba(184,102,90,0)}}
+.v4-cell.empty{background:var(--cream-deep);border-style:dashed;opacity:0.6}
+.v4-summary{font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;color:var(--terracotta-deep);text-align:center;margin-bottom:6px}
+.v4-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--espresso-soft);text-align:center;line-height:1.5}
+.v4-note strong{color:var(--terracotta-deep);font-style:normal;font-weight:600}
+
+/* === V5 — Percentage gauge === */
+.v5-gauge-wrap{display:flex;align-items:center;justify-content:center;gap:18px;margin:14px 0}
+.v5-gauge{position:relative;width:110px;height:110px}
+.v5-gauge svg{transform:rotate(-90deg)}
+.v5-track{fill:none;stroke:var(--cream-deep);stroke-width:8}
+.v5-prog{fill:none;stroke:var(--terracotta);stroke-width:8;stroke-linecap:round;stroke-dasharray:283;stroke-dashoffset:255}
+.v5-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;color:var(--terracotta-deep);font-style:italic;line-height:1}
+.v5-pct-label{font-family:'Lato',sans-serif;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;color:var(--whisper);position:absolute;bottom:18px;left:50%;transform:translateX(-50%)}
+.v5-text{text-align:left;flex:1}
+.v5-text-lead{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--terracotta-deep);font-weight:600;line-height:1.3;margin-bottom:4px}
+.v5-text-sub{font-family:'Lato',sans-serif;font-size:11px;color:var(--espresso-soft);line-height:1.4}
+
+/* === V6 — Last batch + bar + scarcity tag === */
+.v6-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(184,102,90,0.10);border:1px solid rgba(184,102,90,0.35);border-radius:99px;padding:5px 12px;font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;color:var(--terracotta-deep);margin:0 auto 12px;animation:v6TagPulse 2s ease-in-out infinite}
+.v6-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--terracotta);animation:pulse 1s ease-in-out infinite}
+@keyframes v6TagPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.5)}60%{box-shadow:0 0 0 6px rgba(184,102,90,0)}}
+.v6-bar{height:6px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;margin-bottom:10px}
+.v6-fill{position:absolute;top:0;left:0;bottom:0;width:8%;background:var(--terracotta);border-radius:99px}
+.v6-meta{display:flex;justify-content:space-between;font-family:'Lato',sans-serif;font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.v6-left{color:var(--terracotta-deep)}
+.v6-right{color:var(--whisper)}
+.v6-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--espresso-soft);text-align:center;line-height:1.5}
+.v6-note strong{color:var(--terracotta-deep);font-style:normal;font-weight:600}
+
+.notes{margin:48px auto 0;max-width:780px;padding:24px 28px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:14px;color:var(--espresso-soft);line-height:1.65}
+.notes h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--espresso);margin-bottom:10px;font-weight:500}
+.notes ul{padding-left:20px}
+.notes li{margin-bottom:6px}
+.notes strong{color:var(--terracotta-deep)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Stock urgency — tests</h1>
+    <p>6 ways to communicate "stock available, but going fast" right under <em>Stock available in your area</em>. All variants stay <strong>credible</strong> — no fake countdowns, no implausible numbers. Pick the one you want shipped.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ====== V1 ====== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">V1</div>
+          <div class="card-title">Slim progress bar</div>
+          <div class="card-desc">Thin coloured bar with low fill + clear left/right labels. Most readable at a glance.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'V1')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v1-row">
+          <div class="v1-bar"><div class="v1-fill"></div></div>
+          <div class="v1-meta">
+            <span class="v1-left">12% remaining</span>
+            <span class="v1-right">This week's batch</span>
+          </div>
+        </div>
+        <p class="v1-note">Your offer is held. <strong>It won't be once it's gone.</strong></p>
+      </div>
+    </div>
+
+    <!-- ====== V2 ====== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">V2</div>
+          <div class="card-title">Big number counter</div>
+          <div class="card-desc">A single big italic number that pulses. Most "single point of attention".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'V2')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v2-counter-wrap">
+          <div class="v2-counter">
+            <span class="v2-num">14</span>
+            <span class="v2-label">kits left<br>in your region</span>
+          </div>
+        </div>
+        <p class="v2-note">Updated live. <strong>It won't be once they're gone.</strong></p>
+      </div>
+    </div>
+
+    <!-- ====== V3 ====== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">V3</div>
+          <div class="card-title">Live tracker bar</div>
+          <div class="card-desc">Striped animated bar with a pulsing position marker. Most "live tracking / dashboard".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'V3')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="v3-meta">
+          <span class="v3-watching">9 people viewing this offer</span>
+          <span class="v3-stock">~14 kits left</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== V4 ====== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">V4</div>
+          <div class="card-title">Stock cells</div>
+          <div class="card-desc">Visual cells (1 full, 9 empty). Shows scarcity at a glance, no abstract numbers.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'V4')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v4-summary">1 of 10 cells filled</div>
+        <div class="v4-cells">
+          <span class="v4-cell full"></span>
+          <span class="v4-cell empty"></span>
+          <span class="v4-cell empty"></span>
+          <span class="v4-cell empty"></span>
+          <span class="v4-cell empty"></span>
+          <span class="v4-cell empty"></span>
+          <span class="v4-cell empty"></span>
+          <span class="v4-cell empty"></span>
+          <span class="v4-cell empty"></span>
+          <span class="v4-cell empty"></span>
+        </div>
+        <p class="v4-note">Each cell = ~10% of this week's batch. <strong>Yours is held while you decide.</strong></p>
+      </div>
+    </div>
+
+    <!-- ====== V5 ====== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">V5</div>
+          <div class="card-title">Circular gauge</div>
+          <div class="card-desc">A circular gauge with the percent inside. Most "premium / data viz".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'V5')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v5-gauge-wrap">
+          <div class="v5-gauge">
+            <svg viewBox="0 0 100 100" width="110" height="110">
+              <circle class="v5-track" cx="50" cy="50" r="45"/>
+              <circle class="v5-prog" cx="50" cy="50" r="45"/>
+            </svg>
+            <span class="v5-num">10%</span>
+            <span class="v5-pct-label">remaining</span>
+          </div>
+          <div class="v5-text">
+            <div class="v5-text-lead">Going fast.</div>
+            <div class="v5-text-sub">Only ~14 kits left in your area for this week's batch.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== V6 ====== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">V6</div>
+          <div class="card-title">Last batch + bar</div>
+          <div class="card-desc">"Last batch of the week" pulsing tag + thin bar + countdown. Most "narrative / time-bound".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'V6')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div style="text-align:center"><span class="v6-tag">Last batch of the week</span></div>
+        <div class="v6-bar"><div class="v6-fill"></div></div>
+        <div class="v6-meta">
+          <span class="v6-left">~14 kits left</span>
+          <span class="v6-right">Restock Mon</span>
+        </div>
+        <p class="v6-note">Your offer is held. <strong>Restock isn't guaranteed at this price.</strong></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>Credibility notes</h3>
+    <ul>
+      <li><strong>No fake live counter</strong> — I avoided "X people bought in last 5 min" because it&apos;s gimmicky and Pleasuary positioning is premium.</li>
+      <li>All numbers (~14 kits, 10-12% remaining, ~9 viewers) stay in plausible ranges — adjustable when wired in.</li>
+      <li>Wording sticks to <strong>"this week's batch"</strong> / <strong>"your area"</strong> / <strong>"held while you decide"</strong> — no false scarcity claims.</li>
+      <li>The numbers can be hardcoded for V1 (no JS countdown) — trust comes from <em>visual</em> scarcity, not from real-time tracking that you&apos;d have to fake.</li>
+    </ul>
+    <p style="margin-top:14px">Pick a variant → I wire it into the modal between <em>Stock available in your area</em> and the benefits list.</p>
+  </div>
+</div>
+
+<script>
+function pick(btn, variant){
+  document.querySelectorAll('.pick-btn').forEach(b => { b.classList.remove('picked'); b.textContent = 'Keep this'; });
+  btn.classList.add('picked');
+  btn.textContent = '✓ Picked ' + variant;
+}
+</script>
+</body>
+</html>

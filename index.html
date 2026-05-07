@@ -269,16 +269,20 @@ body.has-timer{padding-top:48px}
 .narrative-bullets li:hover{transform:translateX(2px);box-shadow:0 4px 12px rgba(201,165,124,0.18)}
 .narrative-bullets li strong{color:var(--espresso);background:none;padding:0;display:block;font-size:12px;letter-spacing:0.10em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
 .narrative-bullets li .bullet-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:rgba(184,102,90,0.10);border-radius:50%;color:var(--terracotta)}
-.narrative-bullets li .bullet-icon svg{width:18px;height:18px;transform-origin:center;animation:bulletIconScale 2.8s ease-in-out infinite}
+.narrative-bullets li .bullet-icon svg{width:18px;height:18px;transform-origin:center center;transform-box:fill-box;animation:bulletIconScale 2.8s ease-in-out infinite;will-change:transform,filter}
 .narrative-bullets li:nth-child(1) .bullet-icon{color:var(--gold-deep);background:rgba(201,165,124,0.16)}
 .narrative-bullets li:nth-child(2) .bullet-icon{color:var(--terracotta);background:rgba(184,102,90,0.14)}
 .narrative-bullets li:nth-child(3) .bullet-icon{color:var(--terracotta-deep);background:rgba(156,84,74,0.14)}
-.narrative-bullets li:nth-child(1) .bullet-icon svg{animation-delay:0s}
+.narrative-bullets li:nth-child(1) .bullet-icon svg{animation-delay:0s;animation-name:bulletIconScaleGold}
 .narrative-bullets li:nth-child(2) .bullet-icon svg{animation-delay:0.5s}
 .narrative-bullets li:nth-child(3) .bullet-icon svg{animation-delay:1s}
 @keyframes bulletIconScale{
-  0%,100%{transform:scale(1);opacity:0.9}
-  50%{transform:scale(1.12);opacity:1}
+  0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(184,102,90,0));opacity:0.9}
+  50%{transform:scale(1.20);filter:drop-shadow(0 0 4px rgba(184,102,90,0.55));opacity:1}
+}
+@keyframes bulletIconScaleGold{
+  0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(201,165,124,0));opacity:0.9}
+  50%{transform:scale(1.20);filter:drop-shadow(0 0 4px rgba(201,165,124,0.65));opacity:1}
 }
 
 /* CUSTOM RADAR (SVG) — replaces Chart.js radar with proper pulse animation */
@@ -339,6 +343,10 @@ body.has-timer{padding-top:48px}
 .mechanism-punchline::before,.mechanism-punchline::after{content:"";flex:0 0 24px;height:1px;background:var(--gold)}
 
 /* BUNDLE */
+.bundle-brand-tag{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto 12px;padding:8px 18px;background:linear-gradient(180deg,rgba(255,253,248,0.7) 0%,rgba(245,239,230,0.5) 100%);border:1px solid var(--gold);border-radius:99px;max-width:fit-content;box-shadow:0 1px 3px rgba(201,165,124,0.18)}
+.bundle-brand-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;font-weight:600;color:var(--terracotta-deep);line-height:1}
+.bundle-brand-by{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.20em;text-transform:uppercase;color:var(--whisper);font-weight:700}
+.bundle-brand-house{font-family:'Lato',sans-serif;font-size:11.5px;letter-spacing:0.20em;text-transform:uppercase;color:var(--gold-deep);font-weight:700}
 .bundle-reco-line{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--espresso-soft);text-align:center;max-width:520px;margin:0 auto 22px;line-height:1.5}
 .bundle-reco-line strong{color:var(--terracotta-deep);font-weight:600;font-style:normal;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;display:inline-block;margin:0 4px}
 .bundle-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px;align-items:stretch}
@@ -361,9 +369,14 @@ body.has-timer{padding-top:48px}
 .bundle-strike{font-family:'Lato',sans-serif;font-size:17px;color:var(--whisper);text-decoration:line-through;text-decoration-color:rgba(45,36,30,0.5);text-decoration-thickness:1.5px}
 .bundle-price{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;color:var(--terracotta);line-height:1}
 .bundle-card.popular .bundle-price{color:var(--terracotta-deep)}
-.bundle-save-wrap{text-align:center;margin-bottom:18px}
-.bundle-save{display:inline-block;font-size:10.5px;color:var(--gold-deep);background:rgba(201,165,124,0.20);padding:5px 12px;border-radius:99px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;font-family:'Lato',sans-serif}
+.bundle-save-wrap{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.bundle-save{display:inline-block;font-size:10.5px;color:var(--gold-deep);background:rgba(201,165,124,0.20);padding:5px 12px;border-radius:99px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;font-family:'Lato',sans-serif;white-space:nowrap}
 .bundle-card.popular .bundle-save{color:var(--terracotta-deep);background:rgba(184,102,90,0.14)}
+.bundle-limited{display:inline-block;font-size:10.5px;color:var(--terracotta-deep);background:rgba(184,102,90,0.10);border:1px solid rgba(184,102,90,0.40);padding:4px 11px;border-radius:99px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;font-family:'Lato',sans-serif;white-space:nowrap;animation:limitedPulse 2.2s ease-in-out infinite;will-change:transform,box-shadow}
+@keyframes limitedPulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(184,102,90,0.55)}
+  60%{transform:scale(1.04);box-shadow:0 0 0 8px rgba(184,102,90,0)}
+}
 .bundle-includes{margin:0 0 22px;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
 .bundle-includes li{font-size:13px;color:var(--espresso);padding:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;line-height:1.4;background:var(--cream-deep);border-radius:var(--r);padding:12px 8px}
 .bundle-includes li .neuro-icon{width:28px;height:28px;color:var(--terracotta);flex-shrink:0;display:flex;align-items:center;justify-content:center}
@@ -707,6 +720,11 @@ body.has-timer{padding-top:48px}
 
       <div class="result-block">
         <div class="block-eyebrow">What we'd point you to</div>
+        <div class="bundle-brand-tag">
+          <span class="bundle-brand-name">Elysia</span>
+          <span class="bundle-brand-by">by</span>
+          <span class="bundle-brand-house">Pleasuary</span>
+        </div>
         <p class="bundle-reco-line" id="bundleRecoLine"></p>
         <div class="bundle-grid" id="bundleGrid">
           <!-- Card 1 -->
@@ -729,7 +747,7 @@ body.has-timer{padding-top:48px}
               <span class="bundle-strike" id="bundleStrike1"></span>
               <span class="bundle-price" id="bundlePrice1"></span>
             </div>
-            <div class="bundle-save-wrap"><span class="bundle-save" id="bundleSave1"></span></div>
+            <div class="bundle-save-wrap"><span class="bundle-save" id="bundleSave1"></span><span class="bundle-limited">● Limited offer</span></div>
             <ul class="bundle-includes" id="bundleIncludes1"></ul>
             <a class="bundle-cta" id="bundleCta1" href="javascript:void(0)" data-href="#" rel="noopener">Check availability <span class="cta-arrow">&rarr;</span></a>
           </div>
