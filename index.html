@@ -453,6 +453,22 @@ body.has-timer{padding-top:48px}
 @keyframes popIn{from{opacity:0;transform:scale(0.6)}to{opacity:1;transform:scale(1)}}
 .modal-card h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--espresso);margin-bottom:10px;font-style:italic;line-height:1.25}
 .modal-card .modal-warning{color:var(--terracotta-deep);font-style:italic;font-size:14px;margin-bottom:22px;padding:10px 14px;background:rgba(184,102,90,0.08);border-radius:var(--r);display:inline-block}
+/* === Stock bar + counters (B2 + W1, fixed bar) === */
+.stock-bar-wrap{margin:14px auto 12px;max-width:340px}
+.stock-bar{height:10px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(184,102,90,0.20)}
+.stock-fill{position:absolute;top:0;left:0;bottom:0;width:6%;background:var(--terracotta);border-radius:99px}
+.stock-marker{position:absolute;left:6%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--terracotta-deep);box-shadow:0 0 0 0 rgba(184,102,90,0.7);animation:stockMarkerPulse 1.4s ease-in-out infinite}
+@keyframes stockMarkerPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.7)}50%{box-shadow:0 0 0 8px rgba(184,102,90,0)}}
+.stock-line{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Lato',sans-serif;font-size:11.5px;letter-spacing:0.10em;text-transform:uppercase;font-weight:700}
+.stock-viewing{color:var(--terracotta-deep);margin-bottom:6px}
+.stock-viewing::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--terracotta);animation:stockDotPing 1s ease-in-out infinite}
+@keyframes stockDotPing{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.stock-products{color:var(--whisper)}
+.stock-products strong{color:var(--terracotta-deep);font-weight:700;font-size:13px;display:inline-block;transition:color 0.4s ease}
+.stock-products strong.bump{animation:stockBump 0.8s ease-out}
+@keyframes stockBump{0%{transform:scale(1)}40%{transform:scale(1.30);color:var(--terracotta)}100%{transform:scale(1)}}
+.stock-end-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13.5px;color:var(--espresso-soft);margin:14px auto 22px;padding-top:12px;border-top:1px dashed rgba(184,102,90,0.30);line-height:1.55;max-width:340px}
+.stock-end-msg strong{color:var(--terracotta-deep);font-weight:700;font-style:normal;font-family:'Lato',sans-serif;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;display:inline-block}
 .modal-benefits{list-style:none;padding:0;margin:0 0 26px;text-align:left}
 .modal-benefits li{padding:10px 14px 10px 40px;font-size:14px;color:var(--espresso-soft);position:relative;background:var(--cream-deep);border-radius:var(--r);margin-bottom:6px;line-height:1.45}
 .modal-benefits li::before{content:"\2713";position:absolute;left:14px;top:10px;color:var(--gold-deep);font-weight:700;font-size:14px}
@@ -518,7 +534,13 @@ body.has-timer{padding-top:48px}
       </div>
       <div class="modal-eyebrow modal-eyebrow-good">Good news</div>
       <h3>Stock available in your area.</h3>
-      <p class="modal-warning">It's running low. Your offer is held while you decide — but won't be once it's gone.</p>
+      <!-- Stock bar (B2: 6% solid, fixed forever) + live counters + W1 message -->
+      <div class="stock-bar-wrap" aria-hidden="true">
+        <div class="stock-bar"><div class="stock-fill"></div><div class="stock-marker"></div></div>
+      </div>
+      <div class="stock-line stock-viewing"><span id="stockWatching">11</span>&nbsp;people viewing this offer</div>
+      <div class="stock-line stock-products"><strong id="stockCount">7</strong>&nbsp;products in stock</div>
+      <p class="stock-end-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
       <ul class="modal-benefits">
         <li><strong>All 5 pleasures unlocked</strong> — three coordinated stims, the only configuration that delivers them.</li>
         <li><strong>30-day full refund</strong> — even after opening. Zero risk.</li>
@@ -2208,6 +2230,7 @@ function openAvailabilityModal(targetHref){
       setTimeout(() => {
         loading.classList.remove('active');
         available.classList.add('active');
+        startStockLiveBehaviour();
         trackEvent('availability_revealed', {profile:STATE.profile});
       }, 320);
     } else {
@@ -2225,6 +2248,59 @@ function closeAvailabilityModal(){
   const modal = document.getElementById('availabilityModal');
   modal.classList.remove('visible');
   document.body.style.overflow = '';
+  stopStockLiveBehaviour();
+}
+
+/* ============================================================
+   STOCK LIVE BEHAVIOUR (B2 + W1 — bar fixed, only digits change)
+   - Viewing fluctuates 9-20 every ~5s
+   - Stock starts at 7, drops at 10s, 30s, 1min30, 3min30; floor at 3
+   - Bar width / marker position NEVER move
+   ============================================================ */
+const STOCK_BEHAVIOUR = { watchingTimer:null, dropTimers:[], stock:7, watching:11 };
+function startStockLiveBehaviour(){
+  stopStockLiveBehaviour();
+  // Reset display values
+  STOCK_BEHAVIOUR.stock = 7;
+  STOCK_BEHAVIOUR.watching = 9 + Math.floor(Math.random() * 5); // 9-13 to start
+  const stockEl = document.getElementById('stockCount');
+  const watchEl = document.getElementById('stockWatching');
+  if(stockEl) stockEl.textContent = STOCK_BEHAVIOUR.stock;
+  if(watchEl) watchEl.textContent = STOCK_BEHAVIOUR.watching;
+
+  // Viewing drift 9-20
+  const driftViewing = () => {
+    const w = STOCK_BEHAVIOUR.watching;
+    const drift = Math.random() < 0.85 ? (Math.random() < 0.5 ? -1 : 1) : (Math.random() < 0.5 ? -2 : 2);
+    STOCK_BEHAVIOUR.watching = Math.max(9, Math.min(20, w + drift));
+    if(watchEl) watchEl.textContent = STOCK_BEHAVIOUR.watching;
+    STOCK_BEHAVIOUR.watchingTimer = setTimeout(driftViewing, 4000 + Math.random() * 3000);
+  };
+  STOCK_BEHAVIOUR.watchingTimer = setTimeout(driftViewing, 4000 + Math.random() * 3000);
+
+  // Stock drops at 10s, 30s, 1min30, 3min30 (floor 3)
+  const STOCK_FLOOR = 3;
+  const dropDelaysMs = [10000, 30000, 90000, 210000];
+  const dropOnce = () => {
+    if(STOCK_BEHAVIOUR.stock > STOCK_FLOOR){
+      STOCK_BEHAVIOUR.stock -= 1;
+      if(stockEl){
+        stockEl.textContent = STOCK_BEHAVIOUR.stock;
+        stockEl.classList.remove('bump');
+        void stockEl.offsetWidth;
+        stockEl.classList.add('bump');
+      }
+    }
+  };
+  dropDelaysMs.forEach(ms => {
+    STOCK_BEHAVIOUR.dropTimers.push(setTimeout(dropOnce, ms));
+  });
+}
+
+function stopStockLiveBehaviour(){
+  if(STOCK_BEHAVIOUR.watchingTimer){ clearTimeout(STOCK_BEHAVIOUR.watchingTimer); STOCK_BEHAVIOUR.watchingTimer = null; }
+  STOCK_BEHAVIOUR.dropTimers.forEach(t => clearTimeout(t));
+  STOCK_BEHAVIOUR.dropTimers = [];
 }
 
 /* ============================================================
