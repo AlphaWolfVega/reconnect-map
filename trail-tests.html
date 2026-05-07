@@ -348,10 +348,136 @@ body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padd
       </div>
     </div>
 
+    <!-- T7 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T7</div>
+          <div class="card-title">Sparkle burst</div>
+          <div class="card-desc">A spray of small gold sparkles bursts from the centre toward the dot — like fairy dust catching the light.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T7')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow">Your map is forming</div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgT7">
+          <defs>
+            <radialGradient id="centerGradT7" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,0.55)"/><stop offset="60%" stop-color="rgba(201,165,124,0.18)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+            <linearGradient id="sweepGradT7" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(184,102,90,0)"/><stop offset="80%" stop-color="rgba(184,102,90,0.35)"/><stop offset="100%" stop-color="rgba(184,102,90,0)"/></linearGradient>
+          </defs>
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradT7)" id="haloT7"/>
+          <g class="sweep-cone"><path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradT7)" opacity="0.85"/></g>
+          <g id="trailsT7"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="T7-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T7-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T7-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T7-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T7-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="T7-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="T7-l-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+          <text class="lbl" id="T7-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="T7-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="T7-l-echo" x="56" y="108" text-anchor="end">The Echo</text>
+        </svg>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('T7')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('T7')">Reset</button>
+      </div>
+    </div>
+
+    <!-- T8 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T8</div>
+          <div class="card-title">Triple-dot signal</div>
+          <div class="card-desc">3 larger dots travel in sequence centre → dot, like a slow Morse signal. Most "directional / intentional".</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T8')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow">Your map is forming</div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgT8">
+          <defs>
+            <radialGradient id="centerGradT8" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,0.55)"/><stop offset="60%" stop-color="rgba(201,165,124,0.18)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+            <linearGradient id="sweepGradT8" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(184,102,90,0)"/><stop offset="80%" stop-color="rgba(184,102,90,0.35)"/><stop offset="100%" stop-color="rgba(184,102,90,0)"/></linearGradient>
+          </defs>
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradT8)" id="haloT8"/>
+          <g class="sweep-cone"><path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradT8)" opacity="0.85"/></g>
+          <g id="trailsT8"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="T8-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T8-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T8-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T8-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T8-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="T8-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="T8-l-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+          <text class="lbl" id="T8-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="T8-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="T8-l-echo" x="56" y="108" text-anchor="end">The Echo</text>
+        </svg>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('T8')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('T8')">Reset</button>
+      </div>
+    </div>
+
+    <!-- T9 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">T9</div>
+          <div class="card-title">Pulse + ring</div>
+          <div class="card-desc">A pulse races from centre to dot AND a ring expands around the destination dot when it arrives. Two-part feedback.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'T9')">Keep this</button>
+      </div>
+      <div class="viz-wrap">
+        <div class="viz-eyebrow">Your map is forming</div>
+        <svg class="viz-svg" viewBox="0 0 340 260" id="svgT9">
+          <defs>
+            <radialGradient id="centerGradT9" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(201,165,124,0.55)"/><stop offset="60%" stop-color="rgba(201,165,124,0.18)"/><stop offset="100%" stop-color="rgba(201,165,124,0)"/></radialGradient>
+            <linearGradient id="sweepGradT9" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="rgba(184,102,90,0)"/><stop offset="80%" stop-color="rgba(184,102,90,0.35)"/><stop offset="100%" stop-color="rgba(184,102,90,0)"/></linearGradient>
+          </defs>
+          <circle cx="170" cy="130" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="80" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="120" fill="none" stroke="rgba(184,102,90,0.10)"/>
+          <circle cx="170" cy="130" r="0" fill="url(#centerGradT9)" id="haloT9"/>
+          <g class="sweep-cone"><path d="M 170 130 L 295 130 A 125 125 0 0 0 230 35 Z" fill="url(#sweepGradT9)" opacity="0.85"/></g>
+          <g id="trailsT9"></g>
+          <circle cx="170" cy="130" r="3" fill="rgba(201,165,124,0.85)" class="center-pulse"/>
+          <circle class="dot" id="T9-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T9-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T9-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T9-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <circle class="dot" id="T9-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+          <text class="lbl" id="T9-l-strike" x="170" y="22" text-anchor="middle">The Strike</text>
+          <text class="lbl" id="T9-l-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+          <text class="lbl" id="T9-l-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+          <text class="lbl" id="T9-l-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+          <text class="lbl" id="T9-l-echo" x="56" y="108" text-anchor="end">The Echo</text>
+        </svg>
+      </div>
+      <div class="actions">
+        <button class="action-btn primary" onclick="advance('T9')">Answer +1</button>
+        <button class="action-btn" onclick="resetOne('T9')">Reset</button>
+      </div>
+    </div>
+
   </div>
 
   <div class="notes">
-    <h3>How to read these</h3>
+    <h3>How to read these (9 variants)</h3>
     <ul>
       <li><strong>T1 — Travelling dots</strong> · 5-6 small dots fly straight to the target, like a delicate stream</li>
       <li><strong>T2 — Dashed line draw</strong> · a dashed line draws itself from centre to dot then fades</li>
@@ -359,6 +485,9 @@ body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padd
       <li><strong>T4 — Stagger dot trail</strong> · 6 dots leaving in cascade, like footprints walking out</li>
       <li><strong>T5 — Persistent dashed line</strong> · the line stays visible after the answer, building a permanent map of connections</li>
       <li><strong>T6 — Curved arc</strong> · a softly curved trail, more organic / feminine</li>
+      <li><strong>T7 — Sparkle burst</strong> · gold sparkles burst toward the dot, like fairy dust</li>
+      <li><strong>T8 — Triple-dot signal</strong> · 3 larger dots travel in sequence, slow & intentional</li>
+      <li><strong>T9 — Pulse + arrival ring</strong> · a pulse races to the dot, then a ring expands around it on arrival</li>
     </ul>
     <p style="margin-top:14px">All variants <strong>keep the radar sweep + dot growth + flash</strong> from the live version. Pick the one you want layered on top.</p>
   </div>
@@ -385,7 +514,7 @@ const VERTICES = {
   hum:{x:105, y:218},
   echo:{x:72, y:108}
 };
-const VARIANTS = ['T1','T2','T3','T4','T5','T6'];
+const VARIANTS = ['T1','T2','T3','T4','T5','T6','T7','T8','T9'];
 
 const STATE = {};
 VARIANTS.forEach(v => {
@@ -672,6 +801,113 @@ TRAILS.T6 = function(st, moved){
       {duration:1100, easing:'cubic-bezier(0.22,0.61,0.36,1)', fill:'forwards'}
     );
     setTimeout(() => path.remove(), 1200);
+  });
+};
+
+/* T7 — Sparkle burst (gold particles fanning toward target) */
+TRAILS.T7 = function(st, moved){
+  const g = document.getElementById('trailsT7');
+  if(!g) return;
+  const targets = moved.slice(0, 2);
+  targets.forEach(t => {
+    const v = VERTICES[t.k];
+    const count = 10;
+    for(let i=0; i<count; i++){
+      const sparkle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      sparkle.setAttribute('cx','170'); sparkle.setAttribute('cy','130');
+      sparkle.setAttribute('r', (0.8 + Math.random()*1.2).toFixed(1));
+      sparkle.setAttribute('fill', i % 2 === 0 ? 'rgba(201,165,124,1)' : 'rgba(184,102,90,0.85)');
+      sparkle.style.filter = 'drop-shadow(0 0 3px rgba(201,165,124,0.8))';
+      g.appendChild(sparkle);
+      // Slight angular spread around the destination direction
+      const angle = Math.atan2(v.y - 130, v.x - 170);
+      const spread = (Math.random() - 0.5) * 0.45; // ~25 deg spread
+      const spreadAngle = angle + spread;
+      const dist = Math.hypot(v.x - 170, v.y - 130) * (0.85 + Math.random() * 0.30);
+      const fx = 170 + Math.cos(spreadAngle) * dist;
+      const fy = 130 + Math.sin(spreadAngle) * dist;
+      const delay = i * 35 + Math.random() * 60;
+      const duration = 800 + Math.random() * 200;
+      sparkle.animate(
+        [{cx:170, cy:130, opacity:0, offset:0},
+         {cx:170, cy:130, opacity:1, offset:0.08},
+         {cx:fx, cy:fy, opacity:1, offset:0.75},
+         {cx:fx, cy:fy, opacity:0, offset:1}],
+        {duration:duration, delay:delay, easing:'cubic-bezier(0.22, 0.61, 0.36, 1)', fill:'forwards'}
+      );
+      setTimeout(() => sparkle.remove(), delay + duration + 100);
+    }
+  });
+};
+
+/* T8 — Triple-dot signal (3 large dots in slow sequence) */
+TRAILS.T8 = function(st, moved){
+  const g = document.getElementById('trailsT8');
+  if(!g) return;
+  const targets = moved.slice(0, 1); // single target — strongest signal
+  targets.forEach(t => {
+    const v = VERTICES[t.k];
+    for(let i=0; i<3; i++){
+      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      dot.setAttribute('cx','170'); dot.setAttribute('cy','130');
+      dot.setAttribute('r', '0');
+      dot.setAttribute('fill', 'rgba(184,102,90,1)');
+      dot.style.filter = 'drop-shadow(0 0 4px rgba(184,102,90,0.7))';
+      g.appendChild(dot);
+      const delay = i * 220;
+      const duration = 950;
+      dot.animate(
+        [{cx:170, cy:130, r:0, opacity:0, offset:0},
+         {cx:170, cy:130, r:4, opacity:1, offset:0.1},
+         {cx:v.x, cy:v.y, r:4, opacity:1, offset:0.85},
+         {cx:v.x, cy:v.y, r:0, opacity:0, offset:1}],
+        {duration:duration, delay:delay, easing:'cubic-bezier(0.4, 0, 0.2, 1)', fill:'forwards'}
+      );
+      setTimeout(() => dot.remove(), delay + duration + 100);
+    }
+  });
+};
+
+/* T9 — Pulse + arrival ring */
+TRAILS.T9 = function(st, moved){
+  const g = document.getElementById('trailsT9');
+  if(!g) return;
+  const targets = moved.slice(0, 1);
+  targets.forEach(t => {
+    const v = VERTICES[t.k];
+    // 1. A travelling pulse from centre to dot
+    const pulse = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    pulse.setAttribute('cx','170'); pulse.setAttribute('cy','130');
+    pulse.setAttribute('r', '4');
+    pulse.setAttribute('fill', 'rgba(201,165,124,0.95)');
+    pulse.style.filter = 'drop-shadow(0 0 6px rgba(201,165,124,0.8))';
+    g.appendChild(pulse);
+    const travelMs = 680;
+    pulse.animate(
+      [{cx:170, cy:130, opacity:0, offset:0},
+       {cx:170, cy:130, opacity:1, offset:0.1},
+       {cx:v.x, cy:v.y, opacity:1, offset:0.92},
+       {cx:v.x, cy:v.y, opacity:0, offset:1}],
+      {duration:travelMs, easing:'cubic-bezier(0.34, 1.56, 0.64, 1)', fill:'forwards'}
+    );
+    setTimeout(() => pulse.remove(), travelMs + 60);
+
+    // 2. An arrival ring that expands at the dot once the pulse arrives
+    setTimeout(() => {
+      const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      ring.setAttribute('cx', v.x); ring.setAttribute('cy', v.y);
+      ring.setAttribute('r', '4');
+      ring.setAttribute('fill', 'none');
+      ring.setAttribute('stroke', 'rgba(184,102,90,0.85)');
+      ring.setAttribute('stroke-width', '1.5');
+      g.appendChild(ring);
+      ring.animate(
+        [{r:4, opacity:0.9, strokeWidth:1.5, offset:0},
+         {r:18, opacity:0, strokeWidth:0.5, offset:1}],
+        {duration:900, easing:'cubic-bezier(0.22, 0.61, 0.36, 1)', fill:'forwards'}
+      );
+      setTimeout(() => ring.remove(), 1000);
+    }, travelMs - 60);
   });
 };
 
