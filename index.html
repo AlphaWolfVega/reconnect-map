@@ -197,21 +197,38 @@ body.has-timer{padding-top:48px}
 @keyframes dotFlash{0%{transform:scale(1)}40%{transform:scale(1.6);filter:drop-shadow(0 0 6px rgba(184,102,90,0.9))}100%{transform:scale(1);filter:none}}
 .constellation-sweep{transform-origin:170px 125px;animation:sweepRotate 4s linear infinite}
 @keyframes sweepRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-/* T2 — dashed line draw trail (CSS-driven for max compatibility) */
+/* T2 — dashed line draw trail (pathLength trick + drop-shadow for mobile visibility) */
 .const-trail-line{
-  stroke:rgba(184,102,90,0.95);
-  stroke-width:2;
+  stroke:rgba(184,102,90,1);
+  stroke-width:2.6;
   stroke-linecap:round;
-  stroke-dasharray:5 5;
   fill:none;
-  filter:drop-shadow(0 0 4px rgba(184,102,90,0.65));
-  animation:constTrailDraw 1.3s cubic-bezier(0.22,0.61,0.36,1) forwards;
+  filter:drop-shadow(0 0 6px rgba(184,102,90,0.95)) drop-shadow(0 0 12px rgba(184,102,90,0.55));
+  stroke-dasharray:0 100;
+  animation:constTrailDraw 1.4s cubic-bezier(0.22,0.61,0.36,1) forwards;
 }
 @keyframes constTrailDraw{
-  0%   {opacity:0;       stroke-dashoffset:var(--trail-len)}
-  20%  {opacity:1;       stroke-dashoffset:calc(var(--trail-len) * 0.7)}
-  70%  {opacity:1;       stroke-dashoffset:0}
-  100% {opacity:0;       stroke-dashoffset:calc(var(--trail-len) * -0.4)}
+  0%   {opacity:0; stroke-dasharray:0 100}
+  10%  {opacity:1; stroke-dasharray:0 100}
+  55%  {opacity:1; stroke-dasharray:100 0}
+  100% {opacity:0; stroke-dasharray:100 0}
+}
+/* dashed overlay that fades in once draw is complete (so we keep the dotted feel) */
+.const-trail-dash{
+  stroke:rgba(248,238,228,0.95);
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-dasharray:3 6;
+  fill:none;
+  filter:drop-shadow(0 0 3px rgba(184,102,90,0.7));
+  opacity:0;
+  animation:constTrailDashFade 1.4s ease-out forwards;
+}
+@keyframes constTrailDashFade{
+  0%   {opacity:0}
+  55%  {opacity:0}
+  75%  {opacity:1}
+  100% {opacity:0}
 }
 .constellation-label{font-family:'Lato',sans-serif;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;fill:var(--whisper);transition:fill 0.5s ease, font-size 0.5s ease}
 .constellation-label.active{fill:var(--terracotta-deep)}
@@ -659,8 +676,6 @@ body.has-timer{padding-top:48px}
         <g class="constellation-sweep">
           <path d="M 170 125 L 295 125 A 125 125 0 0 0 230 30 Z" fill="url(#sweepGrad)" opacity="0.85"/>
         </g>
-        <!-- trail particles container (T1 — travelling dots) -->
-        <g id="constellationTrails"></g>
         <!-- center pulse dot -->
         <circle class="constellation-center" id="constellationCenter" cx="170" cy="125" r="3" fill="rgba(201,165,124,0.85)"/>
         <!-- 5 dots at pentagon vertices (start tiny + dim) -->
@@ -669,6 +684,8 @@ body.has-timer{padding-top:48px}
         <circle class="constellation-dot" id="dot-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
         <circle class="constellation-dot" id="dot-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
         <circle class="constellation-dot" id="dot-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+        <!-- trail container ON TOP so pointillés overlay everything when drawing -->
+        <g id="constellationTrails"></g>
         <!-- labels (Slow Burn shifted right, Echo shifted left to avoid being masked when dots grow) -->
         <text class="constellation-label" id="lbl-strike" x="170" y="20" text-anchor="middle">The Strike</text>
         <text class="constellation-label" id="lbl-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
@@ -1685,22 +1702,29 @@ const CONST_VERTICES = {
 const CONST_CENTER = {x:170, y:125};
 
 function spawnConstellationTrail(kind, intensity){
-  // T2 — Dashed line draw using CSS @keyframes (max browser compatibility).
+  // T2 — Dashed line draw using pathLength=100 trick + dashed overlay fade-in.
   const g = document.getElementById('constellationTrails');
   if(!g) return;
   const v = CONST_VERTICES[kind];
   if(!v) return;
+  // Solid line that "draws" from centre to vertex
   const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
   ln.setAttribute('x1', CONST_CENTER.x);
   ln.setAttribute('y1', CONST_CENTER.y);
   ln.setAttribute('x2', v.x);
   ln.setAttribute('y2', v.y);
-  const total = Math.hypot(v.x - CONST_CENTER.x, v.y - CONST_CENTER.y);
-  ln.style.setProperty('--trail-len', total);
-  ln.setAttribute('stroke-dashoffset', total);
+  ln.setAttribute('pathLength', '100');
   ln.setAttribute('class', 'const-trail-line');
   g.appendChild(ln);
-  setTimeout(() => ln.remove(), 1400);
+  // Dashed overlay — same coords, fades in once line is fully drawn
+  const dn = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  dn.setAttribute('x1', CONST_CENTER.x);
+  dn.setAttribute('y1', CONST_CENTER.y);
+  dn.setAttribute('x2', v.x);
+  dn.setAttribute('y2', v.y);
+  dn.setAttribute('class', 'const-trail-dash');
+  g.appendChild(dn);
+  setTimeout(() => { ln.remove(); dn.remove(); }, 1500);
 }
 function updateConstellation(opts){
   opts = opts || {};
