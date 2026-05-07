@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconnect Map — Stock + promo end (no timer)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5EFE6; --cream-deep:#EFE7DA; --espresso:#2D241E; --espresso-soft:#5A4A3F;
+  --terracotta:#B8665A; --terracotta-deep:#9C544A; --gold:#C9A57C; --gold-deep:#A8825C;
+  --whisper:#8B7864; --line:#E0D5C2; --line-strong:#C9B89C;
+  --r:8px; --r-card:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Lato',sans-serif;background:#EFE7DA;color:var(--espresso);padding:40px 20px;min-height:100vh;line-height:1.5}
+.page{max-width:1280px;margin:0 auto}
+.page-head{text-align:center;margin-bottom:40px}
+.page-head h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:500;font-style:italic;margin-bottom:10px}
+.page-head p{font-size:15px;color:var(--espresso-soft);max-width:740px;margin:0 auto;line-height:1.6}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:760px){ .grid{grid-template-columns:1fr} }
+
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:22px;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(45,36,30,0.06)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.card-tag{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.20em;font-weight:700;color:var(--terracotta);text-transform:uppercase}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;font-style:italic;color:var(--espresso);margin-bottom:5px;line-height:1.2}
+.card-desc{font-size:12px;color:var(--espresso-soft);line-height:1.5}
+.pick-btn{flex-shrink:0;background:transparent;border:1px solid var(--line-strong);color:var(--whisper);padding:5px 11px;font-size:9.5px;letter-spacing:0.14em;font-weight:700;text-transform:uppercase;border-radius:99px;cursor:pointer;transition:all 0.25s ease}
+.pick-btn:hover{border-color:var(--terracotta);color:var(--terracotta);background:rgba(184,102,90,0.06)}
+.pick-btn.picked{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+
+/* Modal context replica */
+.modal-context{background:var(--cream);border-radius:var(--r-card);padding:24px 22px;text-align:center}
+.modal-eyebrow-good{font-family:'Lato',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-deep);display:inline-flex;align-items:center;gap:8px;margin-bottom:10px}
+.modal-eyebrow-good::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulseGold 1.4s ease-in-out infinite}
+@keyframes pulseGold{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+.modal-h{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--espresso);margin-bottom:14px;font-style:italic;line-height:1.25}
+
+/* ============== SHARED V3 base ============== */
+.v3-bar-wrap{margin:14px 0 12px;position:relative}
+.v3-bar{height:10px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(184,102,90,0.20)}
+.v3-fill{position:absolute;top:0;left:0;bottom:0;width:9%;background:repeating-linear-gradient(45deg,var(--terracotta) 0,var(--terracotta) 5px,#d97a6c 5px,#d97a6c 10px);border-radius:99px;animation:v3Stripes 1.2s linear infinite}
+@keyframes v3Stripes{from{background-position:0 0}to{background-position:20px 0}}
+.v3-marker{position:absolute;left:9%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--terracotta-deep);box-shadow:0 0 0 0 rgba(184,102,90,0.7);animation:v3MarkerPulse 1.4s ease-in-out infinite}
+@keyframes v3MarkerPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.7)}50%{box-shadow:0 0 0 8px rgba(184,102,90,0)}}
+@keyframes dotPing{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+
+/* Stacked stock info — viewing AND products on their own lines */
+.stock-line{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Lato',sans-serif;font-size:11.5px;letter-spacing:0.10em;text-transform:uppercase;font-weight:700}
+.stock-line.viewing{color:var(--terracotta-deep);margin-bottom:6px}
+.stock-line.viewing::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--terracotta);animation:dotPing 1s ease-in-out infinite}
+.stock-line.products{color:var(--whisper)}
+.stock-line.products strong{color:var(--terracotta-deep);font-weight:700}
+
+/* ============== END-MESSAGE VARIANTS ============== */
+
+/* E1 — Subtle italic line */
+.e1-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--espresso-soft);margin-top:14px;padding-top:12px;border-top:1px dashed rgba(184,102,90,0.30);line-height:1.5}
+.e1-msg strong{color:var(--terracotta-deep);font-weight:600;font-style:normal;font-family:'Lato',sans-serif;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;display:inline-block}
+
+/* E2 — Pulsing alert callout */
+.e2-msg{margin-top:14px;padding:10px 16px;background:linear-gradient(90deg,rgba(184,102,90,0.12) 0%,rgba(184,102,90,0.06) 100%);border:1px solid rgba(184,102,90,0.40);border-radius:var(--r);font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;color:var(--terracotta-deep);display:flex;align-items:center;justify-content:center;gap:10px;animation:e2Pulse 2.4s ease-in-out infinite}
+@keyframes e2Pulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.4)}50%{box-shadow:0 0 0 5px rgba(184,102,90,0)}}
+.e2-msg::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--terracotta);animation:dotPing 0.9s ease-in-out infinite}
+
+/* E3 — Ornament + italic line */
+.e3-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--terracotta-deep);font-weight:500;margin-top:14px;line-height:1.5;display:flex;align-items:center;justify-content:center;gap:14px}
+.e3-msg::before,.e3-msg::after{content:"";flex:0 0 24px;height:1px;background:var(--gold)}
+
+/* E4 — Icon + tag horizontal */
+.e4-msg{margin-top:14px;padding:12px 14px;background:rgba(201,165,124,0.10);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;display:flex;align-items:center;gap:12px;text-align:left}
+.e4-icon{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(184,102,90,0.14);color:var(--terracotta-deep);display:flex;align-items:center;justify-content:center;animation:e4IconPulse 2.4s ease-in-out infinite}
+@keyframes e4IconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.e4-icon svg{width:16px;height:16px}
+.e4-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13.5px;color:var(--espresso);line-height:1.4;flex:1}
+.e4-text strong{color:var(--terracotta-deep);font-weight:600}
+
+/* E5 — Sticky tag chip */
+.e5-msg{margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(184,102,90,0.10);border:1px solid rgba(184,102,90,0.40);border-radius:99px;font-family:'Lato',sans-serif;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;color:var(--terracotta-deep);animation:e5TagPulse 2s ease-in-out infinite}
+@keyframes e5TagPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(184,102,90,0.5)}60%{transform:scale(1.03);box-shadow:0 0 0 6px rgba(184,102,90,0)}}
+.e5-msg::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--terracotta);animation:dotPing 1s ease-in-out infinite}
+
+/* E6 — Bold underlined statement */
+.e6-msg{margin-top:14px;padding-top:14px;border-top:1px solid rgba(201,165,124,0.50);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--terracotta-deep);font-weight:600;line-height:1.4;text-align:center;position:relative}
+.e6-msg::after{content:"";display:block;width:36px;height:2px;background:var(--terracotta);margin:8px auto 0;border-radius:99px}
+.e6-msg em{font-style:normal;color:var(--espresso);font-weight:700;background:linear-gradient(180deg,transparent 65%,rgba(201,165,124,0.32) 65%,rgba(201,165,124,0.32) 100%);padding:0 2px}
+
+.notes{margin:48px auto 0;max-width:780px;padding:24px 28px;background:#fff;border:1px solid var(--line);border-radius:var(--r-card);font-size:14px;color:var(--espresso-soft);line-height:1.65}
+.notes h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--espresso);margin-bottom:10px;font-weight:500}
+.notes ul{padding-left:20px}
+.notes li{margin-bottom:6px}
+.notes strong{color:var(--terracotta-deep)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <h1>Stock + promo end — no timer</h1>
+    <p>Same V3 stock bar in all 6. <strong>Viewing count and products in stock are now stacked on their own lines.</strong> Then a static message "this promotion ends when the stock runs out" — different style per variant. <strong>No countdown.</strong></p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ===== E1 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">E1</div>
+          <div class="card-title">Subtle italic line</div>
+          <div class="card-desc">Discreet line below a dashed divider. Most calm, premium tone.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'E1')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">14</strong>&nbsp;products in stock</div>
+        <p class="e1-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      </div>
+    </div>
+
+    <!-- ===== E2 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">E2</div>
+          <div class="card-title">Pulsing alert callout</div>
+          <div class="card-desc">Red/terracotta callout with pulsing dot, uppercase. Most urgent / active.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'E2')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">14</strong>&nbsp;products in stock</div>
+        <div class="e2-msg">Promotion ends when stock runs out</div>
+      </div>
+    </div>
+
+    <!-- ===== E3 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">E3</div>
+          <div class="card-title">Ornament line</div>
+          <div class="card-desc">Italic phrase between two thin gold lines, centred. Most editorial.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'E3')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">14</strong>&nbsp;products in stock</div>
+        <p class="e3-msg">When stock ends, the promotion ends</p>
+      </div>
+    </div>
+
+    <!-- ===== E4 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">E4</div>
+          <div class="card-title">Icon callout</div>
+          <div class="card-desc">Pulsing alert icon + sentence with bold "promotion ends" lead. Most informative.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'E4')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">14</strong>&nbsp;products in stock</div>
+        <div class="e4-msg">
+          <span class="e4-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
+          </span>
+          <span class="e4-text">When the stock runs out, <strong>this promotion ends.</strong> No restock at this price.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== E5 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">E5</div>
+          <div class="card-title">Tag chip</div>
+          <div class="card-desc">A small pulsing pill chip, centred. Most compact, fits anywhere.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'E5')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">14</strong>&nbsp;products in stock</div>
+        <div style="text-align:center;margin-top:10px"><span class="e5-msg">Promotion ends with stock</span></div>
+      </div>
+    </div>
+
+    <!-- ===== E6 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-tag">E6</div>
+          <div class="card-title">Bold statement</div>
+          <div class="card-desc">A short italic sentence with gold underline mark, focal. Most "tagline" feel.</div>
+        </div>
+        <button class="pick-btn" onclick="pick(this,'E6')">Keep this</button>
+      </div>
+      <div class="modal-context">
+        <span class="modal-eyebrow-good">Good news</span>
+        <h3 class="modal-h"><em>Stock available in your area.</em></h3>
+        <div class="v3-bar-wrap">
+          <div class="v3-bar"><div class="v3-fill"></div><div class="v3-marker"></div></div>
+        </div>
+        <div class="stock-line viewing"><span data-live="watching">11</span>&nbsp;people viewing this offer</div>
+        <div class="stock-line products"><strong data-live="stock">14</strong>&nbsp;products in stock</div>
+        <p class="e6-msg">When the stock runs out, <em>this promotion is over</em>.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notes">
+    <h3>What's live in every variant</h3>
+    <ul>
+      <li><strong>"X people viewing this offer"</strong> · drifts between 9 and 20 every ~5 seconds</li>
+      <li><strong>"X products in stock"</strong> · slowly decreases (occasional -1 every 30-60 sec, never below 4)</li>
+      <li><strong>Viewing and products are stacked</strong> on their own lines, both centred under the bar</li>
+      <li><strong>No countdown timer</strong> — only the static message "promotion ends when stock runs out", styled differently per variant</li>
+      <li>Wording: "products" (not "kits"). Tone calibrated to be honest without being aggressive.</li>
+    </ul>
+    <p style="margin-top:14px">Pick one variant → I wire it into the modal in <code>index.html</code> with the live counters.</p>
+  </div>
+</div>
+
+<script>
+function pick(btn, variant){
+  document.querySelectorAll('.pick-btn').forEach(b => { b.classList.remove('picked'); b.textContent = 'Keep this'; });
+  btn.classList.add('picked');
+  btn.textContent = '✓ Picked ' + variant;
+}
+
+// LIVE COUNTERS
+
+let watching = 11;
+function updateWatching(){
+  const drift = Math.random() < 0.85 ? (Math.random() < 0.5 ? -1 : 1) : (Math.random() < 0.5 ? -2 : 2);
+  watching = Math.max(9, Math.min(20, watching + drift));
+  document.querySelectorAll('[data-live="watching"]').forEach(el => el.textContent = watching);
+}
+setInterval(updateWatching, 4500 + Math.random() * 2500);
+
+let stock = 14;
+function tickStock(){
+  if(stock > 4 && Math.random() < 0.55){
+    stock -= 1;
+    document.querySelectorAll('[data-live="stock"]').forEach(el => el.textContent = stock);
+  }
+}
+setInterval(tickStock, 35000);
+</script>
+</body>
+</html>
