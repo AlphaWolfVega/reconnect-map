@@ -642,6 +642,8 @@ body.has-timer{padding-top:48px}
         <g class="constellation-sweep">
           <path d="M 170 125 L 295 125 A 125 125 0 0 0 230 30 Z" fill="url(#sweepGrad)" opacity="0.85"/>
         </g>
+        <!-- trail particles container (T1 — travelling dots) -->
+        <g id="constellationTrails"></g>
         <!-- center pulse dot -->
         <circle class="constellation-center" id="constellationCenter" cx="170" cy="125" r="3" fill="rgba(201,165,124,0.85)"/>
         <!-- 5 dots at pentagon vertices (start tiny + dim) -->
@@ -1656,6 +1658,42 @@ function enableNext(ok){
    ============================================================ */
 const PLEASURES = ['strike','slowburn','tide','hum','echo'];
 const CONST_PREV = {strike:0, slowburn:0, tide:0, hum:0, echo:0};
+const CONST_VERTICES = {
+  strike:{x:170, y:38},
+  slowburn:{x:268, y:108},
+  tide:{x:235, y:218},
+  hum:{x:105, y:218},
+  echo:{x:72, y:108}
+};
+const CONST_CENTER = {x:170, y:125};
+
+function spawnConstellationTrail(kind, intensity){
+  const g = document.getElementById('constellationTrails');
+  if(!g) return;
+  const v = CONST_VERTICES[kind];
+  if(!v) return;
+  const count = Math.max(4, Math.ceil(intensity * 4));
+  for(let i=0; i<count; i++){
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    p.setAttribute('cx', CONST_CENTER.x);
+    p.setAttribute('cy', CONST_CENTER.y);
+    p.setAttribute('r', (1.2 + Math.random() * 0.8).toFixed(1));
+    p.setAttribute('fill', 'rgba(184,102,90,0.95)');
+    g.appendChild(p);
+    const delay = i * 60;
+    const duration = 700 + Math.random() * 120;
+    p.animate(
+      [
+        {cx:CONST_CENTER.x, cy:CONST_CENTER.y, opacity:0, offset:0},
+        {cx:CONST_CENTER.x, cy:CONST_CENTER.y, opacity:1, offset:0.1},
+        {cx:v.x, cy:v.y, opacity:1, offset:0.85},
+        {cx:v.x, cy:v.y, opacity:0, offset:1}
+      ],
+      {duration:duration, delay:delay, easing:'cubic-bezier(0.4, 0, 0.2, 1)', fill:'forwards'}
+    );
+    setTimeout(() => p.remove(), delay + duration + 100);
+  }
+}
 function updateConstellation(opts){
   opts = opts || {};
   const animatePulse = !!opts.animate;
@@ -1679,8 +1717,9 @@ function updateConstellation(opts){
     center.setAttribute('r', (3 + intensity * 6).toString());
     center.setAttribute('fill', `rgba(201,165,124,${0.6 + intensity * 0.4})`);
   }
-  // Update each dot based on its score
+  // Update each dot based on its score + collect movers for trail spawn
   let illuminated = 0;
+  const movers = []; // {kind, delta}
   PLEASURES.forEach(p => {
     const dot = document.getElementById('dot-' + p);
     const lbl = document.getElementById('lbl-' + p);
@@ -1696,16 +1735,23 @@ function updateConstellation(opts){
 
     // Flash dot if its score moved meaningfully on this answer
     if(animatePulse){
-      const delta = Math.abs(score - (CONST_PREV[p] || 0));
-      if(delta >= 0.6){
+      const delta = score - (CONST_PREV[p] || 0);
+      if(Math.abs(delta) >= 0.6){
         dot.classList.remove('flash');
         // force reflow to restart animation
         void dot.getBoundingClientRect();
         dot.classList.add('flash');
       }
+      if(delta > 0.3) movers.push({kind:p, delta:delta});
     }
     CONST_PREV[p] = score;
   });
+
+  // T1 — travelling dots trail toward the kinds that moved up the most
+  if(animatePulse && movers.length > 0){
+    movers.sort((a, b) => b.delta - a.delta);
+    movers.slice(0, 2).forEach(m => spawnConstellationTrail(m.kind, m.delta));
+  }
 
   // Eyebrow + caption messaging
   const eyebrow = document.getElementById('constellationEyebrowText');
