@@ -508,8 +508,9 @@ body.has-timer{padding-top:48px}
 /* RESUME BANNER + SAVE INDICATOR */
 .save-indicator{position:fixed;top:14px;right:14px;font-size:11px;color:var(--whisper);background:var(--cream-deep);padding:6px 12px;border-radius:99px;border:1px solid var(--line);opacity:0;transition:opacity 0.5s ease;pointer-events:none;font-style:italic;z-index:50}
 .save-indicator.visible{opacity:1}
-.resume-banner{background:rgba(201,165,124,0.16);border:1px solid var(--gold);border-radius:var(--r-card);padding:14px 18px;font-size:14px;color:var(--espresso-soft);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
-.resume-banner .resume-actions{display:flex;gap:8px}
+.resume-banner{background:rgba(201,165,124,0.16);border:1px solid var(--gold);border-radius:var(--r-card);padding:16px 18px;font-size:14px;color:var(--espresso-soft);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center}
+.resume-banner > span{display:block;width:100%;text-align:center}
+.resume-banner .resume-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .resume-banner button{padding:6px 14px;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border:1px solid var(--line-strong);border-radius:var(--r);background:transparent;color:var(--espresso-soft);transition:all 0.25s ease}
 .resume-banner button.primary{background:var(--espresso);color:var(--cream);border-color:var(--espresso)}
 .resume-banner button:hover{border-color:var(--espresso)}
