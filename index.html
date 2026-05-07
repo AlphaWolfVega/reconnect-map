@@ -1595,6 +1595,8 @@ function renderQuestion(idx){
 
   // wiring
   if(q.type === 'radio'){
+    // initial state: enabled only if user already answered this question (resume / back)
+    enableNext(STATE.answers[q.id] != null);
     c.querySelectorAll('.q-opt').forEach(btn => {
       btn.addEventListener('click', () => {
         c.querySelectorAll('.q-opt').forEach(b => b.classList.remove('selected'));
