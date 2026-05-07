@@ -1669,31 +1669,34 @@ const CONST_VERTICES = {
 const CONST_CENTER = {x:170, y:125};
 
 function spawnConstellationTrail(kind, intensity){
+  // T2 — Dashed line draw: a dashed line draws itself from centre to dot, then fades.
   const g = document.getElementById('constellationTrails');
   if(!g) return;
   const v = CONST_VERTICES[kind];
   if(!v) return;
-  const count = Math.max(4, Math.ceil(intensity * 4));
-  for(let i=0; i<count; i++){
-    const p = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    p.setAttribute('cx', CONST_CENTER.x);
-    p.setAttribute('cy', CONST_CENTER.y);
-    p.setAttribute('r', (1.2 + Math.random() * 0.8).toFixed(1));
-    p.setAttribute('fill', 'rgba(184,102,90,0.95)');
-    g.appendChild(p);
-    const delay = i * 60;
-    const duration = 700 + Math.random() * 120;
-    p.animate(
-      [
-        {cx:CONST_CENTER.x, cy:CONST_CENTER.y, opacity:0, offset:0},
-        {cx:CONST_CENTER.x, cy:CONST_CENTER.y, opacity:1, offset:0.1},
-        {cx:v.x, cy:v.y, opacity:1, offset:0.85},
-        {cx:v.x, cy:v.y, opacity:0, offset:1}
-      ],
-      {duration:duration, delay:delay, easing:'cubic-bezier(0.4, 0, 0.2, 1)', fill:'forwards'}
-    );
-    setTimeout(() => p.remove(), delay + duration + 100);
-  }
+  const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  ln.setAttribute('x1', CONST_CENTER.x);
+  ln.setAttribute('y1', CONST_CENTER.y);
+  ln.setAttribute('x2', v.x);
+  ln.setAttribute('y2', v.y);
+  ln.setAttribute('stroke', 'rgba(184,102,90,0.85)');
+  ln.setAttribute('stroke-width', '1.5');
+  ln.setAttribute('stroke-linecap', 'round');
+  ln.setAttribute('stroke-dasharray', '4 4');
+  ln.setAttribute('fill', 'none');
+  g.appendChild(ln);
+  const total = Math.hypot(v.x - CONST_CENTER.x, v.y - CONST_CENTER.y);
+  ln.setAttribute('stroke-dashoffset', total.toString());
+  ln.animate(
+    [
+      {strokeDashoffset:total, opacity:0, offset:0},
+      {strokeDashoffset:total * 0.5, opacity:1, offset:0.3},
+      {strokeDashoffset:0, opacity:1, offset:0.75},
+      {strokeDashoffset:-total * 0.4, opacity:0, offset:1}
+    ],
+    {duration:1100, easing:'cubic-bezier(0.22,0.61,0.36,1)', fill:'forwards'}
+  );
+  setTimeout(() => ln.remove(), 1200);
 }
 function updateConstellation(opts){
   opts = opts || {};
