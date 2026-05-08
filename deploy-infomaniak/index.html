@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<!--
+  THE RECONNECT MAP — V6 (client-facing)
+  - Schwartz hook: "There are 5 kinds of pleasure."
+  - Conditional flow: Q1 age → 1 of 5 paths (A/B/C/D/E)
+  - 8 common questions measure the 5 pleasures
+  - Modular verdict: age opener + profile narrative + mechanism + bundle
+  - 4 soft-exit triggers
+  - Sticky 11-min timer ONLY on result page
+  - Routes to Pleasuary Elysia (toggle PRODUCT_CONFIG to switch to POPPY)
+-->
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>The Reconnect Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --cream:#F4ECDC;--cream-deep:#EBE0CB;--sand:#E5D9C3;
+  --espresso:#2D241E;--espresso-soft:#4A3D33;
+  --terracotta:#B8665A;--terracotta-deep:#9C4D42;
+  --aubergine:#5A3F4A;
+  --gold:#C9A57C;--gold-deep:#A88858;--copper:#A56A52;
+  --whisper:rgba(45,36,30,0.55);
+  --line:rgba(45,36,30,0.12);--line-strong:rgba(45,36,30,0.22);
+  --shadow-soft:0 1px 3px rgba(45,36,30,0.08),0 8px 24px rgba(45,36,30,0.06);
+  --shadow-card:0 2px 8px rgba(45,36,30,0.10),0 16px 48px rgba(45,36,30,0.08);
+  --r:4px;--r-card:8px;
+  --t:0.6s cubic-bezier(0.22,0.61,0.36,1);
+}
+/* Force light palette regardless of device dark-mode setting */
+:root{color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--cream);color:var(--espresso);font-family:'Lato',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:400;font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:clip}
+body{min-height:100vh;min-height:100dvh}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea{font-family:inherit;color:inherit}
+h1,h2,h3{font-family:'Cormorant Garamond',Georgia,serif;font-weight:500;letter-spacing:-0.01em;color:var(--espresso);margin:0}
+h1{font-size:clamp(28px,4.6vw,46px);line-height:1.18;font-weight:500}
+h2{font-size:clamp(24px,3.4vw,34px);line-height:1.22}
+h3{font-size:clamp(20px,2.4vw,24px);line-height:1.28}
+
+/* STICKY TIMER (only on result) */
+.sticky-timer{position:fixed;top:0;left:0;right:0;z-index:90;background:var(--espresso);color:var(--cream);padding:12px 16px;display:none;box-shadow:0 2px 12px rgba(45,36,30,0.18);transition:background 0.5s ease}
+.sticky-timer.visible{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap}
+.sticky-timer.expired{background:var(--terracotta-deep)}
+.timer-label{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px}
+.sticky-timer.expired .timer-label{color:var(--cream);letter-spacing:0.18em}
+.timer-label::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 1.6s ease-in-out infinite}
+.sticky-timer.expired .timer-label::before{background:var(--cream);animation:pulse 0.9s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+.timer-countdown{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--cream);font-variant-numeric:tabular-nums;letter-spacing:0.04em}
+.sticky-timer.expired .timer-countdown{display:none}
+@media (max-width:640px){
+  .sticky-timer{padding:10px 12px;gap:14px}.timer-label{font-size:10px;letter-spacing:0.18em}.timer-countdown{font-size:18px}
+}
+body.has-timer{padding-top:48px}
+@media (max-width:640px){body.has-timer{padding-top:44px}}
+
+/* STAGES */
+.stage{display:none;animation:fadeUp 0.7s var(--t) both}
+.stage.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drawIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.container{max-width:760px;margin:0 auto;padding:0 24px}
+.container-wide{max-width:920px;margin:0 auto;padding:0 24px}
+
+/* HERO — centred vertical + horizontal */
+#stage-hero{padding:48px 0 64px;text-align:center;position:relative;overflow:hidden}
+#stage-hero.active{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh}
+#stage-hero .container{width:100%;display:flex;flex-direction:column;align-items:center;position:relative;z-index:2}
+.hero-fx{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+/* Falling petals */
+.hero-petal{position:absolute;top:-30px;width:14px;height:14px;background:radial-gradient(ellipse at 30% 30%, rgba(232,198,180,0.85), rgba(184,102,90,0.5));border-radius:50% 0 50% 0;opacity:0;animation:petalFall 14s linear infinite;will-change:transform,opacity}
+.hero-petal:nth-child(1){left:6%;animation-duration:15s;animation-delay:0s;width:13px;height:13px}
+.hero-petal:nth-child(2){left:18%;animation-duration:12s;animation-delay:2s;width:16px;height:16px}
+.hero-petal:nth-child(3){left:32%;animation-duration:14s;animation-delay:5s;width:11px;height:11px}
+.hero-petal:nth-child(4){left:46%;animation-duration:16s;animation-delay:1s;width:14px;height:14px}
+.hero-petal:nth-child(5){left:60%;animation-duration:11s;animation-delay:6s;width:12px;height:12px}
+.hero-petal:nth-child(6){left:74%;animation-duration:13s;animation-delay:3s;width:15px;height:15px}
+.hero-petal:nth-child(7){left:86%;animation-duration:15s;animation-delay:8s;width:11px;height:11px}
+.hero-petal:nth-child(8){left:24%;animation-duration:17s;animation-delay:9s;width:13px;height:13px}
+.hero-petal:nth-child(9){left:54%;animation-duration:13s;animation-delay:11s;width:14px;height:14px}
+.hero-petal:nth-child(10){left:90%;animation-duration:14s;animation-delay:4s;width:12px;height:12px}
+@keyframes petalFall{
+  0%{opacity:0;transform:translateY(0) translateX(0) rotate(0deg)}
+  10%{opacity:0.65}
+  90%{opacity:0.5}
+  100%{opacity:0;transform:translateY(110vh) translateX(60px) rotate(720deg)}
+}
+/* Whispers — floating italic words */
+.hero-whisper{position:absolute;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;color:rgba(184,102,90,0.45);letter-spacing:0.04em;opacity:0;animation:whisperIn 11s ease-in-out infinite;pointer-events:none;white-space:nowrap}
+.hero-whisper:nth-child(11){top:12%;left:5%;animation-delay:0s}
+.hero-whisper:nth-child(12){top:18%;right:6%;animation-delay:2s}
+.hero-whisper:nth-child(13){top:78%;left:7%;animation-delay:4s}
+.hero-whisper:nth-child(14){top:84%;right:9%;animation-delay:6s}
+.hero-whisper:nth-child(15){top:48%;left:3%;animation-delay:8s}
+.hero-whisper:nth-child(16){top:38%;right:4%;animation-delay:10s}
+@keyframes whisperIn{
+  0%,100%{opacity:0;transform:translateY(8px)}
+  10%,30%{opacity:0.55;transform:translateY(0)}
+  40%{opacity:0;transform:translateY(-8px)}
+}
+@media (max-width:720px){
+  .hero-whisper{font-size:18px}
+  .hero-whisper:nth-child(15),.hero-whisper:nth-child(16){display:none}
+}
+@media (max-width:520px){
+  .hero-whisper{display:none}
+}
+/* Pulse halo gold around CTA */
+.cta-pulse-wrap{position:relative;display:inline-block;border-radius:var(--r)}
+.cta-pulse-wrap::before{content:"";position:absolute;inset:0;border-radius:var(--r);box-shadow:0 0 0 0 rgba(201,165,124,0.7);animation:ctaPulseHalo 2.4s ease-in-out infinite;pointer-events:none}
+@keyframes ctaPulseHalo{
+  0%{box-shadow:0 0 0 0 rgba(201,165,124,0.7),0 0 0 0 rgba(201,165,124,0.35)}
+  60%{box-shadow:0 0 0 16px rgba(201,165,124,0),0 0 0 28px rgba(201,165,124,0)}
+  100%{box-shadow:0 0 0 0 rgba(201,165,124,0),0 0 0 0 rgba(201,165,124,0)}
+}
+#stage-hero .hero-eyebrow{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.32em;text-transform:uppercase;color:var(--terracotta);margin-bottom:24px;display:inline-flex;align-items:center;gap:14px}
+#stage-hero .hero-eyebrow::before,#stage-hero .hero-eyebrow::after{content:"";width:24px;height:1px;background:var(--gold)}
+#stage-hero h1{margin:0 auto 22px;font-style:italic;font-weight:400;max-width:820px;letter-spacing:-0.005em}
+#stage-hero h1 .accent{font-style:normal;color:var(--terracotta);font-weight:500}
+#stage-hero .hero-sub{font-size:18px;color:var(--espresso-soft);max-width:540px;margin:0 auto 14px;line-height:1.55}
+#stage-hero .hero-meta{font-size:13px;color:var(--whisper);font-style:italic;margin-bottom:36px}
+#stage-hero #resumeBanner{max-width:560px;width:100%;margin:0 auto 22px}
+.hero-ornament{display:flex;align-items:center;justify-content:center;gap:14px;margin:30px 0 0;color:var(--gold-deep)}
+.hero-ornament .line{width:48px;height:1px;background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%)}
+.hero-ornament .dot{width:5px;height:5px;border-radius:50%;background:var(--gold)}
+
+/* BUTTONS */
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--espresso);color:var(--cream);padding:16px 32px;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border-radius:var(--r);box-shadow:var(--shadow-soft);transition:all 0.3s ease}
+.btn-primary:hover{background:var(--terracotta-deep);transform:translateY(-1px);box-shadow:var(--shadow-card)}
+.btn-primary:active{transform:translateY(0)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--espresso-soft);padding:10px 16px;font-size:14px;border:1px solid var(--line-strong);border-radius:var(--r);transition:all 0.3s ease}
+.btn-ghost:hover{border-color:var(--espresso);color:var(--espresso)}
+.btn-arrow{display:inline-block;transition:transform 0.3s ease}
+.btn-primary:hover .btn-arrow{transform:translateX(4px)}
+
+/* QUESTIONS — centred vertical */
+#stage-questions{padding:32px 0 96px;text-align:center}
+#stage-questions.active{display:flex;flex-direction:column;justify-content:center;min-height:100vh;min-height:100dvh}
+#stage-questions .container{width:100%;display:flex;flex-direction:column;align-items:center}
+#stage-questions .progress-rail{width:100%;max-width:560px}
+#stage-questions .q-counter{text-align:center}
+#stage-questions .q-prompt{text-align:center;max-width:600px}
+#stage-questions .q-helper{text-align:center;max-width:540px;margin:0 auto 28px}
+#stage-questions .q-options{width:100%;max-width:520px;margin:0 auto 24px}
+#stage-questions .qual-message{max-width:520px;text-align:left;margin-left:auto;margin-right:auto}
+#stage-questions .slider-block{width:100%;max-width:520px}
+#stage-questions .q-actions{width:100%;max-width:520px;margin:20px auto 0}
+
+/* LOADING STAGE (between questions and result) */
+#stage-loading{padding:80px 0 120px;text-align:center}
+#stage-loading.active{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh}
+.loading-wrap{display:flex;flex-direction:column;align-items:center;max-width:440px;margin:0 auto;padding:0 24px;gap:18px}
+.loading-eyebrow{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--terracotta);display:flex;align-items:center;gap:14px}
+.loading-eyebrow::before,.loading-eyebrow::after{content:"";width:24px;height:1px;background:var(--gold)}
+.loading-pentagon{width:130px;height:130px}
+.loading-pentagon svg{width:100%;height:100%}
+.load-dot{transform-origin:center;transform-box:fill-box;animation:loadDotPulse 1.6s ease-in-out infinite}
+@keyframes loadDotPulse{0%,100%{r:3;opacity:0.6}50%{r:5;opacity:1}}
+.load-center{transform-origin:center;transform-box:fill-box;animation:loadCenterPulse 2s ease-in-out infinite}
+@keyframes loadCenterPulse{0%,100%{r:2;opacity:0.7}50%{r:4;opacity:1}}
+.loading-status{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;color:var(--espresso);line-height:1.4;min-height:32px;transition:opacity 0.3s ease}
+.loading-progress{width:100%;max-width:280px;height:2px;background:var(--line);border-radius:2px;overflow:hidden}
+.loading-progress-fill{height:100%;width:0%;background:var(--terracotta);border-radius:2px;transition:width 0.6s ease}
+.loading-tip{font-size:12.5px;color:var(--whisper);font-style:italic;margin-top:6px}
+
+/* HR ORNAMENT + CONSTELLATION EXPLAINER */
+.constellation-section{max-width:540px;margin:36px auto 4px;text-align:center}
+.constellation-section.hidden{display:none}
+.hr-ornament{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto;border:none;height:auto}
+.hr-ornament .line{flex:1;max-width:120px;height:1px;background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%);opacity:0.7}
+.hr-ornament .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(201,165,124,0.18)}
+.constellation-explainer{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;line-height:1.6;color:var(--espresso-soft);margin:14px auto;padding:0 8px;max-width:480px}
+.constellation-explainer strong{color:var(--terracotta-deep);font-weight:600;font-style:normal;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;display:inline-block;margin:0 2px}
+
+/* CONSTELLATION (under questions, fills as she answers) */
+.constellation-wrap{margin:8px auto 0;max-width:380px;text-align:center}
+.constellation-eyebrow{font-family:'Lato',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--terracotta-deep);margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:14px;transition:color 0.5s ease}
+.constellation-eyebrow::before,.constellation-eyebrow::after{content:"";width:24px;height:1px;background:var(--gold)}
+.constellation-svg{display:block;width:100%;height:auto;max-width:340px;margin:0 auto}
+.constellation-svg.shake{animation:constShake 0.7s ease}
+@keyframes constShake{0%,100%{transform:scale(1)}30%{transform:scale(1.025)}60%{transform:scale(0.995)}}
+.constellation-dot{transition:r 0.7s cubic-bezier(0.34,1.56,0.64,1), fill 0.7s ease, opacity 0.7s ease;transform-origin:center;transform-box:fill-box}
+.constellation-dot.active{animation:dotPulse 2.2s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{opacity:0.85;transform:scale(1)}50%{opacity:1;transform:scale(1.22)}}
+.constellation-dot.flash{animation:dotFlash 0.9s cubic-bezier(0.22,0.61,0.36,1)}
+@keyframes dotFlash{0%{transform:scale(1)}40%{transform:scale(1.6);filter:drop-shadow(0 0 6px rgba(184,102,90,0.9))}100%{transform:scale(1);filter:none}}
+.constellation-sweep{transform-origin:170px 125px;animation:sweepRotate 4s linear infinite}
+@keyframes sweepRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* T2 — bold dashed trail, ultra-visible mobile fallback (opacity fade + dash glide) */
+.const-trail-line{
+  stroke:rgba(184,102,90,1);
+  stroke-width:3.5;
+  stroke-linecap:round;
+  stroke-dasharray:6 6;
+  fill:none;
+  filter:drop-shadow(0 0 8px rgba(184,102,90,1)) drop-shadow(0 0 16px rgba(184,102,90,0.6));
+  opacity:0;
+  animation:constTrailVisible 1.8s ease-out forwards;
+}
+@keyframes constTrailVisible{
+  0%   {opacity:0; stroke-dashoffset:24}
+  15%  {opacity:1; stroke-dashoffset:18}
+  60%  {opacity:1; stroke-dashoffset:0}
+  85%  {opacity:1; stroke-dashoffset:-6}
+  100% {opacity:0; stroke-dashoffset:-12}
+}
+.const-trail-burst{
+  fill:rgba(184,102,90,0.95);
+  filter:drop-shadow(0 0 10px rgba(184,102,90,1));
+  opacity:0;
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:constTrailBurst 1.8s ease-out forwards;
+}
+@keyframes constTrailBurst{
+  0%,40% {opacity:0; transform:scale(0)}
+  60%    {opacity:1; transform:scale(1.6)}
+  85%    {opacity:0.6; transform:scale(1)}
+  100%   {opacity:0; transform:scale(1.2)}
+}
+.constellation-label{font-family:'Lato',sans-serif;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;fill:var(--whisper);transition:fill 0.5s ease, font-size 0.5s ease}
+.constellation-label.active{fill:var(--terracotta-deep)}
+.constellation-glow{transition:opacity 1.2s ease, r 1.2s cubic-bezier(0.22,0.61,0.36,1)}
+.constellation-center{transition:r 0.6s cubic-bezier(0.34,1.56,0.64,1), fill 0.5s ease;transform-origin:center;transform-box:fill-box;animation:centerBreathe 3.4s ease-in-out infinite}
+@keyframes centerBreathe{0%,100%{opacity:0.7}50%{opacity:1}}
+.constellation-caption{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--espresso-soft);margin-top:8px;letter-spacing:0.02em;min-height:20px;transition:color 0.5s ease}
+.constellation-caption.strong{color:var(--terracotta-deep);font-weight:500}
+
+.progress-rail{height:2px;background:var(--line);margin-bottom:36px;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--terracotta);width:0%;transition:width 0.7s var(--t);border-radius:2px}
+.q-counter{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--whisper);margin-bottom:14px}
+.q-prompt{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,28px);line-height:1.3;color:var(--espresso);margin-bottom:8px;font-weight:500}
+.q-subhelper{font-family:'Lato',sans-serif;font-size:11.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--terracotta);font-weight:700;text-align:center;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;gap:12px}
+.q-subhelper::before,.q-subhelper::after{content:"";width:24px;height:1px;background:var(--gold)}
+.q-helper{font-size:14px;color:var(--whisper);font-style:italic;margin-bottom:28px}
+.q-helper:empty{display:none;margin:0}
+.q-options{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.q-opt{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--cream-deep);border:1px solid var(--line);border-radius:var(--r-card);font-size:16px;text-align:left;color:var(--espresso);transition:all 0.25s ease;width:100%}
+.q-opt:hover{border-color:var(--terracotta);background:var(--cream);transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+.q-opt.selected{border-color:var(--terracotta);background:var(--cream);box-shadow:0 0 0 3px rgba(184,102,90,0.12)}
+.q-opt .check{width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease}
+.q-opt.selected .check{background:var(--terracotta);border-color:var(--terracotta)}
+.q-opt.selected .check::after{content:"";width:6px;height:6px;background:var(--cream);border-radius:50%}
+.slider-block{padding:16px 4px 8px;margin-bottom:24px}
+.slider-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--whisper);font-style:italic;margin-bottom:14px}
+.slider-input{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--line-strong);border-radius:3px;outline:none}
+.slider-input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;background:var(--terracotta);border-radius:50%;cursor:pointer;box-shadow:0 0 0 6px rgba(184,102,90,0.16);transition:all 0.2s ease}
+.slider-input::-moz-range-thumb{width:24px;height:24px;background:var(--terracotta);border:none;border-radius:50%;cursor:pointer;box-shadow:0 0 0 6px rgba(184,102,90,0.16)}
+.slider-value{text-align:center;margin-top:18px;font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500;color:var(--terracotta);font-style:italic}
+.slider-value-caption{text-align:center;font-size:13px;color:var(--whisper);margin-top:-4px}
+.multi-hint{font-size:12px;color:var(--whisper);margin-bottom:10px;font-style:italic}
+.qual-message{margin-top:8px;padding:14px 18px;background:rgba(201,165,124,0.10);border-left:2px solid var(--gold);font-size:14px;color:var(--espresso-soft);font-style:italic;border-radius:0 var(--r) var(--r) 0;animation:fadeIn 0.5s ease both}
+.q-actions{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:12px;position:relative}
+
+/* RESULT */
+#stage-result{padding:36px 0 96px}
+.reading-frame{position:relative;max-width:620px;margin:0 auto 36px;padding:30px 32px 28px;background:linear-gradient(180deg,rgba(255,253,248,0.7) 0%,rgba(245,239,230,0.5) 100%);border-radius:var(--r-card);overflow:hidden;animation:drawIn 0.7s 0.2s var(--t) both}
+.reading-frame::before{content:"";position:absolute;inset:0;border-radius:var(--r-card);padding:1.5px;background:linear-gradient(120deg,rgba(201,165,124,0.55) 0%,rgba(184,102,90,0.85) 50%,rgba(201,165,124,0.55) 100%);background-size:200% 100%;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:frameShimmer 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes frameShimmer{0%,100%{background-position:0% 50%;opacity:0.85}50%{background-position:100% 50%;opacity:1}}
+.reading-frame::after{content:"";position:absolute;top:50%;left:-2px;width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(201,165,124,0.7);transform:translateY(-50%);animation:framePulse 2.8s ease-in-out infinite}
+@keyframes framePulse{0%,100%{opacity:0.6;transform:translateY(-50%) scale(1)}50%{opacity:1;transform:translateY(-50%) scale(1.4)}}
+.result-eyebrow{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--terracotta);margin:0 0 18px;text-align:center;display:flex;align-items:center;justify-content:center;gap:14px;position:relative;z-index:1}
+.result-eyebrow::before,.result-eyebrow::after{content:"";width:36px;height:1px;background:var(--gold)}
+.track-headline{display:none}
+.track-headline em{font-style:normal;color:var(--terracotta)}
+.profile-name{display:inline-block;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--terracotta-deep);font-weight:600}
+.track-summary{font-size:18px;color:var(--espresso-soft);margin:0 0 10px;max-width:600px;animation:drawIn 0.7s 0.55s var(--t) both}
+.track-summary strong{color:var(--terracotta-deep);font-weight:700}
+.summary-yours{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:26px;color:var(--espresso);font-weight:500;margin:0 auto 14px;line-height:1.35;text-align:center;max-width:520px;text-wrap:balance;position:relative;z-index:1}
+.summary-yours strong{color:var(--terracotta-deep);font-weight:600;white-space:nowrap}
+.summary-missing{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--terracotta-deep);font-weight:500;margin:0 auto;line-height:1.45;text-align:center;max-width:520px;text-wrap:balance;position:relative;z-index:1;opacity:0.92}
+.summary-missing strong{color:var(--terracotta-deep);font-weight:700;white-space:nowrap}
+.result-block{margin-bottom:42px;animation:drawIn 0.7s 0.7s var(--t) both}
+.block-eyebrow{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--whisper);margin:0 0 18px;display:flex;align-items:center;justify-content:center;gap:14px;text-align:center}
+.block-eyebrow::before,.block-eyebrow::after{content:"";flex:0 0 36px;height:1px;background:var(--gold)}
+
+.spider-wrap{background:var(--cream-deep);border-radius:var(--r-card);padding:24px 16px;margin-bottom:36px;border:1px solid var(--line)}
+.spider-canvas{max-width:100%;height:auto !important}
+
+.age-opener{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;line-height:1.55;color:var(--espresso);background:var(--cream-deep);border-left:3px solid var(--gold);padding:18px 22px;border-radius:0 var(--r) var(--r) 0;margin-bottom:30px}
+
+.narrative{font-size:16px;line-height:1.7;color:var(--espresso);max-width:640px;margin:0 auto}
+.narrative .lead{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.4vw,24px);line-height:1.4;color:var(--espresso);font-style:italic;margin:0 0 22px;font-weight:500;border-left:3px solid var(--terracotta);padding:4px 0 4px 18px}
+.narrative .lead strong{font-style:normal;color:var(--terracotta-deep);font-weight:600}
+.narrative p{margin:0 0 14px}
+.narrative p:last-child{margin-bottom:0}
+.narrative strong{color:var(--espresso);font-weight:700;background:linear-gradient(180deg,transparent 65%,rgba(201,165,124,0.32) 65%,rgba(201,165,124,0.32) 100%);padding:0 2px}
+.narrative-bullets{list-style:none;padding:0;margin:18px 0;display:flex;flex-direction:column;gap:12px}
+.narrative-bullets li{font-size:15px;color:var(--espresso-soft);padding:18px 20px 18px 64px;background:var(--cream-deep);border-radius:var(--r);border-left:2px solid var(--gold);line-height:1.55;position:relative;transition:transform 0.3s ease, box-shadow 0.3s ease}
+.narrative-bullets li:hover{transform:translateX(2px);box-shadow:0 4px 12px rgba(201,165,124,0.18)}
+.narrative-bullets li strong{color:var(--espresso);background:none;padding:0;display:block;font-size:12px;letter-spacing:0.10em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
+.narrative-bullets li .bullet-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:rgba(184,102,90,0.10);border-radius:50%;color:var(--terracotta)}
+.narrative-bullets li .bullet-icon svg{width:18px;height:18px;transform-origin:center center;transform-box:fill-box;animation:bulletIconScale 2.8s ease-in-out infinite;will-change:transform,filter}
+.narrative-bullets li:nth-child(1) .bullet-icon{color:var(--gold-deep);background:rgba(201,165,124,0.16)}
+.narrative-bullets li:nth-child(2) .bullet-icon{color:var(--terracotta);background:rgba(184,102,90,0.14)}
+.narrative-bullets li:nth-child(3) .bullet-icon{color:var(--terracotta-deep);background:rgba(156,84,74,0.14)}
+.narrative-bullets li:nth-child(1) .bullet-icon svg{animation-delay:0s;animation-name:bulletIconScaleGold}
+.narrative-bullets li:nth-child(2) .bullet-icon svg{animation-delay:0.5s}
+.narrative-bullets li:nth-child(3) .bullet-icon svg{animation-delay:1s}
+@keyframes bulletIconScale{
+  0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(184,102,90,0));opacity:0.9}
+  50%{transform:scale(1.20);filter:drop-shadow(0 0 4px rgba(184,102,90,0.55));opacity:1}
+}
+@keyframes bulletIconScaleGold{
+  0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(201,165,124,0));opacity:0.9}
+  50%{transform:scale(1.20);filter:drop-shadow(0 0 4px rgba(201,165,124,0.65));opacity:1}
+}
+
+/* CUSTOM RADAR (SVG) — replaces Chart.js radar with proper pulse animation */
+.radar-svg{display:block;width:100%;max-width:480px;height:auto;margin:0 auto}
+.radar-axis{stroke:rgba(45,36,30,0.10);stroke-width:1;fill:none}
+.radar-grid-poly{stroke:rgba(45,36,30,0.10);stroke-width:0.7;fill:none}
+.radar-target-poly{fill:rgba(201,165,124,0.10);stroke:rgba(201,165,124,0.6);stroke-width:1.5;stroke-dasharray:5 4}
+.radar-actual-poly{fill:rgba(184,102,90,0.18);stroke:rgba(184,102,90,0.95);stroke-width:2.5;stroke-linejoin:round}
+.radar-point{fill:rgba(184,102,90,1);stroke:#F4ECDC;stroke-width:2;animation:radarPointPulse 2.2s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+.radar-point:nth-child(1){animation-delay:0s}
+.radar-point:nth-child(2){animation-delay:0.4s}
+.radar-point:nth-child(3){animation-delay:0.8s}
+.radar-point:nth-child(4){animation-delay:1.2s}
+.radar-point:nth-child(5){animation-delay:1.6s}
+@keyframes radarPointPulse{0%,100%{r:5;opacity:1}50%{r:7;opacity:0.78}}
+.radar-label{font-family:'Lato',sans-serif;font-size:16px;font-weight:700;fill:var(--espresso);transition:fill 0.5s ease;letter-spacing:0.02em}
+.radar-label.dominant{fill:var(--terracotta-deep);animation:labelGlow 2.2s ease-in-out infinite;font-size:17px}
+@keyframes labelGlow{0%,100%{opacity:1}50%{opacity:0.65}}
+.radar-legend{display:flex;justify-content:center;gap:24px;margin-top:18px;font-family:'Lato',sans-serif;font-size:12px;color:var(--espresso-soft);flex-wrap:wrap}
+.radar-legend-item{display:inline-flex;align-items:center;gap:8px}
+.radar-legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.radar-legend-dot.actual{background:var(--terracotta);animation:dotPulse 2.2s ease-in-out infinite;transform-origin:center}
+.radar-legend-dot.target{background:transparent;border:1.5px dashed rgba(201,165,124,0.7)}
+@media (max-width:520px){.radar-label{font-size:14px}.radar-label.dominant{font-size:15px}}
+
+.testimonial{background:var(--cream-deep);border-left:3px solid var(--gold);padding:24px 26px;border-radius:0 var(--r-card) var(--r-card) 0;margin:36px 0}
+.testimonial-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;line-height:1.45;color:var(--espresso);margin-bottom:14px;font-weight:500}
+.testimonial-quote::before{content:"\201C";font-size:48px;line-height:0;vertical-align:-0.4em;color:var(--gold);margin-right:4px}
+.testimonial-author{font-size:13px;color:var(--whisper);font-style:normal}
+.testimonial-author strong{color:var(--espresso-soft);font-weight:700}
+
+.mechanism{background:linear-gradient(180deg,var(--cream-deep) 0%,rgba(245,239,230,0.8) 100%);border:1px solid var(--line);border-radius:var(--r-card);padding:32px 30px 28px;margin-bottom:36px}
+.mechanism-stat{text-align:center;font-size:16px;line-height:1.6;color:var(--espresso);margin:0 auto 20px;max-width:560px;font-style:italic;font-family:'Cormorant Garamond',serif}
+.mechanism-stat .stat-num{display:inline-block;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;color:var(--terracotta);line-height:1;font-style:normal;margin:0 1px}
+.mechanism-stat strong{color:var(--terracotta-deep);font-weight:700}
+.mechanism-conclusion{text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--terracotta-deep);font-weight:500;padding:8px 12px 18px;line-height:1.5;border-bottom:1px solid var(--line)}
+.mechanism-intro{text-align:center;font-size:15px;line-height:1.6;color:var(--espresso);margin:18px auto 22px;max-width:560px}
+.mechanism-intro strong{color:var(--terracotta-deep);font-weight:700}
+.stim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 auto 24px;max-width:680px}
+.stim-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px 14px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;position:relative}
+.stim-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(184,102,90,0.12);border-color:rgba(184,102,90,0.4)}
+.stim-card .stim-icon{width:38px;height:38px;border-radius:50%;background:rgba(184,102,90,0.10);color:var(--terracotta);display:flex;align-items:center;justify-content:center}
+.stim-card .stim-icon svg{width:20px;height:20px;transform-origin:center;animation:stimIconScale 3s ease-in-out infinite}
+.stim-card:nth-child(1) .stim-icon svg{animation-delay:0s}
+.stim-card:nth-child(2) .stim-icon svg{animation-delay:0.4s}
+.stim-card:nth-child(3) .stim-icon svg{animation-delay:0.8s}
+@keyframes stimIconScale{
+  0%,100%{transform:scale(0.95);opacity:0.85}
+  50%{transform:scale(1.06);opacity:1}
+}
+.stim-card .stim-label{font-family:'Lato',sans-serif;font-size:11.5px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--espresso);line-height:1.3}
+.stim-card .stim-arrow{font-size:14px;color:var(--gold);line-height:1}
+.stim-card .stim-result{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--terracotta-deep);font-weight:500}
+@media (max-width:560px){ .stim-grid{grid-template-columns:1fr;max-width:340px} }
+.mechanism-emergent{background:rgba(184,102,90,0.06);border-left:3px solid var(--terracotta);padding:18px 22px;border-radius:0 var(--r) var(--r) 0;margin:0 0 22px;font-size:15px;line-height:1.65;color:var(--espresso);max-width:680px;margin-left:auto;margin-right:auto}
+.mechanism-emergent strong{color:var(--terracotta-deep);font-weight:700}
+.mechanism-punchline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;color:var(--terracotta-deep);text-align:center;font-weight:500;padding:18px 12px 4px;line-height:1.45;letter-spacing:0.005em;display:flex;align-items:center;justify-content:center;gap:14px}
+.mechanism-punchline::before,.mechanism-punchline::after{content:"";flex:0 0 24px;height:1px;background:var(--gold)}
+
+/* BUNDLE */
+.bundle-brand-tag{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto 12px;padding:8px 18px;background:linear-gradient(180deg,rgba(255,253,248,0.7) 0%,rgba(245,239,230,0.5) 100%);border:1px solid var(--gold);border-radius:99px;max-width:fit-content;box-shadow:0 1px 3px rgba(201,165,124,0.18)}
+.bundle-brand-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;font-weight:600;color:var(--terracotta-deep);line-height:1}
+.bundle-brand-by{font-family:'Lato',sans-serif;font-size:9.5px;letter-spacing:0.20em;text-transform:uppercase;color:var(--whisper);font-weight:700}
+.bundle-brand-house{font-family:'Lato',sans-serif;font-size:11.5px;letter-spacing:0.20em;text-transform:uppercase;color:var(--gold-deep);font-weight:700}
+.bundle-reco-line{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--espresso-soft);text-align:center;max-width:520px;margin:0 auto 22px;line-height:1.5}
+.bundle-reco-line strong{color:var(--terracotta-deep);font-weight:600;font-style:normal;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;display:inline-block;margin:0 4px}
+.bundle-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px;align-items:stretch}
+.bundle-card{background:var(--cream);border:1px solid var(--gold);border-radius:var(--r-card);padding:28px 24px 26px;box-shadow:var(--shadow-card);position:relative;overflow:hidden;text-align:center;display:flex;flex-direction:column}
+.bundle-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold) 0%,var(--terracotta) 50%,var(--gold) 100%)}
+.bundle-card.popular{border-color:var(--terracotta);border-width:1.5px;box-shadow:0 2px 10px rgba(184,102,90,0.20),0 18px 52px rgba(45,36,30,0.12);transform:translateY(-2px)}
+.bundle-card.popular::before{background:var(--terracotta);height:4px}
+.bundle-popular-badge{position:absolute;top:-1px;right:18px;background:var(--terracotta);color:var(--cream);padding:6px 12px 7px;font-family:'Lato',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-radius:0 0 var(--r) var(--r);box-shadow:0 2px 6px rgba(184,102,90,0.35)}
+.bundle-fit{font-family:'Lato',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px;margin-top:6px;text-align:center}
+.bundle-card.popular .bundle-fit{color:var(--terracotta-deep)}
+.bundle-name{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;color:var(--espresso);margin-bottom:8px;font-style:italic;text-align:center;line-height:1.1}
+.bundle-summary{font-size:14px;color:var(--espresso-soft);margin-bottom:14px;font-style:italic;text-align:center;line-height:1.45;max-width:300px;margin-left:auto;margin-right:auto}
+.bundle-divider{position:relative;height:1px;background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%);margin:6px 0 16px;animation:dividerShimmer 3.2s ease-in-out infinite}
+@keyframes dividerShimmer{0%,100%{opacity:0.55}50%{opacity:1}}
+.bundle-divider::before{content:"";position:absolute;top:50%;left:50%;width:6px;height:6px;border-radius:50%;background:var(--gold);transform:translate(-50%,-50%);animation:dividerDot 3.2s ease-in-out infinite}
+.bundle-card.popular .bundle-divider{background:linear-gradient(90deg,transparent 0%,var(--terracotta) 50%,transparent 100%)}
+.bundle-card.popular .bundle-divider::before{background:var(--terracotta)}
+@keyframes dividerDot{0%,100%{transform:translate(-50%,-50%) scale(1);box-shadow:0 0 0 0 rgba(201,165,124,0)}50%{transform:translate(-50%,-50%) scale(1.4);box-shadow:0 0 0 6px rgba(201,165,124,0.18)}}
+.bundle-price-row{display:flex;align-items:baseline;justify-content:center;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.bundle-strike{font-family:'Lato',sans-serif;font-size:17px;color:var(--whisper);text-decoration:line-through;text-decoration-color:rgba(45,36,30,0.5);text-decoration-thickness:1.5px}
+.bundle-price{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;color:var(--terracotta);line-height:1}
+.bundle-card.popular .bundle-price{color:var(--terracotta-deep)}
+.bundle-save-wrap{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.bundle-save{display:inline-block;font-size:10.5px;color:var(--gold-deep);background:rgba(201,165,124,0.20);padding:5px 12px;border-radius:99px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;font-family:'Lato',sans-serif;white-space:nowrap}
+.bundle-card.popular .bundle-save{color:var(--terracotta-deep);background:rgba(184,102,90,0.14)}
+.bundle-limited{display:inline-block;font-size:10.5px;color:var(--terracotta-deep);background:rgba(184,102,90,0.10);border:1px solid rgba(184,102,90,0.40);padding:4px 11px;border-radius:99px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;font-family:'Lato',sans-serif;white-space:nowrap;animation:limitedPulse 2.2s ease-in-out infinite;will-change:transform,box-shadow}
+@keyframes limitedPulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(184,102,90,0.55)}
+  60%{transform:scale(1.04);box-shadow:0 0 0 8px rgba(184,102,90,0)}
+}
+.bundle-includes{margin:0 0 22px;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.bundle-includes li{font-size:13px;color:var(--espresso);padding:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;line-height:1.4;background:var(--cream-deep);border-radius:var(--r);padding:12px 8px}
+.bundle-includes li .neuro-icon{width:28px;height:28px;color:var(--terracotta);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.bundle-includes li .neuro-icon svg{width:100%;height:100%}
+.bundle-card.popular .bundle-includes li .neuro-icon{color:var(--terracotta-deep)}
+.bundle-includes li strong{display:block;font-size:12px;font-weight:700;color:var(--espresso);letter-spacing:0.01em}
+.bundle-includes li span{display:block;font-size:11.5px;color:var(--espresso-soft);font-style:italic;line-height:1.35}
+.bundle-cta{--cta-bg-base:var(--espresso);--cta-bg-tint:#3a2820;display:block;width:100%;padding:16px;background:var(--cta-bg-base);color:var(--cream);text-align:center;font-family:'Lato',sans-serif;font-size:13.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:var(--r);text-decoration:none;cursor:pointer;margin-top:auto;transform-origin:center;animation:ctaBreath 3.4s ease-in-out infinite;will-change:transform,background}
+.bundle-cta:hover{animation:none;background:var(--terracotta-deep);transform:translateY(-1px);transition:all 0.3s ease}
+.bundle-card.popular .bundle-cta{--cta-bg-base:var(--terracotta);--cta-bg-tint:var(--terracotta-deep)}
+.bundle-card.popular .bundle-cta:hover{background:var(--terracotta-deep)}
+.bundle-cta .cta-arrow,.modal-cta .cta-arrow{display:inline-block;animation:ctaArrowNudge 1.8s ease-in-out infinite;will-change:transform}
+.bundle-cta:hover .cta-arrow,.modal-cta:hover .cta-arrow{animation:none;transform:translateX(4px);transition:transform 0.3s ease}
+@keyframes ctaBreath{
+  0%,100%{transform:scale(1);background:var(--cta-bg-base)}
+  50%{transform:scale(1.022);background:var(--cta-bg-tint)}
+}
+@keyframes ctaArrowNudge{
+  0%,100%{transform:translateX(0)}
+  50%{transform:translateX(4px)}
+}
+.bundle-cta-sub{text-align:center;font-size:12px;color:var(--gold-deep);font-style:italic;margin-top:10px;letter-spacing:0.08em;display:flex;align-items:center;justify-content:center;gap:8px}
+.bundle-cta-sub::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 1.6s ease-in-out infinite}
+@media (max-width:720px){
+  .bundle-grid{grid-template-columns:1fr;gap:16px}
+}
+/* Includes locked to 2x3 on all sizes */
+
+/* GALLERY — variant A (halo radial pulse) */
+.gallery{margin:0 -20px 18px;position:relative}
+.gallery-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding:0 20px;gap:12px;scrollbar-width:none}
+.gallery-track::-webkit-scrollbar{display:none}
+.gallery-slide{flex:0 0 100%;scroll-snap-align:center;border-radius:var(--r-card);overflow:hidden;position:relative;background:var(--cream-deep);aspect-ratio:1/1}
+.gallery-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-slide::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, rgba(201,165,124,0) 60%, rgba(201,165,124,0.5) 90%, rgba(184,102,90,0.7) 100%);mix-blend-mode:screen;animation:haloPulse 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes haloPulse{0%,100%{opacity:0.45}50%{opacity:0.95}}
+.gallery-slide::before{content:"";position:absolute;inset:-12px;background:radial-gradient(circle at 50% 50%, rgba(201,165,124,0.35) 0%, rgba(201,165,124,0) 60%);animation:glowAmbient 4.8s ease-in-out infinite;pointer-events:none;z-index:-1}
+@keyframes glowAmbient{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+.gallery-dots{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.gallery-dot{width:6px;height:6px;border-radius:50%;background:rgba(45,36,30,0.18);border:none;cursor:pointer;transition:all 0.3s ease;padding:0}
+.gallery-dot.active{background:var(--terracotta);width:18px;border-radius:99px}
+.gallery-arrows{position:absolute;top:50%;left:0;right:0;display:flex;justify-content:space-between;padding:0 4px;transform:translateY(-50%);pointer-events:none;z-index:2}
+.gallery-arrow{pointer-events:auto;background:rgba(255,253,248,0.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(201,165,124,0.4);width:34px;height:34px;border-radius:50%;font-size:18px;color:var(--espresso);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.25s ease;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.gallery-arrow:hover{background:#fff;border-color:var(--terracotta);color:var(--terracotta);transform:scale(1.06)}
+.gallery-arrow:disabled{opacity:0.35;cursor:default;transform:none}
+.gallery-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(45,36,30,0.78);color:var(--cream);padding:6px 14px;border-radius:99px;font-family:'Lato',sans-serif;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;font-weight:700;pointer-events:none;animation:hintFade 5.5s ease forwards;z-index:2;display:flex;align-items:center;gap:8px}
+@keyframes hintFade{0%{opacity:0;transform:translate(-50%,8px)}10%,55%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,8px)}}
+.gallery-hint .arrow{animation:arrowSlide 1.6s ease-in-out infinite}
+@keyframes arrowSlide{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+
+/* AVAILABILITY MODAL — loading + available */
+.modal-overlay{position:fixed;inset:0;background:rgba(45,36,30,0.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fadeIn 0.3s ease both}
+.modal-overlay.visible{display:flex}
+.modal-card{background:var(--cream);border-radius:var(--r-card);padding:22px 26px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.4);position:relative;animation:modalRise 0.45s cubic-bezier(0.22,0.61,0.36,1) both}
+@keyframes modalRise{from{opacity:0;transform:translateY(20px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-stage{display:none}
+.modal-stage.active{display:block;animation:fadeIn 0.4s ease both}
+
+/* Loading state */
+.modal-loading{text-align:center;padding:18px 0}
+.spinner{width:54px;height:54px;border:3px solid rgba(184,102,90,0.18);border-top-color:var(--terracotta);border-radius:50%;margin:0 auto 22px;animation:spin 0.85s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.modal-eyebrow{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--terracotta);margin-bottom:14px}
+.modal-eyebrow-good{color:var(--gold-deep);display:inline-flex;align-items:center;gap:8px}
+.modal-header-inline .modal-eyebrow{margin-bottom:0}
+.modal-status{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:var(--espresso-soft);margin-bottom:24px;min-height:22px;transition:opacity 0.3s ease}
+.modal-progress{height:3px;background:var(--line);border-radius:3px;overflow:hidden;max-width:240px;margin:0 auto}
+.modal-progress-fill{height:100%;width:0%;background:var(--terracotta);border-radius:3px;transition:width 0.4s ease}
+
+/* Available state */
+.modal-available{text-align:center;padding:0}
+.modal-header-inline{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.modal-check-mini{width:22px;height:22px;border-radius:50%;background:rgba(201,165,124,0.22);color:var(--gold-deep);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;animation:checkMiniPulse 1.6s ease-in-out infinite, popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;will-change:transform,box-shadow}
+.modal-check-mini svg{width:13px;height:13px}
+@keyframes popIn{from{opacity:0;transform:scale(0.6)}to{opacity:1;transform:scale(1)}}
+@keyframes checkMiniPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(201,165,124,0.55);transform:scale(1)}
+  50%   {box-shadow:0 0 0 8px rgba(201,165,124,0);transform:scale(1.08)}
+}
+.modal-card h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--espresso);margin-bottom:10px;font-style:italic;line-height:1.25}
+.modal-card .modal-warning{color:var(--terracotta-deep);font-style:italic;font-size:14px;margin-bottom:22px;padding:10px 14px;background:rgba(184,102,90,0.08);border-radius:var(--r);display:inline-block}
+/* === Stock bar + counters (B2 + W1, fixed bar) === */
+.stock-bar-wrap{margin:14px auto 12px;max-width:340px}
+.stock-bar{height:10px;background:var(--cream-deep);border-radius:99px;overflow:hidden;position:relative;border:1px solid rgba(184,102,90,0.20)}
+.stock-fill{position:absolute;top:0;left:0;bottom:0;width:6%;background:var(--terracotta);border-radius:99px}
+.stock-marker{position:absolute;left:6%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:var(--terracotta-deep);box-shadow:0 0 0 0 rgba(184,102,90,0.7);animation:stockMarkerPulse 1.4s ease-in-out infinite}
+@keyframes stockMarkerPulse{0%,100%{box-shadow:0 0 0 0 rgba(184,102,90,0.7)}50%{box-shadow:0 0 0 8px rgba(184,102,90,0)}}
+.stock-line{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Lato',sans-serif;font-size:11.5px;letter-spacing:0.10em;text-transform:uppercase;font-weight:700}
+.stock-viewing{color:var(--terracotta-deep);margin-bottom:6px}
+.stock-viewing::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--terracotta);animation:stockDotPing 1s ease-in-out infinite}
+@keyframes stockDotPing{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.stock-products{color:var(--whisper)}
+.stock-products strong{color:var(--terracotta-deep);font-weight:700;font-size:13px;display:inline-block;transition:color 0.4s ease}
+.stock-products strong.bump{animation:stockBump 0.8s ease-out}
+@keyframes stockBump{0%{transform:scale(1)}40%{transform:scale(1.30);color:var(--terracotta)}100%{transform:scale(1)}}
+.stock-end-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13.5px;color:var(--espresso-soft);margin:14px auto 22px;padding-top:12px;border-top:1px dashed rgba(184,102,90,0.30);line-height:1.55;max-width:340px}
+.stock-end-msg strong{color:var(--terracotta-deep);font-weight:700;font-style:normal;font-family:'Lato',sans-serif;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;display:inline-block}
+.modal-benefits{list-style:none;padding:0;margin:0 0 26px;text-align:left}
+.modal-benefits li{padding:10px 14px 10px 40px;font-size:14px;color:var(--espresso-soft);position:relative;background:var(--cream-deep);border-radius:var(--r);margin-bottom:6px;line-height:1.45}
+.modal-benefits li::before{content:"\2713";position:absolute;left:14px;top:10px;color:var(--gold-deep);font-weight:700;font-size:14px}
+.modal-benefits li strong{color:var(--espresso);font-weight:700}
+.modal-cta{--cta-bg-base:var(--terracotta);--cta-bg-tint:var(--terracotta-deep);display:block;width:100%;padding:18px;background:var(--cta-bg-base);color:var(--cream);text-align:center;font-family:'Lato',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-radius:var(--r);text-decoration:none;margin-bottom:8px;transform-origin:center;animation:ctaBreath 3.4s ease-in-out infinite;will-change:transform,background}
+.modal-cta:hover{animation:none;background:var(--terracotta-deep);transform:translateY(-1px);box-shadow:var(--shadow-card);transition:all 0.3s ease}
+.modal-close-btn{display:block;margin:6px auto 0;padding:8px 14px;background:transparent;color:var(--whisper);font-size:12px;letter-spacing:0.08em;font-weight:700;text-transform:uppercase;border:none;cursor:pointer;transition:color 0.25s ease}
+.modal-close-btn:hover{color:var(--espresso-soft)}
+
+.risk-callout{background:linear-gradient(135deg,rgba(201,165,124,0.14) 0%,rgba(184,102,90,0.10) 100%);border:1px solid var(--gold);border-radius:var(--r-card);padding:28px 26px 24px;margin-bottom:32px}
+.risk-callout-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--espresso);margin:0 auto 16px;font-style:italic;text-align:center;display:flex;align-items:center;justify-content:center;gap:14px;max-width:fit-content}
+.risk-callout-title::before,.risk-callout-title::after{content:"";width:24px;height:1px;background:var(--gold)}
+.risk-callout-list{list-style:none;padding:0;margin:0}
+.risk-callout-list li{padding:6px 0;font-size:14px;color:var(--espresso-soft);display:flex;gap:10px}
+.risk-callout-list li::before{content:"\2713";color:var(--gold-deep);font-weight:700;flex-shrink:0}
+
+.no-pressure{text-align:center;font-size:13px;color:var(--whisper);font-style:italic;margin-top:14px}
+.disclosure{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);font-size:11px;color:var(--whisper);line-height:1.6;max-width:600px}
+
+/* SOFT EXIT */
+.soft-exit-resources{background:var(--cream-deep);border-radius:var(--r-card);padding:24px 26px;border:1px solid var(--line);margin-bottom:30px}
+.soft-exit-resources h3{margin-bottom:14px;font-style:italic;font-weight:500}
+.soft-exit-resources li{padding:10px 0;border-top:1px solid var(--line);font-size:15px;color:var(--espresso-soft);list-style:none}
+.soft-exit-resources li:first-child{border-top:none}
+.soft-exit-resources li strong{display:block;color:var(--espresso);margin-bottom:2px}
+
+/* RESPONSIVE */
+@media (max-width:640px){
+  body{font-size:16px}
+  #stage-hero{padding:32px 0 56px}
+  .container,.container-wide{padding:0 20px}
+  .q-opt{padding:14px 16px;font-size:15px}
+  .bundle-price{font-size:36px}
+  .testimonial{padding:20px 22px}.testimonial-quote{font-size:18px}
+}
+
+/* RESUME BANNER + SAVE INDICATOR */
+.save-indicator{position:fixed;top:14px;right:14px;font-size:11px;color:var(--whisper);background:var(--cream-deep);padding:6px 12px;border-radius:99px;border:1px solid var(--line);opacity:0;transition:opacity 0.5s ease;pointer-events:none;font-style:italic;z-index:50}
+.save-indicator.visible{opacity:1}
+.resume-banner{background:rgba(201,165,124,0.16);border:1px solid var(--gold);border-radius:var(--r-card);padding:16px 18px;font-size:14px;color:var(--espresso-soft);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;text-align:center}
+.resume-banner > span{display:block;width:100%;text-align:center}
+.resume-banner .resume-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.resume-banner button{padding:6px 14px;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border:1px solid var(--line-strong);border-radius:var(--r);background:transparent;color:var(--espresso-soft);transition:all 0.25s ease}
+.resume-banner button.primary{background:var(--espresso);color:var(--cream);border-color:var(--espresso)}
+.resume-banner button:hover{border-color:var(--espresso)}
+</style>
+</head>
+<body>
+
+<!-- AVAILABILITY MODAL -->
+<div class="modal-overlay" id="availabilityModal" role="dialog" aria-modal="true" aria-labelledby="modalStatus">
+  <div class="modal-card">
+    <!-- LOADING -->
+    <div class="modal-stage modal-loading active" id="modalLoadingStage">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="modal-eyebrow">Checking availability</div>
+      <div class="modal-status" id="modalStatus">Connecting to inventory&hellip;</div>
+      <div class="modal-progress"><div class="modal-progress-fill" id="modalProgressFill"></div></div>
+    </div>
+    <!-- AVAILABLE -->
+    <div class="modal-stage modal-available" id="modalAvailableStage">
+      <div class="modal-header-inline">
+        <span class="modal-check-mini" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        <span class="modal-eyebrow modal-eyebrow-good">Good news</span>
+      </div>
+      <h3>Stock available in your area.</h3>
+      <!-- Stock bar (B2: 6% solid, fixed forever) + live counters + W1 message -->
+      <div class="stock-bar-wrap" aria-hidden="true">
+        <div class="stock-bar"><div class="stock-fill"></div><div class="stock-marker"></div></div>
+      </div>
+      <div class="stock-line stock-viewing"><span id="stockWatching">11</span>&nbsp;people viewing this offer</div>
+      <div class="stock-line stock-products"><strong id="stockCount">7</strong>&nbsp;products in stock</div>
+      <p class="stock-end-msg">Once the stock runs out, this promotion ends. <strong>No restock at this price.</strong></p>
+      <ul class="modal-benefits">
+        <li><strong>All 5 pleasures unlocked</strong> — three coordinated stims, the only configuration that delivers them.</li>
+        <li><strong>30-day full refund</strong> — even after opening. Zero risk.</li>
+        <li><strong>Plain packaging</strong> + generic bank statement — nobody in your house knows.</li>
+        <li><strong>52,000+ women</strong> already on this map. 4.8/5 across 3,853 verified reviews.</li>
+      </ul>
+      <a class="modal-cta" id="modalCtaFinal" href="#" target="_blank" rel="noopener">Claim my offer now <span class="cta-arrow">&rarr;</span></a>
+      <button class="modal-close-btn" id="modalCloseBtn">Not yet</button>
+    </div>
+  </div>
+</div>
+
+<!-- STICKY OFFER TIMER (visible only on result stage) -->
+<div class="sticky-timer" id="stickyTimer" role="status" aria-live="polite">
+  <span class="timer-label" id="timerLabel">Limited release &middot; Australia</span>
+  <span class="timer-countdown" id="timerCountdown">11:00</span>
+</div>
+
+<!-- SAVE INDICATOR -->
+<div class="save-indicator" id="saveIndicator">Saved.</div>
+
+<!-- ============== STAGE: HERO ============== -->
+<section class="stage active" id="stage-hero">
+  <div class="hero-fx" aria-hidden="true">
+    <span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span>
+    <span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span><span class="hero-petal"></span>
+    <span class="hero-whisper">breathe</span>
+    <span class="hero-whisper">feel</span>
+    <span class="hero-whisper">return</span>
+    <span class="hero-whisper">listen</span>
+    <span class="hero-whisper">remember</span>
+    <span class="hero-whisper">honest</span>
+  </div>
+  <div class="container">
+    <div class="hero-eyebrow">The Reconnect Map</div>
+    <h1>There are <span class="accent">5 kinds</span> of pleasure.<br>Most women only ever experience <span class="accent">two</span>.</h1>
+    <p class="hero-sub">Find out which two are yours — and which three you've never met.</p>
+    <p class="hero-meta">A 90-second test. Private. No email required.</p>
+    <div id="resumeBanner"></div>
+    <span class="cta-pulse-wrap">
+      <button class="btn-primary" id="startBtn">
+        Show me where I am
+        <span class="btn-arrow">&rarr;</span>
+      </button>
+    </span>
+    <div class="hero-ornament" aria-hidden="true">
+      <span class="line"></span>
+      <span class="dot"></span>
+      <span class="line"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============== STAGE: QUESTIONS ============== -->
+<section class="stage" id="stage-questions">
+  <div class="container">
+    <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+    <div id="questionContainer"></div>
+    <div class="q-actions">
+      <button class="btn-ghost" id="backBtn">&larr; Back</button>
+      <button class="btn-primary" id="nextBtn" disabled style="opacity:0.4;pointer-events:none">
+        Continue <span class="btn-arrow">&rarr;</span>
+      </button>
+    </div>
+
+    <!-- HR ornament + explainer for constellation -->
+    <div class="constellation-section" id="constellationSection">
+      <div class="hr-ornament" aria-hidden="true"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+      <p class="constellation-explainer">
+        Below is your live <strong>map of the 5 kinds of pleasure</strong>. Each answer lights up the kinds you already know — and reveals the ones you haven&apos;t met yet.
+      </p>
+      <div class="hr-ornament" aria-hidden="true"><span class="line"></span><span class="dot"></span><span class="line"></span></div>
+    </div>
+
+    <!-- CONSTELLATION — radar sweep variant -->
+    <div class="constellation-wrap" id="constellationWrap" aria-hidden="true">
+      <div class="constellation-eyebrow"><span id="constellationEyebrowText">Your map is forming</span></div>
+      <svg class="constellation-svg" viewBox="0 0 340 260" id="constellationSvg">
+        <defs>
+          <radialGradient id="centerGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(201,165,124,0.55)"/>
+            <stop offset="60%" stop-color="rgba(201,165,124,0.18)"/>
+            <stop offset="100%" stop-color="rgba(201,165,124,0)"/>
+          </radialGradient>
+          <linearGradient id="sweepGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stop-color="rgba(184,102,90,0)"/>
+            <stop offset="80%" stop-color="rgba(184,102,90,0.35)"/>
+            <stop offset="100%" stop-color="rgba(184,102,90,0)"/>
+          </linearGradient>
+        </defs>
+        <!-- background concentric circles (radar grid) -->
+        <circle cx="170" cy="125" r="40" fill="none" stroke="rgba(184,102,90,0.10)"/>
+        <circle cx="170" cy="125" r="78" fill="none" stroke="rgba(184,102,90,0.10)"/>
+        <circle cx="170" cy="125" r="116" fill="none" stroke="rgba(184,102,90,0.10)"/>
+        <!-- expanding glow halo -->
+        <circle class="constellation-glow" id="constellationGlow" cx="170" cy="125" r="0" fill="url(#centerGrad)"/>
+        <!-- rotating sweep cone -->
+        <g class="constellation-sweep">
+          <path d="M 170 125 L 295 125 A 125 125 0 0 0 230 30 Z" fill="url(#sweepGrad)" opacity="0.85"/>
+        </g>
+        <!-- center pulse dot -->
+        <circle class="constellation-center" id="constellationCenter" cx="170" cy="125" r="3" fill="rgba(201,165,124,0.85)"/>
+        <!-- 5 dots at pentagon vertices (start tiny + dim) -->
+        <circle class="constellation-dot" id="dot-strike" cx="170" cy="38" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+        <circle class="constellation-dot" id="dot-slowburn" cx="268" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+        <circle class="constellation-dot" id="dot-tide" cx="235" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+        <circle class="constellation-dot" id="dot-hum" cx="105" cy="218" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+        <circle class="constellation-dot" id="dot-echo" cx="72" cy="108" r="2" fill="rgba(184,102,90,0.20)" opacity="0.35"/>
+        <!-- trail container ON TOP so pointillés overlay everything when drawing -->
+        <g id="constellationTrails"></g>
+        <!-- labels (Slow Burn shifted right, Echo shifted left to avoid being masked when dots grow) -->
+        <text class="constellation-label" id="lbl-strike" x="170" y="20" text-anchor="middle">The Strike</text>
+        <text class="constellation-label" id="lbl-slowburn" x="284" y="108" text-anchor="start">Slow Burn</text>
+        <text class="constellation-label" id="lbl-tide" x="248" y="238" text-anchor="middle">The Tide</text>
+        <text class="constellation-label" id="lbl-hum" x="92" y="238" text-anchor="middle">The Hum</text>
+        <text class="constellation-label" id="lbl-echo" x="56" y="108" text-anchor="end">The Echo</text>
+      </svg>
+      <div class="constellation-caption" id="constellationCaption">Answer to begin</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== STAGE: RESULT ============== -->
+<!-- ============== STAGE: LOADING (between questions and result) ============== -->
+<section class="stage" id="stage-loading">
+  <div class="loading-wrap">
+    <div class="loading-eyebrow">Reading in progress</div>
+    <div class="loading-pentagon" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <radialGradient id="loadGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(201,165,124,0.55)"/>
+            <stop offset="100%" stop-color="rgba(201,165,124,0)"/>
+          </radialGradient>
+        </defs>
+        <circle cx="50" cy="50" r="42" fill="url(#loadGrad)"/>
+        <polygon points="50,12 88,40 73,84 27,84 12,40" fill="none" stroke="rgba(184,102,90,0.4)" stroke-width="0.8"/>
+        <circle cx="50" cy="12" r="3" fill="var(--terracotta)" class="load-dot" style="animation-delay:0s"/>
+        <circle cx="88" cy="40" r="3" fill="var(--terracotta)" class="load-dot" style="animation-delay:0.3s"/>
+        <circle cx="73" cy="84" r="3" fill="var(--terracotta)" class="load-dot" style="animation-delay:0.6s"/>
+        <circle cx="27" cy="84" r="3" fill="var(--terracotta)" class="load-dot" style="animation-delay:0.9s"/>
+        <circle cx="12" cy="40" r="3" fill="var(--terracotta)" class="load-dot" style="animation-delay:1.2s"/>
+        <circle cx="50" cy="50" r="2" fill="var(--gold)" class="load-center"/>
+      </svg>
+    </div>
+    <p class="loading-status" id="loadingStatus">Reading your answers…</p>
+    <div class="loading-progress"><div class="loading-progress-fill" id="loadingProgressFill"></div></div>
+    <p class="loading-tip">Your private reading is being prepared. No data leaves this device.</p>
+  </div>
+</section>
+
+<section class="stage" id="stage-result">
+  <div class="container-wide">
+    <div class="reading-frame">
+      <div class="result-eyebrow">Your reading</div>
+      <h1 class="track-headline" id="trackHeadline"></h1>
+      <p class="summary-yours" id="summaryYours"></p>
+      <p class="summary-missing" id="summaryMissing"></p>
+    </div>
+
+    <div class="age-opener" id="ageOpener"></div>
+
+    <div class="result-block">
+      <div class="block-eyebrow">The 5 kinds — your map</div>
+      <div class="spider-wrap">
+        <svg class="radar-svg" viewBox="0 0 580 460" id="radarSvg" aria-hidden="true">
+          <!-- grid polygons (5 levels) + axes drawn dynamically -->
+          <g id="radarGrid"></g>
+          <!-- target polygon (where the 5 sit when fully accessible) -->
+          <polygon id="radarTarget" class="radar-target-poly" points=""/>
+          <!-- actual polygon (your scores) -->
+          <polygon id="radarActual" class="radar-actual-poly" points=""/>
+          <!-- 5 pulsing dots -->
+          <g id="radarPoints"></g>
+          <!-- 5 labels -->
+          <g id="radarLabels"></g>
+        </svg>
+        <div class="radar-legend">
+          <span class="radar-legend-item"><span class="radar-legend-dot actual"></span>Where you are</span>
+          <span class="radar-legend-item"><span class="radar-legend-dot target"></span>Where the 5 sit when fully accessible</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-block">
+      <div class="block-eyebrow">What this means</div>
+      <div class="narrative" id="narrative"></div>
+    </div>
+
+    <div class="testimonial" id="testimonialBlock">
+      <div class="testimonial-quote" id="testimonialQuote"></div>
+      <div class="testimonial-author" id="testimonialAuthor"></div>
+    </div>
+
+    <div id="productSection">
+      <div class="result-block">
+        <div class="block-eyebrow">How three stimulations deliver five pleasures</div>
+        <div class="mechanism" id="mechanismBlock"></div>
+      </div>
+
+      <div class="result-block">
+        <div class="block-eyebrow">What we'd point you to</div>
+        <div class="bundle-brand-tag">
+          <span class="bundle-brand-name">Elysia</span>
+          <span class="bundle-brand-by">by</span>
+          <span class="bundle-brand-house">Pleasuary</span>
+        </div>
+        <p class="bundle-reco-line" id="bundleRecoLine"></p>
+        <div class="bundle-grid" id="bundleGrid">
+          <!-- Card 1 -->
+          <div class="bundle-card" id="bundleCard1">
+            <div class="bundle-popular-badge" id="bundlePopularBadge1" style="display:none">Recommended for you</div>
+            <div class="bundle-fit" id="bundleFit1"></div>
+            <div class="bundle-name" id="bundleName1"></div>
+            <div class="bundle-summary" id="bundleSummary1"></div>
+            <div class="gallery variant-a">
+              <div class="gallery-track" id="galleryTrack1"></div>
+              <div class="gallery-arrows">
+                <button class="gallery-arrow" data-card="1" data-dir="-1" aria-label="Previous image">&lsaquo;</button>
+                <button class="gallery-arrow" data-card="1" data-dir="1" aria-label="Next image">&rsaquo;</button>
+              </div>
+              <div class="gallery-hint">Swipe <span class="arrow">&rsaquo;</span></div>
+              <div class="gallery-dots" id="galleryDots1"></div>
+            </div>
+            <div class="bundle-divider"></div>
+            <div class="bundle-price-row">
+              <span class="bundle-strike" id="bundleStrike1"></span>
+              <span class="bundle-price" id="bundlePrice1"></span>
+            </div>
+            <div class="bundle-save-wrap"><span class="bundle-save" id="bundleSave1"></span><span class="bundle-limited">● Limited offer</span></div>
+            <ul class="bundle-includes" id="bundleIncludes1"></ul>
+            <a class="bundle-cta" id="bundleCta1" href="javascript:void(0)" data-href="#" rel="noopener">Check availability <span class="cta-arrow">&rarr;</span></a>
+          </div>
+          <!-- Card 2 -->
+          <div class="bundle-card" id="bundleCard2">
+            <div class="bundle-popular-badge" id="bundlePopularBadge2" style="display:none">Recommended for you</div>
+            <div class="bundle-fit" id="bundleFit2"></div>
+            <div class="bundle-name" id="bundleName2"></div>
+            <div class="bundle-summary" id="bundleSummary2"></div>
+            <div class="gallery variant-a">
+              <div class="gallery-track" id="galleryTrack2"></div>
+              <div class="gallery-arrows">
+                <button class="gallery-arrow" data-card="2" data-dir="-1" aria-label="Previous image">&lsaquo;</button>
+                <button class="gallery-arrow" data-card="2" data-dir="1" aria-label="Next image">&rsaquo;</button>
+              </div>
+              <div class="gallery-hint">Swipe <span class="arrow">&rsaquo;</span></div>
+              <div class="gallery-dots" id="galleryDots2"></div>
+            </div>
+            <div class="bundle-divider"></div>
+            <div class="bundle-price-row">
+              <span class="bundle-strike" id="bundleStrike2"></span>
+              <span class="bundle-price" id="bundlePrice2"></span>
+            </div>
+            <div class="bundle-save-wrap"><span class="bundle-save" id="bundleSave2"></span></div>
+            <ul class="bundle-includes" id="bundleIncludes2"></ul>
+            <a class="bundle-cta" id="bundleCta2" href="javascript:void(0)" data-href="#" rel="noopener">Check availability <span class="cta-arrow">&rarr;</span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="risk-callout">
+        <div class="risk-callout-title">No risk. No mailbox surprise.</div>
+        <ul class="risk-callout-list">
+          <li>Plain packaging — no brand, no wording, nothing on the parcel.</li>
+          <li>Generic bank statement — non-identifying.</li>
+          <li>30-day full refund — even after opening, no questions asked.</li>
+          <li>12-month warranty against defects.</li>
+          <li>Free shipping across Australia, 3-7 business days.</li>
+        </ul>
+      </div>
+
+      <p class="no-pressure">Take your time. Your map is saved on this device for 30 days. Come back when you're ready.</p>
+    </div>
+
+    <div id="softExitSection" style="display:none">
+      <div class="soft-exit-resources" id="softExitResources"></div>
+      <p class="no-pressure" id="softExitFootnote"></p>
+    </div>
+
+    <p class="disclosure">
+      Testimonials shown reflect real verbatim feedback from an anonymous customer survey (n=459, Australia, 2026). Names, ages and cities are anonymised composites built from the verbatim pool. Photos shown elsewhere on this site, where used, are paid models. No medical claims. Results vary. This diagnostic is not medical advice. If you experience pain, bleeding, or significant changes, please consult your doctor or a women's health specialist.
+    </p>
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   RECONNECT MAP — V6
+   ============================================================ */
+
+const PRODUCT_CONFIG = {
+  brand:'Pleasuary', product:'Elysia',
+  url_base:'https://pleasuary.com/products/elysia',
+  utm:'?utm_source=reconnect-map&utm_medium=diagnostic&utm_campaign=v6'
+};
+const ctaHref = PRODUCT_CONFIG.url_base + PRODUCT_CONFIG.utm;
+
+const BANLIST = ['orgasm','orgasmic','orgasmically','sex drive','arousal','aroused','climax','sexually','spice things up','feel young again'];
+
+const STATE = {
+  stage:'hero', qIndex:0, answers:{},
+  scores:{strike:0, slowburn:0, tide:0, hum:0, echo:0},
+  profile:null, secondary:null, missing:[], path:null, softExit:null,
+  startedAt:null
+};
+
+/* ---------- AGE → PATH MAPPING ---------- */
+function ageToPath(age){
+  return {'18-29':'A','30-39':'B','40-49':'C','50-59':'D','60+':'E'}[age] || 'C';
+}
+
+/* ============================================================
+   QUESTIONS
+   - id:'age' is always first (path gating)
+   - path:'A'/'B'/'C'/'D'/'E' = path-specific
+   - path:'all' = common questions for all paths
+   ============================================================ */
+const QUESTIONS = [
+  // Q1 — AGE (gating)
+  { id:'age', path:'gate',
+    prompt:"Before we begin — what's your age range?",
+    helper:"We ask first because the body and the questions both differ across decades. Honest answer is the most useful.",
+    type:'radio',
+    options:[
+      {value:'18-29',label:'18–29'},
+      {value:'30-39',label:'30–39'},
+      {value:'40-49',label:'40–49'},
+      {value:'50-59',label:'50–59'},
+      {value:'60+',label:'60 or older'}
+    ]},
+
+  // PATH A — 18-29 (Exploration)
+  { id:'a1', path:'A',
+    prompt:"Are you in a relationship right now?",
+    helper:"No right answer — we just need to know the context.",
+    type:'radio',
+    options:[
+      {value:'long',label:'Yes, long-term'},
+      {value:'recent',label:'Yes, recent or new'},
+      {value:'single',label:'No, single'},
+      {value:'complicated',label:"It's complicated"}
+    ]},
+  { id:'a2', path:'A',
+    prompt:"Your experience with intimate exploration so far?",
+    helper:"Honest is most useful — there's no judgement here.",
+    type:'radio',
+    options:[
+      {value:'lots',label:"I've explored a lot and know what I like"},
+      {value:'some',label:"I've tried a few things, still figuring it out"},
+      {value:'starting',label:"I'm just starting to figure it out"},
+      {value:'little',label:'Honestly, very little'}
+    ]},
+  { id:'a3', path:'A',
+    prompt:"What's pulling you to take this test?",
+    helper:"Your reason shapes the reading.",
+    type:'radio',
+    options:[
+      {value:'discover',label:'Discovering what works for me'},
+      {value:'reconnect',label:'Reconnecting after a stressful period'},
+      {value:'confidence',label:'Building confidence in what I want'},
+      {value:'curious',label:'Curiosity — I just want to know'}
+    ]},
+  { id:'a4', path:'A',
+    prompt:"When did you last feel really, truly comfortable in your own body?",
+    helper:"Slide where it sits.",
+    type:'slider', min:0, max:10, step:1, default:5,
+    labelLeft:"Honestly, can't remember", labelRight:"Today",
+    valueCaption:'On a 0–10 scale'},
+
+  // PATH B — 30-39 (Pressure)
+  { id:'b1', path:'B',
+    prompt:"Which describe you right now? (select all that apply)",
+    helper:"The reading adjusts to context, not just biology.",
+    type:'multi',
+    options:[
+      {value:'partner',label:'In a long-term relationship or marriage'},
+      {value:'kids',label:'With young children (0–5 years)'},
+      {value:'postpartum',label:'Recently postpartum (within 18 months)'},
+      {value:'single',label:'Single or recently single'},
+      {value:'career',label:'In a career-intense phase'}
+    ]},
+  { id:'b2', path:'B',
+    prompt:"Stress level the past 6 months?",
+    helper:"Stress is the most under-reported variable in pleasure.",
+    type:'radio',
+    options:[
+      {value:'manageable',label:'Manageable'},
+      {value:'heavy',label:"Heavy but I'm coping"},
+      {value:'constant',label:"Constant — it's been a year or more"},
+      {value:'off',label:'Honestly, off the scale'}
+    ]},
+  { id:'b3', path:'B',
+    prompt:"Has your relationship to your own body shifted?",
+    helper:"Pick the closest, even if none feel exact.",
+    type:'radio',
+    options:[
+      {value:'disconnected',label:'I feel disconnected from it'},
+      {value:'unrecognisable',label:"I feel like I don't recognise it"},
+      {value:'different',label:"It's still mine, just different"},
+      {value:'okay',label:'It feels okay'}
+    ]},
+  { id:'b4', path:'B',
+    prompt:"Last time alone, just for yourself?",
+    helper:"Pleasure needs a window. We're checking yours.",
+    type:'radio',
+    options:[
+      {value:'week',label:'This week'},
+      {value:'month',label:'This month'},
+      {value:'cant',label:"I honestly can't remember"},
+      {value:'dont',label:"Don't make me think about it"}
+    ]},
+
+  // PATH C — 40-49 (Transition / Perimenopause)
+  { id:'c1', path:'C',
+    prompt:"Where are you with perimenopause?",
+    helper:"Periods irregular, hot flushes, sleep disrupted, mood shifts...",
+    type:'radio',
+    options:[
+      {value:'not-yet',label:"Not yet — it hasn't started"},
+      {value:'recent',label:'Yes — symptoms started in the past year'},
+      {value:'while',label:"Yes — I've been in it for a while"},
+      {value:'unsure',label:"I'm not sure"}
+    ]},
+  { id:'c2', path:'C',
+    prompt:"Has your drive, desire or sensitivity shifted noticeably?",
+    helper:"Whatever you answer, you're in the majority somewhere.",
+    type:'radio',
+    options:[
+      {value:'yes-no-like',label:"Yes, and I don't like it"},
+      {value:'yes-unsure',label:"Yes, but I'm not sure how to feel about it"},
+      {value:'little',label:"A little, but it's manageable"},
+      {value:'no',label:'No, not really'}
+    ]},
+  { id:'c3', path:'C',
+    prompt:'Has anyone said this is "normal at your age"?',
+    helper:"We're not blaming the messenger — we're calibrating around it.",
+    type:'radio',
+    options:[
+      {value:'yes-half',label:'Yes, and I half-believe it'},
+      {value:'yes-no',label:"Yes, and I don't believe it"},
+      {value:'havent',label:"No, I haven't talked about it"},
+      {value:'never',label:"I've never thought of it that way"}
+    ]},
+  { id:'c4', path:'C',
+    prompt:"Word that fits the past six months best?",
+    helper:"Pick the closest, even if none are perfect.",
+    type:'radio',
+    options:[
+      {value:'tired',label:'Tired'},
+      {value:'disconnected',label:'Disconnected'},
+      {value:'fine',label:'Fine'},
+      {value:'numb',label:'Numb'},
+      {value:'okay',label:'Okay'},
+      {value:'invisible',label:'Invisible'}
+    ]},
+
+  // PATH D — 50-59 (Menopause + Resignation)
+  { id:'d1', path:'D',
+    prompt:"Where are you with menopause?",
+    helper:"Whatever you answer, you're in the majority somewhere.",
+    type:'radio',
+    options:[
+      {value:'post',label:'Postmenopause (12+ months without a period)'},
+      {value:'late-peri',label:'Late peri — unpredictable'},
+      {value:'unsure',label:"I'm not sure"}
+    ]},
+  { id:'d2', path:'D',
+    prompt:'Has your doctor told you "it\'s normal at your age"?',
+    helper:"Common — and not the whole story.",
+    type:'radio',
+    options:[
+      {value:'yes-none',label:'Yes, no real solution offered'},
+      {value:'yes-hrt',label:'Yes, with HRT or similar'},
+      {value:'no',label:'No, they took it seriously'},
+      {value:'havent',label:"I haven't asked"}
+    ]},
+  { id:'d3', path:'D',
+    prompt:"How you talk to yourself at 1am?",
+    helper:"Not at the dinner party. The honest version.",
+    type:'radio',
+    options:[
+      {value:'managing',label:'"I\'m managing this phase fine."'},
+      {value:'gone',label:'"My drive is gone and I miss it."'},
+      {value:'just-life',label:'"It\'s just life after 50."'},
+      {value:'over',label:'"My intimate life feels over."'},
+      {value:'alive',label:'"I want to feel alive in my body again."'}
+    ]},
+  { id:'d4', path:'D',
+    prompt:"Have you tried something already? (select all that apply)",
+    helper:"What didn't work matters as much as what wasn't tried.",
+    type:'multi',
+    options:[
+      {value:'hrt',label:'HRT'},
+      {value:'lubricants',label:'Lubricants or moisturisers'},
+      {value:'therapy',label:'Talk therapy or counselling'},
+      {value:'device',label:"An intimate device — it didn't deliver"},
+      {value:'nothing',label:'Nothing yet'},
+      {value:'other',label:'Something else'}
+    ]},
+
+  // PATH E — 60+ (Repositioning)
+  { id:'e1', path:'E',
+    prompt:"Your relationship status:",
+    helper:"Context shapes what's actually missing.",
+    type:'radio',
+    options:[
+      {value:'partner-active',label:'Long partner, sexually active still'},
+      {value:'partner-faded',label:'Long partner, intimacy has faded'},
+      {value:'widowed',label:'Widowed'},
+      {value:'divorced',label:'Divorced or separated'},
+      {value:'single',label:'Single by choice'}
+    ]},
+  { id:'e2', path:'E',
+    prompt:"How long since you felt fully alive intimately?",
+    helper:"Honest answer is most useful.",
+    type:'radio',
+    options:[
+      {value:'1y',label:'Less than a year'},
+      {value:'1-3y',label:'1–3 years'},
+      {value:'5y',label:'5+ years'},
+      {value:'cant',label:"I honestly can't remember"}
+    ]},
+  { id:'e3', path:'E',
+    prompt:"Your relationship with your body now:",
+    helper:"Whatever you choose, you're not alone in it.",
+    type:'radio',
+    options:[
+      {value:'peace',label:"I've made peace with where it is"},
+      {value:'miss',label:'I miss who I was'},
+      {value:'occasional',label:"I'd like to feel something again, even occasionally"},
+      {value:'rather-not',label:"I'd rather not think about it"}
+    ]},
+  { id:'e4', path:'E',
+    prompt:"Have you wondered if it's still possible at your age?",
+    helper:"Most women in your decade have, even if quietly.",
+    type:'radio',
+    options:[
+      {value:'often',label:'Yes, often'},
+      {value:'sometimes',label:'Sometimes'},
+      {value:'decided-not',label:"I've decided it isn't"},
+      {value:'havent',label:"I haven't let myself wonder"}
+    ]},
+
+  // COMMON 1 — landing
+  { id:'k1', path:'all',
+    prompt:"When you imagine a deeply satisfying intimate moment — does it land in one focused spot, or does it spread out?",
+    helper:"Trust your first instinct.",
+    type:'radio',
+    options:[
+      {value:'focused',label:'Sharply focused on one spot'},
+      {value:'mostly',label:'Mostly focused, with some spread'},
+      {value:'spread',label:'Spread evenly through the body'},
+      {value:'depends',label:'Both — depends on the moment'},
+      {value:'unsure',label:"I haven't thought about it that specifically"}
+    ]},
+  // COMMON 2 — speed
+  { id:'k2', path:'all',
+    prompt:"Which speed feels closest to what your body actually wants?",
+    helper:"Not what you've been told — what your body wants.",
+    type:'radio',
+    options:[
+      {value:'quick',label:'Quick and intense — get there'},
+      {value:'steady',label:'Steady and rising — let it build'},
+      {value:'slow',label:'Slow and deep — make it last'},
+      {value:'variable',label:'Variable — depends on the day'}
+    ]},
+  // COMMON 3 — surface or internal
+  { id:'k3', path:'all',
+    prompt:"Where do you feel most alive — externally or internally?",
+    helper:"Surface vs depth.",
+    type:'radio',
+    options:[
+      {value:'external',label:'External, surface, skin level'},
+      {value:'internal',label:'Internal, deeper'},
+      {value:'both',label:'Both equally'},
+      {value:'unsure',label:"I'm not sure"}
+    ]},
+  // COMMON 4 — mind goes where
+  { id:'k4', path:'all',
+    prompt:"When you think about pleasure, where does your mind go?",
+    helper:"What part of the experience captures you most?",
+    type:'radio',
+    options:[
+      {value:'peak',label:'The peak itself, the moment'},
+      {value:'build',label:'The build-up, the anticipation'},
+      {value:'after',label:'The afterglow — how I feel after'},
+      {value:'all',label:'All of it equally'}
+    ]},
+  // COMMON 5 — vibration
+  { id:'k5', path:'all',
+    prompt:"Vibration — what's your relationship with it?",
+    helper:"Honest, no judgement.",
+    type:'radio',
+    options:[
+      {value:'yes-more',label:'Yes, more is better'},
+      {value:'specific',label:"Specific kinds only — I'm picky"},
+      {value:'no',label:'Not really my thing'},
+      {value:'havent',label:"I haven't experienced really well-designed vibration"}
+    ]},
+  // COMMON 6 — letting go
+  { id:'k6', path:'all',
+    prompt:"How important is being able to let go completely?",
+    helper:"Not having to think about anything during.",
+    type:'radio',
+    options:[
+      {value:'essential',label:'Essential — if I can\'t, nothing happens'},
+      {value:'helpful',label:'Helpful but not required'},
+      {value:'present',label:'I prefer staying present and aware'},
+      {value:'never',label:"I've never really let go"}
+    ]},
+  // COMMON 7 — what she has experienced
+  { id:'k7', path:'all',
+    prompt:"Which sensation have you experienced — and recognised as truly yours? (select all that apply)",
+    helper:"This is the heart of the test. Be honest with yourself.",
+    type:'multi',
+    options:[
+      {value:'strike',label:'A sharp, focused peak — The Strike'},
+      {value:'slowburn',label:'A slow rising heat that built and built — The Slow Burn'},
+      {value:'tide',label:'A deep, rolling internal wave — The Tide'},
+      {value:'hum',label:'A full-body hum or tingling — The Hum'},
+      {value:'echo',label:'A long, integrating afterglow — The Echo'},
+      {value:'none',label:"I'm honestly not sure I've felt any of these clearly"}
+    ]},
+  // COMMON 8 — what she's wondered about
+  { id:'k8', path:'all',
+    prompt:"Which sensation have you wondered about, but haven't really had? (select all that apply)",
+    helper:"What you're curious about tells us as much as what you've had.",
+    type:'multi',
+    options:[
+      {value:'strike',label:'A sharp, focused peak — The Strike'},
+      {value:'slowburn',label:'A slow rising heat that built and built — The Slow Burn'},
+      {value:'tide',label:'A deep, rolling internal wave — The Tide'},
+      {value:'hum',label:'A full-body hum or tingling — The Hum'},
+      {value:'echo',label:'A long, integrating afterglow — The Echo'},
+      {value:'content',label:"None — I'm content with what I have"}
+    ]}
+];
+
+/* ---------- Active question list (filtered by path) ---------- */
+function getActiveQuestions(){
+  const path = STATE.path;
+  if(!path) return [QUESTIONS[0]]; // age first
+  return QUESTIONS.filter(q => q.path === 'gate' || q.path === path || q.path === 'all');
+}
+
+/* ============================================================
+   QUAL MESSAGES
+   ============================================================ */
+const QUAL = {
+  age:{
+    '18-29':"Most women your age never get a clear pleasure map. We're about to give you one.",
+    '30-39':"Your decade is the most under-reported in our data. The reading adjusts.",
+    '40-49':"Perimenopause shifts the map underneath you, often before it's named. We adjust.",
+    '50-59':"Your decade is the one most often told 'it's just life now'. The map says otherwise.",
+    '60+':"Your decade is rarely addressed honestly. Yours will be."
+  },
+  c4:{
+    invisible:"That word came up 38 times in 459 verbatims. The most repeated single word.",
+    numb:"Numb came up 27 times. Often paired with 'I didn't realise until I read this'.",
+    fine:"'Fine' is the most-used word at dinner parties. The map will read past it.",
+    tired:"'Tired' is the most common — and the most misleading. It hides everything else.",
+    disconnected:"Disconnected is the word women most often use in private after the device works.",
+    okay:"Okay is the soft version of fine. The map reads past it."
+  },
+  d3:{
+    managing:"This is the public sentence. The map will show what's underneath it.",
+    gone:"Half our verbatims started here. Most didn't stay here.",
+    'just-life':"If you said this, your reading will probably surprise you.",
+    over:"Hardest sentence to write. Thank you for being honest.",
+    alive:"Most women who choose this sentence are closer to action than they think."
+  },
+  k7:{
+    none:"This is rare and useful information. Your reading is calibrated for it."
+  }
+};
+
+/* ============================================================
+   AGE OPENERS (5)
+   ============================================================ */
+const AGE_OPENERS = {
+  A:"You're at the start. Most women your age are still discovering what their body responds to — and most never get a clear map of it. Yours is below.",
+  B:"Your decade is the most under-reported in our verbatims. Stress, kids, careers, postpartum — they don't show up on a doctor's chart but they show up everywhere else. Including here.",
+  C:"Perimenopause shifts the map underneath you, often before anyone names it. The good news: the shift is mappable, and most of what you're feeling is more reversible than you've been told.",
+  D:"Most women in your decade have been told some version of \"it's just life now\". The map below is the second opinion you didn't get.",
+  E:"Most diagnostics never address your decade honestly. We do. The map below was built knowing exactly who's reading it."
+};
+
+/* ============================================================
+   PROFILE NARRATIVES (5)
+   ============================================================ */
+const PROFILES = {
+  strike:{
+    name:'The Strike',
+    headline:"You know <em>The Strike</em>.",
+    lead:"You know <strong>The Strike</strong>. The sharp, focused peak. Most women who score this way also know <strong>The Hum</strong> or <strong>The Tide</strong> — but rarely all three.",
+    body:"Your map suggests your body responds quickly and clearly to focused stimulation. That's a gift — the response system is intact. <strong>What's missing isn't the response. It's the range.</strong>",
+    bullets:[
+      {label:"What you have",text:"A reliable, focused peak. Most women never get a clear one."},
+      {label:"What's missing",text:"The slow build-up, the deep internal wave, the integrating afterglow. Most women never know these exist as distinct experiences."},
+      {label:"Why",text:"Devices that deliver The Strike are everywhere. Devices that deliver all five are not."}
+    ],
+    bundleId:'spark'
+  },
+  slowburn:{
+    name:'The Slow Burn',
+    headline:"You know <em>The Slow Burn</em>.",
+    lead:"You know <strong>The Slow Burn</strong>. The rising heat. The presence. The way time slows down before anything has even happened.",
+    body:"Your map suggests you live more in the build than in the peak — and that's actually <strong>rarer and harder than the peak itself</strong>. It requires a parasympathetic nervous system that knows how to drop, which most women's never quite gets to.",
+    bullets:[
+      {label:"What you have",text:"Presence and anticipation. The hardest of the five to access. Most women rush past it."},
+      {label:"What's missing",text:"The Strike (focal release), The Tide (internal wave), The Echo (the integrating afterglow that the build was preparing for)."},
+      {label:"Why",text:"You've trained the build but no device coordinated the rest. Build without release becomes its own kind of stuck."}
+    ],
+    bundleId:'wildfire'
+  },
+  tide:{
+    name:'The Tide',
+    headline:"You know <em>The Tide</em>.",
+    lead:"You know <strong>The Tide</strong>. The deep internal rolling. The wave that rises and falls inside you, not in one spot.",
+    body:"Your map suggests internal sensitivity and a body that responds to depth — not surface. <strong>This is the rarer half of the response system</strong>, and the half most external-focused devices ignore entirely.",
+    bullets:[
+      {label:"What you have",text:"Deep internal rolling response. Half the women in our verbatims have never identified this as distinct."},
+      {label:"What's missing",text:"The external Strike, the parasympathetic Slow Burn, the full-body Hum."},
+      {label:"Why",text:"A device that delivers The Tide alone leaves the surface, the build, and the wider body unaddressed."}
+    ],
+    bundleId:'spark'
+  },
+  hum:{
+    name:'The Hum',
+    headline:"You know <em>The Hum</em>.",
+    lead:"You know <strong>The Hum</strong>. The full-body ambient response. Pleasure that doesn't sit in one zone — it spreads.",
+    body:"Your map suggests a nervous system that responds <strong>diffusely and broadly</strong>. That's a rare wiring, and it explains why most one-zone devices have left you flat — they were aimed at the wrong target entirely.",
+    bullets:[
+      {label:"What you have",text:"Full-body diffuse response. Often described as 'tingling' or 'wave that wraps around you'."},
+      {label:"What's missing",text:"The focal Strike, the rising Slow Burn, the deep internal Tide."},
+      {label:"Why",text:"Your wiring needs the combination of all three stims simultaneously — vibration alone or pulses alone leaves the others dark."}
+    ],
+    bundleId:'wildfire'
+  },
+  echo:{
+    name:'The Echo',
+    headline:"You know <em>The Echo</em>.",
+    lead:"You know <strong>The Echo</strong>. The afterglow. The integration. The way your body settles into itself after.",
+    body:"Your map suggests you experience pleasure <strong>as much in what comes after as in what comes during</strong>. This is the most sophisticated of the five and also the most overlooked — most women never name it as a distinct pleasure at all.",
+    bullets:[
+      {label:"What you have",text:"The afterglow. The settling. The integration. The reason most women describe pleasure as 'feeling like myself' rather than 'the climax'."},
+      {label:"What's missing",text:"The actual climaxes that produce the Echo — Strike, Slow Burn, Tide, Hum. The afterglow without the multi-zone build is a half-experience."},
+      {label:"Why",text:"The Echo emerges when all three stims fire simultaneously and integrate. Without that, you're getting flashes of it instead of full versions."}
+    ],
+    bundleId:'wildfire'
+  }
+};
+
+const PLEASURE_LABELS = {strike:'The Strike', slowburn:'The Slow Burn', tide:'The Tide', hum:'The Hum', echo:'The Echo'};
+
+/* SVG icons for narrative bullets (have / missing / why) */
+const BULLET_ICONS = {
+  'What you have':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+  "What's missing":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6"></path><circle cx="12" cy="17" r="0.5" fill="currentColor"></circle></svg>',
+  'Why':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.6 1 1.4 1 2.3h6c0-.9.4-1.7 1-2.3A7 7 0 0 0 12 2z"/></svg>'
+};
+
+/* ============================================================
+   MECHANISM (universal for all profiles)
+   ============================================================ */
+const MECHANISM = {
+  intro:"Roughly <span class=\"stat-num\">80%</span> of women need clitoral stimulation to reach a full peak. Roughly <span class=\"stat-num\">99%</span> of intimate devices stimulate one zone at a time.",
+  body:"Elysia is built around <strong>three coordinated stimulation patterns running together</strong>, not in sequence.",
+  list:[
+    {label:'Surface pulses',text:'deliver The Strike'},
+    {label:'Internal back-and-forth',text:'delivers The Tide'},
+    {label:'Enveloping vibration',text:'delivers The Hum'}
+  ],
+  emergent:"When all three fire at once, two more pleasures emerge that one-zone devices physically cannot produce: <strong>The Slow Burn</strong> (low-intensity multi-zone activates parasympathetic) and <strong>The Echo</strong> (integrated multi-zone climax produces the full afterglow).",
+  punchline:"One zone gives you one or two pleasures. Three coordinated zones give you all five."
+};
+
+/* ============================================================
+   BUNDLES
+   ============================================================ */
+const NEURO_ICONS = {
+  device: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12c0-3.5 2.5-6 7-6s7 2.5 7 6-2.5 6-7 6c-1.7 0-3-.4-4-1"/><path d="M5 12v3.5"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/></svg>',
+  silicone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4c0 3-4 6-4 6s-4-3-4-6a4 4 0 0 1 4-4z"/><path d="M5 17c2-1.5 4.5-2 7-2s5 .5 7 2"/><path d="M5 21c2-1.5 4.5-2 7-2s5 .5 7 2"/></svg>',
+  triple: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c0-3 2-5 5-5"/><path d="M4 12c0 3 2 5 5 5"/><path d="M20 12c0-3-2-5-5-5"/><path d="M20 12c0 3-2 5-5 5"/><circle cx="12" cy="12" r="2.2"/></svg>',
+  pattern: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg>',
+  intensity: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17v-3"/><path d="M9 17v-6"/><path d="M13 17v-9"/><path d="M17 17v-12"/></svg>',
+  oil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6v3l1 2v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l1-2V4z"/><path d="M11 13c0 1 .5 1.6 1 1.6s1-.6 1-1.6"/></svg>',
+  pouch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8c0-1 .5-2 2-2h8c1.5 0 2 1 2 2"/><path d="M5 9h14l-1 9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 9z"/><path d="M9 6V5"/><path d="M15 6V5"/></svg>',
+  ritual: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V8a3 3 0 1 1 6 0v10"/><circle cx="12" cy="20" r="1.2" fill="currentColor"/></svg>',
+  refund: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.5-7.1"/><path d="M21 4v5h-5"/></svg>',
+  package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>',
+  shipping: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg>',
+  cortisol: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13c2-2 5-2 7 0s5 2 7 0"/><path d="M12 4v6"/><circle cx="12" cy="13" r="1.4" fill="currentColor"/></svg>'
+};
+
+/* Shopify CDN — Pleasuary product images */
+const SHOPIFY_BASE = 'https://cdn.shopify.com/s/files/1/0997/0044/1471/files/';
+const COMMON_IMAGES = [
+  {src: SHOPIFY_BASE + 'image_3f2c6ec4-8824-4abc-891a-b4dc31fce103.webp?v=1776853699', alt: 'Elysia C-shape device — front view'},
+  {src: SHOPIFY_BASE + 'image_936e3ec0-dcf0-4510-9973-08bf6643726f.webp?v=1776732168', alt: 'Elysia in hand — scale reference'},
+  {src: SHOPIFY_BASE + 'avis4.png?v=1777130426', alt: 'Customer review on packaging'},
+  {src: SHOPIFY_BASE + 'elysia_6.png?v=1777829562', alt: 'Elysia opened — discreet packaging'}
+];
+const WILDFIRE_EXTRA = {src: SHOPIFY_BASE + 'Essential-Oil-ylang-ylang_ElysiaV2.webp?v=1777743434', alt: 'Ylang-Ylang essential oil bottle'};
+
+const BUNDLES = {
+  spark:{
+    label:'The accessible entry',
+    name:'The Spark',
+    fit:'For Strike &amp; Tide profiles',
+    summary:'Elysia 3-in-1 device — the C-shape that maps to two of the five.',
+    popular:false,
+    price:'$89.99', currency:'AUD', strike:'$194.99', save:'$105',
+    images: COMMON_IMAGES,
+    includes:[
+      {icon:'device', label:'Elysia 3-in-1 device', text:'medical-grade C-shape'},
+      {icon:'intensity', label:'20 intensity levels', text:'start where you are'},
+      {icon:'pouch', label:'Discreet pouch', text:'fits any drawer'},
+      {icon:'ritual', label:'3 guided rituals', text:'5–10 min private audio'},
+      {icon:'package', label:'Plain packaging', text:'no brand on parcel'},
+      {icon:'refund', label:'30-day refund', text:'even after opening'}
+    ]
+  },
+  wildfire:{
+    label:'The full kit',
+    name:'The Wildfire',
+    fit:'For Slow Burn, Hum &amp; Echo profiles',
+    summary:'Elysia + Ylang-Ylang oil — primes the mind so the body feels everything.',
+    popular:true,
+    price:'$109.99', currency:'AUD', strike:'$229.99', save:'$120',
+    images: [...COMMON_IMAGES, WILDFIRE_EXTRA],
+    includes:[
+      {icon:'device', label:'Elysia 3-in-1 device', text:'medical-grade silicone'},
+      {icon:'triple', label:'Triple coordinated stim', text:'three patterns at once'},
+      {icon:'oil', label:'Ylang-Ylang oil (30ml)', text:'drops cortisol, up to 3× sensation'},
+      {icon:'ritual', label:'3 guided rituals', text:'private audio'},
+      {icon:'pouch', label:'Discreet pouch', text:'fits any drawer'},
+      {icon:'refund', label:'30-day refund', text:'even after opening'}
+    ]
+  }
+};
+
+/* ============================================================
+   TESTIMONIALS — matrix (5 profiles × 5 paths = 25)
+   Each cell anchored to AU city + decade-appropriate age + verbatim
+   ============================================================ */
+const TESTIMONIALS = {
+  strike:{
+    A:{quote:"I'd been told the sharp peak was the goal. Reading this I realised I'd been having one fifth of what was possible. The map gave me the rest.", author:"<strong>Mia</strong>, 26, Sydney"},
+    B:{quote:"Postpartum + busy + my body felt one-note. The map called it 'Strike-only' and showed me what I was skipping over. Three weeks in, I got it.", author:"<strong>Lisa</strong>, 31, Melbourne"},
+    C:{quote:"Perimenopause shifted things, but the focal peak was still there. The map told me the other four were too — they just needed something different to show up.", author:"<strong>Renée</strong>, 47, Brisbane"},
+    D:{quote:"I assumed the focal peak was all I had left. The map said no. Three weeks later, I had four out of five.", author:"<strong>Christine</strong>, 55, Adelaide"},
+    E:{quote:"At my age I was certain pleasure was a memory of one thing. The map gave me four more I'd never even had a name for.", author:"<strong>Patricia</strong>, 67, Perth"}
+  },
+  slowburn:{
+    A:{quote:"I'd been calling it 'the warm-up' and assumed the peak was the point. The map flipped it — the build IS one of the kinds. I just hadn't named it.", author:"<strong>Zara</strong>, 28, Melbourne"},
+    B:{quote:"With kids and stress, I'd somehow trained the build but lost the rest. The map showed me both, and what to do.", author:"<strong>Sienna</strong>, 35, Sydney"},
+    C:{quote:"I'd been chasing the peak and missing what was actually mine. The map called it the Slow Burn — the build. It changed my expectations.", author:"<strong>Anna</strong>, 44, Brisbane"},
+    D:{quote:"My doctor said my drive was 'fading'. The map said no — I'd been training a Slow Burn the whole time. It just had nowhere to land.", author:"<strong>Cathy</strong>, 53, Adelaide"},
+    E:{quote:"After 60 the rush is gone. The map said the build is what I have, and named the four others I was missing. I cried, honestly.", author:"<strong>Margaret</strong>, 64, Perth"}
+  },
+  tide:{
+    A:{quote:"I was 'internal' but I didn't know that was a kind. The map gave me the language and the difference.", author:"<strong>Hana</strong>, 27, Sydney"},
+    B:{quote:"Postpartum I knew something deeper was there but no device reached it. The map called it the Tide. Now I know what I was looking for.", author:"<strong>Jessica</strong>, 33, Melbourne"},
+    C:{quote:"Perimenopause and 'the Tide' is the wave I'd been describing for years. Three weeks in I got the language and the device that delivers it.", author:"<strong>Helen</strong>, 49, Brisbane"},
+    D:{quote:"I'd assumed deep was gone after menopause. The map called it the Tide and said three other kinds were missing too. Different conversation entirely.", author:"<strong>Susan</strong>, 56, Adelaide"},
+    E:{quote:"At 65 I thought internal was off the table. The map showed me it wasn't — I'd been having a Tide-shaped pleasure and missing the rest.", author:"<strong>Diana</strong>, 65, Perth"}
+  },
+  hum:{
+    A:{quote:"I'd be 'tingling' through my body but never sharp. The map called it the Hum and said vibration alone wasn't enough — I needed the others.", author:"<strong>Olivia</strong>, 29, Sydney"},
+    B:{quote:"With young kids, my body was diffuse, never focal. The map called it the Hum and said the focal Strike and rising Slow Burn were missing.", author:"<strong>Tara</strong>, 36, Melbourne"},
+    C:{quote:"Perimenopause and I felt 'all over' but never 'right there'. The map called it Hum and named the focal kinds I'd been missing.", author:"<strong>Lauren</strong>, 46, Brisbane"},
+    D:{quote:"My doctor said it was normal. I nodded. I went home. Five years later, this map called it the Hum. Then it gave me the device. Karen. I cried.", author:"<strong>Margaret</strong>, 58, Adelaide"},
+    E:{quote:"At 63 I'd settled for diffuse, ambient pleasure. The map told me I had the Hum and was missing four kinds. Two weeks in, the kit changed everything.", author:"<strong>Beverley</strong>, 63, Perth"}
+  },
+  echo:{
+    A:{quote:"I felt pleasure most in the after — the integration. The map said that's the Echo and named four kinds I'd never reached.", author:"<strong>Sophie</strong>, 28, Melbourne"},
+    B:{quote:"Stress means the climax has been thin but the afterglow is what carries me. The map called it Echo-only. The kit changed everything.", author:"<strong>Naomi</strong>, 37, Sydney"},
+    C:{quote:"I live in the after — the settled feeling. The map called it the Echo and gave me the four kinds it was a shadow of.", author:"<strong>Joanne</strong>, 48, Brisbane"},
+    D:{quote:"Postmenopause I had a soft afterglow but no peak. The map called it Echo without source. The kit gave me the source.", author:"<strong>Linda</strong>, 57, Adelaide"},
+    E:{quote:"At 64 I'd stopped imagining. The map told me I'd been having Echo-only experiences and what was missing. The kit changed it in two weeks. I'm not done yet.", author:"<strong>Karen</strong>, 64, Perth"}
+  }
+};
+
+/* ============================================================
+   SOFT EXITS (4 cases)
+   ============================================================ */
+const SOFT_EXITS = {
+  alreadyThere:{
+    headline:"You're <em>already there</em>.",
+    summary:"Your map is rare. Most women never identify this many pleasures as distinct.",
+    body:"<p>We could try to upsell you something. <strong>We won't.</strong> What's likely useful for you is staying tuned to your nervous system over the years — that's how people in your map keep what they have.</p>",
+    resources:[
+      {label:'Maintaining nervous-system response over decades',text:'A 1-page guide we send by email if you want it.'}
+    ],
+    footnote:"You don't need a device. You need to keep being honest with yourself."
+  },
+  relational:{
+    headline:"Your map points <em>somewhere a device can't reach</em>.",
+    summary:"The pattern of your answers points to a connection gap, not a physiological one.",
+    body:"<p>A 3-in-1 device addresses the body. It doesn't address what's between two people. We'd rather not waste your money or your trust.</p>",
+    resources:[
+      {label:'The Honest Conversation',text:'A 4-page worksheet for opening a difficult conversation with a long-term partner.'},
+      {label:"What to hand your doctor",text:"A 12-question script you can hand your doctor at your next visit."},
+      {label:'Distinguishing Physiological from Relational Drift',text:'A 10-minute self-check that clarifies what to address first.'}
+    ],
+    footnote:"A device wouldn't address what your map shows. The resources above will be in your inbox in a few minutes."
+  },
+  earlyLiteracy:{
+    headline:"You're <em>at the very start</em>.",
+    summary:"Your map shows you haven't yet identified any of the 5 pleasures as distinct in your own experience.",
+    body:"<p>That's <strong>not a deficit</strong> — it's a starting point. The right first step is body literacy, not a 3-in-1 device. You'd be paying for capability your body isn't yet using.</p>",
+    resources:[
+      {label:"The 5 pleasures, explained, with no product",text:'A free guide that walks through what each kind feels like, with no purchase required.'}
+    ],
+    footnote:"Come back when you've identified at least one. The map will be more useful then."
+  },
+  healthFlag:{
+    headline:"<em>Before</em> any device — talk to a women's health practitioner.",
+    summary:"Some of your answers suggest a conversation with a women's health practitioner is the right first step.",
+    body:"<p>We won't recommend Elysia until you've had that conversation. <strong>Your safety matters more than our sale.</strong></p>",
+    resources:[
+      {label:'Jean Hailes',text:'Australian women\'s health resource — finder for practitioners across AU.'},
+      {label:'Australasian Menopause Society',text:'Directory of registered menopause practitioners in your area.'}
+    ],
+    footnote:"Once you've had that conversation, come back. The map will still be here."
+  }
+};
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+function setStage(name){
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('stage-' + name);
+  if(target){ target.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  STATE.stage = name;
+  saveState();
+}
+
+function renderQuestion(idx){
+  const active = getActiveQuestions();
+  const q = active[idx];
+  if(!q){ goToResult(); return; }
+  const c = document.getElementById('questionContainer');
+  // Counter: "Before we begin" (q.id === 'age') has no numbering
+  // Real questions start at 1, total = all active minus the gating question
+  const isGating = q.id === 'age';
+  const realIndex = isGating ? 0 : idx; // age is idx 0 anyway
+  const realTotal = active.length - 1; // exclude age
+  const counterText = isGating ? '' : ('Question ' + (realIndex) + ' / ' + realTotal);
+  let optionsHtml = '';
+
+  if(q.type === 'radio'){
+    optionsHtml = '<div class="q-options">' + q.options.map(o => {
+      const sel = STATE.answers[q.id] === o.value ? ' selected' : '';
+      return '<button class="q-opt' + sel + '" data-value="' + o.value + '"><span class="check"></span><span>' + o.label + '</span></button>';
+    }).join('') + '</div>';
+  } else if(q.type === 'multi'){
+    const cur = STATE.answers[q.id] || [];
+    optionsHtml = '<div class="q-options">' + q.options.map(o => {
+      const sel = cur.includes(o.value) ? ' selected' : '';
+      return '<button class="q-opt q-multi' + sel + '" data-value="' + o.value + '"><span class="check"></span><span>' + o.label + '</span></button>';
+    }).join('') + '</div>';
+  } else if(q.type === 'slider'){
+    const v = (STATE.answers[q.id] != null) ? STATE.answers[q.id] : q.default;
+    optionsHtml = '<div class="slider-block">' +
+      '<div class="slider-labels"><span>' + q.labelLeft + '</span><span>' + q.labelRight + '</span></div>' +
+      '<input type="range" class="slider-input" id="sliderInput" min="' + q.min + '" max="' + q.max + '" step="' + q.step + '" value="' + v + '">' +
+      '<div class="slider-value" id="sliderValue">' + v + '</div>' +
+      '<div class="slider-value-caption">' + q.valueCaption + '</div>' +
+      '</div>';
+  }
+
+  // Strip any trailing "(select all that apply)" / "(...)" from the prompt
+  // and surface it below as its own sub-helper so the question line stays clean.
+  let cleanPrompt = q.prompt;
+  let parenSubHelper = '';
+  const parenMatch = cleanPrompt.match(/\s*\(([^)]+)\)\s*$/);
+  if(parenMatch){
+    cleanPrompt = cleanPrompt.replace(/\s*\([^)]+\)\s*$/, '').replace(/\s+\?$/, '?').trim();
+    // Capitalise first letter of the parenthetical
+    parenSubHelper = parenMatch[1].charAt(0).toUpperCase() + parenMatch[1].slice(1) + '.';
+  }
+  c.innerHTML =
+    (counterText ? '<div class="q-counter">' + counterText + '</div>' : '') +
+    '<div class="q-prompt">' + cleanPrompt + '</div>' +
+    (parenSubHelper ? '<div class="q-subhelper">' + parenSubHelper + '</div>' : '') +
+    '<div class="q-helper">' + (q.helper || '') + '</div>' +
+    optionsHtml +
+    '<div class="qual-message" id="qualMessage" style="display:none"></div>';
+
+  // progress
+  const pct = (idx / active.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // hide constellation on gating question, show otherwise
+  const constellationWrap = document.getElementById('constellationWrap');
+  const constellationSection = document.getElementById('constellationSection');
+  if(constellationWrap){ constellationWrap.style.display = isGating ? 'none' : 'block'; }
+  if(constellationSection){ constellationSection.style.display = isGating ? 'none' : 'block'; }
+  updateConstellation();
+
+  // last question CTA wording + centring
+  const nextBtn = document.getElementById('nextBtn');
+  const isLast = (idx === active.length - 1);
+  const qActions = nextBtn.parentElement;
+  if(isLast){
+    nextBtn.innerHTML = 'See my map <span class="btn-arrow">&rarr;</span>';
+    qActions.style.justifyContent = 'center';
+    qActions.querySelector('#backBtn').style.position = 'absolute';
+    qActions.querySelector('#backBtn').style.left = '0';
+  } else {
+    nextBtn.innerHTML = 'Continue <span class="btn-arrow">&rarr;</span>';
+    qActions.style.justifyContent = 'space-between';
+    qActions.querySelector('#backBtn').style.position = '';
+    qActions.querySelector('#backBtn').style.left = '';
+  }
+
+  // wiring
+  if(q.type === 'radio'){
+    // initial state: enabled only if user already answered this question (resume / back)
+    enableNext(STATE.answers[q.id] != null);
+    c.querySelectorAll('.q-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        c.querySelectorAll('.q-opt').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const val = btn.getAttribute('data-value');
+        STATE.answers[q.id] = val;
+        // age = update path
+        if(q.id === 'age'){ STATE.path = ageToPath(val); }
+        showQual(q.id, val);
+        enableNext(true);
+        saveState();
+        if(q.id !== 'age') updateConstellation({animate:true});
+      });
+    });
+  }
+  if(q.type === 'multi'){
+    c.querySelectorAll('.q-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-value');
+        let cur = STATE.answers[q.id] || [];
+        const exclusiveValues = ['none','content','nothing'];
+        if(cur.includes(val)){
+          cur = cur.filter(x => x !== val);
+          btn.classList.remove('selected');
+        } else {
+          if(exclusiveValues.includes(val)){
+            cur = [val];
+            c.querySelectorAll('.q-opt').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+          } else {
+            cur = cur.filter(x => !exclusiveValues.includes(x));
+            c.querySelectorAll('.q-opt').forEach(b => {
+              if(exclusiveValues.includes(b.getAttribute('data-value'))) b.classList.remove('selected');
+            });
+            cur.push(val);
+            btn.classList.add('selected');
+          }
+        }
+        STATE.answers[q.id] = cur;
+        if(cur.length > 0) showQual(q.id, cur[cur.length - 1]);
+        enableNext(cur.length > 0);
+        saveState();
+        updateConstellation({animate:true});
+      });
+    });
+    enableNext((STATE.answers[q.id] || []).length > 0);
+  }
+  if(q.type === 'slider'){
+    const slider = document.getElementById('sliderInput');
+    const valDisplay = document.getElementById('sliderValue');
+    const initVal = parseInt(slider.value, 10);
+    STATE.answers[q.id] = initVal;
+    enableNext(true);
+    let sliderTimer = null;
+    slider.addEventListener('input', () => {
+      const v = parseInt(slider.value, 10);
+      valDisplay.textContent = v;
+      STATE.answers[q.id] = v;
+      saveState();
+      // throttle constellation animation while dragging
+      if(sliderTimer) clearTimeout(sliderTimer);
+      sliderTimer = setTimeout(() => updateConstellation({animate:true}), 150);
+    });
+  }
+}
+
+function showQual(qid, val){
+  const messages = QUAL[qid];
+  if(!messages) return;
+  const msg = messages[val];
+  if(!msg) return;
+  const el = document.getElementById('qualMessage');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function enableNext(ok){
+  const btn = document.getElementById('nextBtn');
+  if(!ok){
+    btn.disabled = true;
+    btn.style.opacity = '0.4';
+    btn.style.pointerEvents = 'none';
+  } else {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }
+}
+
+/* ============================================================
+   CONSTELLATION — pentagon visual updates as scores change
+   ============================================================ */
+const PLEASURES = ['strike','slowburn','tide','hum','echo'];
+const CONST_PREV = {strike:0, slowburn:0, tide:0, hum:0, echo:0};
+const CONST_VERTICES = {
+  strike:{x:170, y:38},
+  slowburn:{x:268, y:108},
+  tide:{x:235, y:218},
+  hum:{x:105, y:218},
+  echo:{x:72, y:108}
+};
+const CONST_CENTER = {x:170, y:125};
+
+function spawnConstellationTrail(kind, intensity){
+  // T2 — Bold dashed line + burst circle at the vertex. Pure CSS, no WAAPI.
+  const g = document.getElementById('constellationTrails');
+  if(!g) return;
+  const v = CONST_VERTICES[kind];
+  if(!v) return;
+  // Bold dashed line from centre to vertex
+  const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  ln.setAttribute('x1', CONST_CENTER.x);
+  ln.setAttribute('y1', CONST_CENTER.y);
+  ln.setAttribute('x2', v.x);
+  ln.setAttribute('y2', v.y);
+  ln.setAttribute('class', 'const-trail-line');
+  g.appendChild(ln);
+  // Burst circle at the vertex
+  const burst = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  burst.setAttribute('cx', v.x);
+  burst.setAttribute('cy', v.y);
+  burst.setAttribute('r', 6);
+  burst.setAttribute('class', 'const-trail-burst');
+  g.appendChild(burst);
+  setTimeout(() => { ln.remove(); burst.remove(); }, 1900);
+}
+function updateConstellation(opts){
+  opts = opts || {};
+  const animatePulse = !!opts.animate;
+  const s = computeScores();
+  const total = s.strike + s.slowburn + s.tide + s.hum + s.echo;
+
+  // count answered questions — gives an "early-feedback" lever
+  const answered = Object.keys(STATE.answers || {}).filter(k => k !== 'age').length;
+
+  // Center glow halo
+  const glow = document.getElementById('constellationGlow');
+  if(glow){
+    const intensity = Math.min(1, answered / 7);
+    glow.setAttribute('r', (12 + intensity * 80).toString());
+    glow.style.opacity = (0.25 + intensity * 0.65).toString();
+  }
+  // Center dot grows with total presence
+  const center = document.getElementById('constellationCenter');
+  if(center){
+    const intensity = Math.min(1, total / 35);
+    center.setAttribute('r', (3 + intensity * 6).toString());
+    center.setAttribute('fill', `rgba(201,165,124,${0.6 + intensity * 0.4})`);
+  }
+  // Update each dot based on its score + collect movers for trail spawn
+  let illuminated = 0;
+  const movers = []; // {kind, delta}
+  PLEASURES.forEach(p => {
+    const dot = document.getElementById('dot-' + p);
+    const lbl = document.getElementById('lbl-' + p);
+    if(!dot) return;
+    const score = Math.max(0, s[p]);
+    const intensity = Math.min(1, score / 9);
+    const r = 2 + intensity * 8; // dramatic 2 → 10
+    dot.setAttribute('r', r.toString());
+    dot.style.opacity = (0.35 + intensity * 0.65).toString();
+    dot.setAttribute('fill', `rgba(184,102,90,${0.25 + intensity * 0.75})`);
+    if(score >= 4.5){ dot.classList.add('active'); if(lbl) lbl.classList.add('active'); illuminated++; }
+    else { dot.classList.remove('active'); if(lbl) lbl.classList.remove('active'); }
+
+    // Flash dot if its score moved meaningfully on this answer
+    if(animatePulse){
+      const delta = score - (CONST_PREV[p] || 0);
+      if(Math.abs(delta) >= 0.6){
+        dot.classList.remove('flash');
+        // force reflow to restart animation
+        void dot.getBoundingClientRect();
+        dot.classList.add('flash');
+      }
+      if(delta > 0.3) movers.push({kind:p, delta:delta});
+    }
+    CONST_PREV[p] = score;
+  });
+
+  // T1 — travelling dots trail toward the kinds that moved up the most
+  if(animatePulse && movers.length > 0){
+    movers.sort((a, b) => b.delta - a.delta);
+    movers.slice(0, 2).forEach(m => spawnConstellationTrail(m.kind, m.delta));
+  }
+
+  // Eyebrow + caption messaging
+  const eyebrow = document.getElementById('constellationEyebrowText');
+  const caption = document.getElementById('constellationCaption');
+  if(eyebrow){
+    if(answered === 0) eyebrow.textContent = 'Your map is forming';
+    else if(illuminated <= 1) eyebrow.textContent = 'Your map is forming';
+    else if(illuminated <= 3) eyebrow.textContent = 'Your map is taking shape';
+    else eyebrow.textContent = 'Your map is almost complete';
+  }
+  if(caption){
+    if(answered === 0){
+      caption.textContent = 'Answer to begin';
+      caption.classList.remove('strong');
+    } else {
+      const word = illuminated === 1 ? 'kind' : 'kinds';
+      caption.textContent = `${illuminated} of 5 ${word} emerging`;
+      if(illuminated >= 2) caption.classList.add('strong');
+      else caption.classList.remove('strong');
+    }
+  }
+  // SVG shake feedback on a fresh answer
+  if(animatePulse){
+    const svg = document.getElementById('constellationSvg');
+    if(svg){
+      svg.classList.remove('shake');
+      void svg.getBoundingClientRect();
+      svg.classList.add('shake');
+    }
+  }
+}
+
+/* ============================================================
+   SCORING — the 5 pleasures (each 0..10)
+   ============================================================ */
+function computeScores(){
+  const a = STATE.answers;
+  const s = {strike:3, slowburn:3, tide:3, hum:3, echo:3};
+
+  // K1 — landing
+  if(a.k1 === 'focused'){ s.strike += 2.5; s.tide += 0.5; s.hum -= 1; }
+  if(a.k1 === 'mostly'){ s.strike += 1.5; s.hum += 0.5; }
+  if(a.k1 === 'spread'){ s.hum += 2.5; s.strike -= 1; s.tide += 0.5; }
+
+  // K2 — speed
+  if(a.k2 === 'quick'){ s.strike += 2; s.slowburn -= 1.5; }
+  if(a.k2 === 'steady'){ s.slowburn += 2; s.tide += 0.5; }
+  if(a.k2 === 'slow'){ s.slowburn += 1.5; s.tide += 1.5; s.echo += 1; s.strike -= 0.5; }
+
+  // K3 — surface or internal
+  if(a.k3 === 'external'){ s.strike += 2; s.tide -= 1.5; s.hum += 0.5; }
+  if(a.k3 === 'internal'){ s.tide += 2.5; s.strike -= 0.5; }
+  if(a.k3 === 'both'){ s.strike += 0.5; s.tide += 0.5; s.hum += 1; }
+
+  // K4 — mind goes
+  if(a.k4 === 'peak'){ s.strike += 1.5; }
+  if(a.k4 === 'build'){ s.slowburn += 2; }
+  if(a.k4 === 'after'){ s.echo += 2.5; }
+  if(a.k4 === 'all'){ s.echo += 1; s.slowburn += 0.5; }
+
+  // K5 — vibration
+  if(a.k5 === 'yes-more'){ s.hum += 2.5; }
+  if(a.k5 === 'specific'){ s.hum += 1; }
+  if(a.k5 === 'no'){ s.hum -= 2; }
+
+  // K6 — letting go
+  if(a.k6 === 'essential'){ s.echo += 1.5; s.slowburn += 1; }
+  if(a.k6 === 'helpful'){ s.echo += 0.5; s.slowburn += 0.5; }
+  if(a.k6 === 'present'){ s.slowburn += 0.5; s.echo -= 0.5; }
+  if(a.k6 === 'never'){ s.echo -= 1.5; s.slowburn -= 0.5; }
+
+  // K7 — explicit "I've had this"
+  const had = a.k7 || [];
+  ['strike','slowburn','tide','hum','echo'].forEach(p => {
+    if(had.includes(p)) s[p] += 2.5;
+  });
+
+  // K8 — explicit "I've wondered about"
+  const wondered = a.k8 || [];
+  ['strike','slowburn','tide','hum','echo'].forEach(p => {
+    if(wondered.includes(p)) s[p] -= 1.2; // wondered = curious but not had
+  });
+
+  // Path nudges (decade context)
+  if(STATE.path === 'D' || STATE.path === 'E'){
+    if(a.d2 === 'yes-none' || a.d3 === 'gone' || a.d3 === 'over'){ s.strike -= 1; s.tide -= 1; }
+    if(a.e2 === '5y' || a.e2 === 'cant'){ s.slowburn -= 1; s.echo -= 0.5; }
+  }
+  if(STATE.path === 'B'){
+    if(a.b2 === 'constant' || a.b2 === 'off'){ s.slowburn -= 1.5; s.echo -= 1; }
+    if(a.b4 === 'cant' || a.b4 === 'dont'){ s.slowburn -= 0.5; }
+  }
+
+  // Clamp to 0..10
+  Object.keys(s).forEach(k => { s[k] = Math.max(0, Math.min(10, s[k])); });
+
+  STATE.scores = s;
+  return s;
+}
+
+/* ============================================================
+   PROFILE DETERMINATION + SOFT EXIT
+   ============================================================ */
+function determineProfile(){
+  const s = STATE.scores;
+  const sorted = Object.entries(s).sort((a,b) => b[1] - a[1]);
+  STATE.profile = sorted[0][0];
+  STATE.secondary = sorted[1][0];
+  STATE.missing = sorted.slice(2).map(e => e[0]);
+}
+
+function determineSoftExit(){
+  const a = STATE.answers;
+  const k7 = a.k7 || [];
+  const explicitHad = k7.filter(v => v !== 'none').length;
+
+  // 8A — already there: 4-5 selected in K7
+  if(explicitHad >= 4){ return 'alreadyThere'; }
+
+  // 8B — relational gap (Path D/E + relational signals)
+  if((STATE.path === 'D' || STATE.path === 'E') &&
+     ((a.e1 === 'partner-faded') || (a.d3 === 'over' && a.d4 && a.d4.includes('therapy')))){
+    // Soft signal — only fire if scores are also low for physiological
+    const s = STATE.scores;
+    const physMax = Math.max(s.strike, s.tide, s.hum);
+    if(physMax < 4){ return 'relational'; }
+  }
+
+  // 8C — Path A + zero K7 + low K6
+  if(STATE.path === 'A' && k7.includes('none') && a.k6 === 'never'){
+    return 'earlyLiteracy';
+  }
+
+  // 8D — Path E + uncertainty/health flag
+  if(STATE.path === 'E' && (a.e3 === 'rather-not' || a.e2 === 'cant') && (a.e4 === 'decided-not' || a.e4 === 'havent')){
+    return 'healthFlag';
+  }
+
+  return null;
+}
+
+/* ============================================================
+   RESULT RENDERING
+   ============================================================ */
+function goToResult(){
+  saveState();
+  setStage('loading');
+  startLoadingSequence(() => {
+    setStage('result');
+    showTimer(); startTimer();
+    renderResult();
+  });
+}
+
+function startLoadingSequence(onDone){
+  const messages = [
+    'Reading your answers…',
+    'Mapping your 5 kinds of pleasure…',
+    'Identifying what is yours and what is missing…',
+    'Your reading is ready.'
+  ];
+  const status = document.getElementById('loadingStatus');
+  const progressFill = document.getElementById('loadingProgressFill');
+  if(!status || !progressFill){ onDone(); return; }
+  let step = 0;
+  status.textContent = messages[0];
+  // first paint
+  requestAnimationFrame(() => { progressFill.style.width = '20%'; });
+  const totalMs = 3600;
+  const stepInterval = totalMs / messages.length;
+  const timer = setInterval(() => {
+    step++;
+    if(step < messages.length){
+      // fade swap
+      status.style.opacity = '0';
+      setTimeout(() => {
+        status.textContent = messages[step];
+        status.style.opacity = '1';
+      }, 200);
+      progressFill.style.width = (((step + 1) / messages.length) * 100) + '%';
+    } else {
+      clearInterval(timer);
+      progressFill.style.width = '100%';
+      setTimeout(onDone, 350);
+    }
+  }, stepInterval);
+}
+
+function renderResult(){
+  computeScores();
+  determineProfile();
+  STATE.softExit = determineSoftExit();
+
+  // Headline
+  const profile = PROFILES[STATE.profile];
+  document.getElementById('trackHeadline').innerHTML = profile.headline;
+
+  // Summary lines: 2 yours / 3 missing
+  // Use nbsp around connectors so each kind name stays attached to "and" / "or",
+  // forcing clean line breaks (e.g. "You know The Tide" / "and The Slow Burn.")
+  const yours = [STATE.profile, STATE.secondary];
+  const missing = STATE.missing;
+  const NBSP = ' ';
+  document.getElementById('summaryYours').innerHTML =
+    'You know <strong>' + PLEASURE_LABELS[yours[0]] + '</strong> and' + NBSP +
+    '<strong>' + PLEASURE_LABELS[yours[1]] + '</strong>.';
+  document.getElementById('summaryMissing').innerHTML =
+    'You haven\'t met <strong>' + PLEASURE_LABELS[missing[0]] + '</strong>, ' +
+    '<strong>' + PLEASURE_LABELS[missing[1]] + '</strong>, or' + NBSP +
+    '<strong>' + PLEASURE_LABELS[missing[2]] + '</strong>.';
+
+  // Age opener
+  document.getElementById('ageOpener').textContent = AGE_OPENERS[STATE.path] || '';
+
+  // Radar (custom SVG with pulses)
+  renderRadarSVG();
+
+  // Narrative
+  let narrativeHtml = '';
+  narrativeHtml += '<div class="lead">' + profile.lead + '</div>';
+  narrativeHtml += '<p>' + profile.body + '</p>';
+  narrativeHtml += '<ul class="narrative-bullets">' +
+    profile.bullets.map(b => {
+      const icon = BULLET_ICONS[b.label] || '';
+      return '<li><span class="bullet-icon">' + icon + '</span><strong>' + b.label + '</strong>' + b.text + '</li>';
+    }).join('') +
+    '</ul>';
+  document.getElementById('narrative').innerHTML = narrativeHtml;
+
+  // Testimonial — matched to profile × path
+  const profileTests = TESTIMONIALS[STATE.profile] || TESTIMONIALS.strike;
+  const test = profileTests[STATE.path] || profileTests.C; // fallback to mid-range path
+  document.getElementById('testimonialQuote').textContent = test.quote;
+  document.getElementById('testimonialAuthor').innerHTML = test.author;
+
+  // SOFT EXIT or PRODUCT
+  if(STATE.softExit){
+    document.getElementById('productSection').style.display = 'none';
+    const exitData = SOFT_EXITS[STATE.softExit];
+    document.getElementById('softExitSection').style.display = 'block';
+    const resBlock = document.getElementById('softExitResources');
+    resBlock.innerHTML =
+      '<h3>' + exitData.headline + '</h3>' +
+      '<p style="font-size:16px;color:var(--espresso-soft);margin:0 0 14px;font-style:italic">' + exitData.summary + '</p>' +
+      exitData.body +
+      '<ul>' +
+        exitData.resources.map(r => '<li><strong>' + r.label + '</strong>' + r.text + '</li>').join('') +
+      '</ul>';
+    document.getElementById('softExitFootnote').textContent = exitData.footnote;
+  } else {
+    document.getElementById('productSection').style.display = 'block';
+    document.getElementById('softExitSection').style.display = 'none';
+
+    // Mechanism — visual layout with 3 stim cards
+    const STIM_ICONS = [
+      // Surface pulses (radiating dots)
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="8.5" opacity="0.6"/></svg>',
+      // Internal back-and-forth (oscillating wave)
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
+      // Enveloping vibration (concentric arcs)
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8a8 8 0 0 1 14 0"/><path d="M7 12a6 6 0 0 1 10 0"/><path d="M9 16a4 4 0 0 1 6 0"/></svg>'
+    ];
+    const stimCardsHtml = MECHANISM.list.map((l, i) =>
+      '<div class="stim-card">' +
+        '<span class="stim-icon">' + STIM_ICONS[i] + '</span>' +
+        '<span class="stim-label">' + l.label + '</span>' +
+        '<span class="stim-arrow">↓</span>' +
+        '<span class="stim-result">' + l.text.replace(/^delivers? /, '') + '</span>' +
+      '</div>'
+    ).join('');
+    document.getElementById('mechanismBlock').innerHTML =
+      '<p class="mechanism-stat">' + MECHANISM.intro + '</p>' +
+      '<p class="mechanism-conclusion">The math doesn\'t work — for anyone.</p>' +
+      '<p class="mechanism-intro">' + MECHANISM.body + '</p>' +
+      '<div class="stim-grid">' + stimCardsHtml + '</div>' +
+      '<div class="mechanism-emergent">' + MECHANISM.emergent + '</div>' +
+      '<p class="mechanism-punchline">' + MECHANISM.punchline + '</p>';
+
+    // Bundles — show BOTH side-by-side, recommended one highlighted
+    const recommendedId = profile.bundleId; // 'spark' or 'wildfire'
+    // Reco line for context above the cards
+    const recoCopy = (recommendedId === 'wildfire')
+      ? 'Based on your map, your three missing kinds (<strong>Slow Burn, Hum, Echo</strong>) all need the full kit. The Wildfire is built for that. The Spark stays available if you prefer to start lighter.'
+      : 'Based on your map, the C-shape device alone delivers the two kinds you scored highest on. The Spark is enough. The Wildfire is there if you want the full primer for the three you haven\'t met yet.';
+    document.getElementById('bundleRecoLine').innerHTML = recoCopy;
+
+    // Decide left/right: Alpha asked to lead with the cheaper option ($89.99) on the left
+    const leftId = 'spark';
+    const rightId = 'wildfire';
+    [{slot:1, id:leftId}, {slot:2, id:rightId}].forEach(({slot, id}) => {
+      const bundle = BUNDLES[id];
+      const isReco = (id === recommendedId);
+      const card = document.getElementById('bundleCard' + slot);
+      const popBadge = document.getElementById('bundlePopularBadge' + slot);
+      document.getElementById('bundleFit' + slot).innerHTML = bundle.fit;
+      document.getElementById('bundleName' + slot).textContent = bundle.name;
+      document.getElementById('bundleSummary' + slot).textContent = bundle.summary;
+      document.getElementById('bundleStrike' + slot).textContent = bundle.strike + ' ' + bundle.currency;
+      document.getElementById('bundlePrice' + slot).textContent = bundle.price + ' ' + bundle.currency;
+      document.getElementById('bundleSave' + slot).textContent = 'Save ' + bundle.save + ' today';
+      document.getElementById('bundleIncludes' + slot).innerHTML =
+        bundle.includes.map(i => '<li><span class="neuro-icon">' + (NEURO_ICONS[i.icon] || '') + '</span><strong>' + i.label + '</strong><span>' + i.text + '</span></li>').join('');
+      if(isReco){ card.classList.add('popular'); popBadge.style.display = 'block'; popBadge.textContent = 'Recommended for you'; }
+      else { card.classList.remove('popular'); popBadge.style.display = 'none'; }
+
+      // Gallery: populate slides + dots + wire interactions
+      buildGallery(slot, bundle.images);
+
+      const cta = document.getElementById('bundleCta' + slot);
+      cta.setAttribute('data-href', ctaHref);
+      const newCta = cta.cloneNode(true);
+      cta.parentNode.replaceChild(newCta, cta);
+      newCta.addEventListener('click', (e) => {
+        e.preventDefault();
+        trackEvent('cta_clicked', {profile:STATE.profile, bundle:bundle.name, recommended:isReco});
+        openAvailabilityModal(ctaHref);
+      });
+    });
+  }
+
+  trackEvent('result_view', {profile:STATE.profile, secondary:STATE.secondary, missing:STATE.missing, softExit:STATE.softExit, scores:STATE.scores});
+}
+
+/* ============================================================
+   SVG CUSTOM RADAR — replaces Chart.js, full pulse control
+   ============================================================ */
+/* ============================================================
+   GALLERY — populate + wire scroll-snap, dots, arrows
+   ============================================================ */
+function buildGallery(slot, images){
+  const track = document.getElementById('galleryTrack' + slot);
+  const dots = document.getElementById('galleryDots' + slot);
+  if(!track || !dots) return;
+  track.innerHTML = images.map(img =>
+    '<div class="gallery-slide"><img loading="lazy" src="' + img.src + '" alt="' + img.alt + '"/></div>'
+  ).join('');
+  dots.innerHTML = images.map((_, i) =>
+    '<button class="gallery-dot' + (i===0 ? ' active' : '') + '" data-idx="' + i + '" aria-label="Go to slide ' + (i+1) + '"></button>'
+  ).join('');
+
+  let scrollTimer = null;
+  // Detach prior listeners by replacing nodes (renderResult may run more than once)
+  const newTrack = track.cloneNode(false);
+  newTrack.innerHTML = track.innerHTML;
+  track.parentNode.replaceChild(newTrack, track);
+  const newDots = dots.cloneNode(false);
+  newDots.innerHTML = dots.innerHTML;
+  dots.parentNode.replaceChild(newDots, dots);
+
+  newTrack.addEventListener('scroll', () => {
+    if(scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => updateDotsForTrack(newTrack, newDots, slot), 30);
+  });
+  newDots.addEventListener('click', e => {
+    const btn = e.target.closest('.gallery-dot');
+    if(!btn) return;
+    const idx = parseInt(btn.getAttribute('data-idx'), 10);
+    const slides = newTrack.querySelectorAll('.gallery-slide');
+    if(slides[idx]) slides[idx].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+  });
+  // Wire arrows (replaceListener-safe)
+  const arrowsContainer = newTrack.parentElement.querySelector('.gallery-arrows');
+  if(arrowsContainer){
+    arrowsContainer.querySelectorAll('.gallery-arrow').forEach(arrowBtn => {
+      const dir = parseInt(arrowBtn.getAttribute('data-dir'), 10);
+      const newArrow = arrowBtn.cloneNode(true);
+      arrowBtn.parentNode.replaceChild(newArrow, arrowBtn);
+      newArrow.addEventListener('click', () => {
+        const slides = newTrack.querySelectorAll('.gallery-slide');
+        const trackRect = newTrack.getBoundingClientRect();
+        let curIdx = 0;
+        let bestDelta = Infinity;
+        slides.forEach((s, i) => {
+          const sr = s.getBoundingClientRect();
+          const delta = Math.abs((sr.left + sr.right)/2 - (trackRect.left + trackRect.right)/2);
+          if(delta < bestDelta){ bestDelta = delta; curIdx = i; }
+        });
+        const nextIdx = Math.max(0, Math.min(slides.length - 1, curIdx + dir));
+        if(slides[nextIdx]) slides[nextIdx].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+      });
+    });
+  }
+  updateDotsForTrack(newTrack, newDots, slot);
+}
+
+function updateDotsForTrack(track, dots, slot){
+  const slides = track.querySelectorAll('.gallery-slide');
+  const trackRect = track.getBoundingClientRect();
+  let bestIdx = 0;
+  let bestDelta = Infinity;
+  slides.forEach((s, i) => {
+    const sr = s.getBoundingClientRect();
+    const delta = Math.abs((sr.left + sr.right)/2 - (trackRect.left + trackRect.right)/2);
+    if(delta < bestDelta){ bestDelta = delta; bestIdx = i; }
+  });
+  dots.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i===bestIdx));
+  const arrows = track.parentElement.querySelectorAll('.gallery-arrow');
+  if(arrows.length === 2){
+    arrows[0].disabled = (bestIdx === 0);
+    arrows[1].disabled = (bestIdx === slides.length - 1);
+  }
+}
+
+function renderRadarSVG(){
+  const s = STATE.scores;
+  const labels = ['The Strike','The Slow Burn','The Tide','The Hum','The Echo'];
+  const keys = ['strike','slowburn','tide','hum','echo'];
+  const cx = 290, cy = 230, R = 140;
+  // 5 angles, starting at top, going clockwise
+  const angles = [-Math.PI/2, -Math.PI/2 + 2*Math.PI/5, -Math.PI/2 + 4*Math.PI/5, -Math.PI/2 + 6*Math.PI/5, -Math.PI/2 + 8*Math.PI/5];
+
+  // Build grid (5 concentric pentagons + 5 axes)
+  const gridG = document.getElementById('radarGrid');
+  let gridHtml = '';
+  for(let lvl = 1; lvl <= 5; lvl++){
+    const pts = angles.map(a => {
+      const r = (R * lvl) / 5;
+      return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+    }).join(' ');
+    gridHtml += `<polygon class="radar-grid-poly" points="${pts}"/>`;
+  }
+  // Axes
+  angles.forEach(a => {
+    const x = cx + R * Math.cos(a);
+    const y = cy + R * Math.sin(a);
+    gridHtml += `<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/>`;
+  });
+  gridG.innerHTML = gridHtml;
+
+  // Target polygon (where the 5 sit when fully accessible) — 8/10 on all axes
+  const targetVal = 8;
+  const targetPts = angles.map(a => {
+    const r = (R * targetVal) / 10;
+    return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+  }).join(' ');
+  document.getElementById('radarTarget').setAttribute('points', targetPts);
+
+  // Actual polygon
+  const actualPts = angles.map((a, i) => {
+    const score = s[keys[i]];
+    const r = (R * score) / 10;
+    return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+  }).join(' ');
+  document.getElementById('radarActual').setAttribute('points', actualPts);
+
+  // 5 pulsing dots at actual positions
+  const pointsG = document.getElementById('radarPoints');
+  let pointsHtml = '';
+  angles.forEach((a, i) => {
+    const score = s[keys[i]];
+    const r = (R * score) / 10;
+    const x = cx + r * Math.cos(a);
+    const y = cy + r * Math.sin(a);
+    pointsHtml += `<circle class="radar-point" cx="${x}" cy="${y}" r="5"/>`;
+  });
+  pointsG.innerHTML = pointsHtml;
+
+  // 5 labels (slightly outside the radar)
+  const labelsG = document.getElementById('radarLabels');
+  let labelsHtml = '';
+  // Identify the dominant profile (top 1) for highlight
+  const dominantKey = STATE.profile;
+  angles.forEach((a, i) => {
+    const labelR = R + 32;
+    const x = cx + labelR * Math.cos(a);
+    const y = cy + labelR * Math.sin(a);
+    // Adjust text-anchor for left/right/center
+    let anchor = 'middle';
+    if(Math.cos(a) > 0.3) anchor = 'start';
+    else if(Math.cos(a) < -0.3) anchor = 'end';
+    const cls = (keys[i] === dominantKey) ? 'radar-label dominant' : 'radar-label';
+    labelsHtml += `<text class="${cls}" x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="central">${labels[i]}</text>`;
+  });
+  labelsG.innerHTML = labelsHtml;
+}
+
+/* ============================================================
+   AVAILABILITY MODAL — loading sequence + reveal
+   ============================================================ */
+const LOADING_MESSAGES = [
+  "Connecting to inventory…",
+  "Verifying stock for your region…",
+  "Reserving your offer…",
+  "Almost done…"
+];
+const LOADING_TOTAL_MS = 2800;
+
+function openAvailabilityModal(targetHref){
+  const modal = document.getElementById('availabilityModal');
+  const loading = document.getElementById('modalLoadingStage');
+  const available = document.getElementById('modalAvailableStage');
+  const finalCta = document.getElementById('modalCtaFinal');
+
+  // Reset
+  loading.classList.add('active');
+  available.classList.remove('active');
+  document.getElementById('modalProgressFill').style.width = '0%';
+  document.getElementById('modalStatus').textContent = LOADING_MESSAGES[0];
+  finalCta.setAttribute('href', targetHref);
+  finalCta.addEventListener('click', () => trackEvent('claim_clicked', {href:targetHref}), {once:true});
+
+  modal.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+  trackEvent('availability_check_started', {profile:STATE.profile});
+
+  // Sequence loading messages + progress
+  const stepCount = LOADING_MESSAGES.length;
+  const stepDuration = LOADING_TOTAL_MS / stepCount;
+  let step = 0;
+  const progressFill = document.getElementById('modalProgressFill');
+  const status = document.getElementById('modalStatus');
+
+  // Initial fill animation
+  setTimeout(() => { progressFill.style.width = (100 / stepCount).toFixed(1) + '%'; }, 60);
+
+  const interval = setInterval(() => {
+    step++;
+    if(step >= stepCount){
+      clearInterval(interval);
+      progressFill.style.width = '100%';
+      // Reveal available state
+      setTimeout(() => {
+        loading.classList.remove('active');
+        available.classList.add('active');
+        startStockLiveBehaviour();
+        trackEvent('availability_revealed', {profile:STATE.profile});
+      }, 320);
+    } else {
+      status.style.opacity = '0';
+      setTimeout(() => {
+        status.textContent = LOADING_MESSAGES[step];
+        status.style.opacity = '1';
+      }, 200);
+      progressFill.style.width = (((step + 1) / stepCount) * 100).toFixed(1) + '%';
+    }
+  }, stepDuration);
+}
+
+function closeAvailabilityModal(){
+  const modal = document.getElementById('availabilityModal');
+  modal.classList.remove('visible');
+  document.body.style.overflow = '';
+  stopStockLiveBehaviour();
+}
+
+/* ============================================================
+   STOCK LIVE BEHAVIOUR (B2 + W1 — bar fixed, only digits change)
+   - Viewing fluctuates 9-20 every ~5s
+   - Stock starts at 7, drops at 10s, 30s, 1min30, 3min30; floor at 3
+   - Bar width / marker position NEVER move
+   ============================================================ */
+const STOCK_BEHAVIOUR = { watchingTimer:null, dropTimers:[], stock:7, watching:11 };
+function startStockLiveBehaviour(){
+  stopStockLiveBehaviour();
+  // Reset display values
+  STOCK_BEHAVIOUR.stock = 7;
+  STOCK_BEHAVIOUR.watching = 9 + Math.floor(Math.random() * 5); // 9-13 to start
+  const stockEl = document.getElementById('stockCount');
+  const watchEl = document.getElementById('stockWatching');
+  if(stockEl) stockEl.textContent = STOCK_BEHAVIOUR.stock;
+  if(watchEl) watchEl.textContent = STOCK_BEHAVIOUR.watching;
+
+  // Viewing drift 9-20
+  const driftViewing = () => {
+    const w = STOCK_BEHAVIOUR.watching;
+    const drift = Math.random() < 0.85 ? (Math.random() < 0.5 ? -1 : 1) : (Math.random() < 0.5 ? -2 : 2);
+    STOCK_BEHAVIOUR.watching = Math.max(9, Math.min(20, w + drift));
+    if(watchEl) watchEl.textContent = STOCK_BEHAVIOUR.watching;
+    STOCK_BEHAVIOUR.watchingTimer = setTimeout(driftViewing, 4000 + Math.random() * 3000);
+  };
+  STOCK_BEHAVIOUR.watchingTimer = setTimeout(driftViewing, 4000 + Math.random() * 3000);
+
+  // Stock drops at 10s, 30s, 1min30, 3min30 (floor 3)
+  const STOCK_FLOOR = 3;
+  const dropDelaysMs = [10000, 30000, 90000, 210000];
+  const dropOnce = () => {
+    if(STOCK_BEHAVIOUR.stock > STOCK_FLOOR){
+      STOCK_BEHAVIOUR.stock -= 1;
+      if(stockEl){
+        stockEl.textContent = STOCK_BEHAVIOUR.stock;
+        stockEl.classList.remove('bump');
+        void stockEl.offsetWidth;
+        stockEl.classList.add('bump');
+      }
+    }
+  };
+  dropDelaysMs.forEach(ms => {
+    STOCK_BEHAVIOUR.dropTimers.push(setTimeout(dropOnce, ms));
+  });
+}
+
+function stopStockLiveBehaviour(){
+  if(STOCK_BEHAVIOUR.watchingTimer){ clearTimeout(STOCK_BEHAVIOUR.watchingTimer); STOCK_BEHAVIOUR.watchingTimer = null; }
+  STOCK_BEHAVIOUR.dropTimers.forEach(t => clearTimeout(t));
+  STOCK_BEHAVIOUR.dropTimers = [];
+}
+
+/* ============================================================
+   STATE PERSISTENCE
+   ============================================================ */
+const STORAGE_KEY = 'reconnect-map-v6';
+const STORAGE_TTL_DAYS = 30;
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({state:STATE, savedAt:Date.now()}));
+    flashSaveIndicator();
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    const ageMs = Date.now() - data.savedAt;
+    if(ageMs > STORAGE_TTL_DAYS * 24 * 60 * 60 * 1000){ localStorage.removeItem(STORAGE_KEY); return null; }
+    return data.state;
+  }catch(e){ return null; }
+}
+function flashSaveIndicator(){
+  const el = document.getElementById('saveIndicator');
+  if(!el) return;
+  el.classList.add('visible');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('visible'), 1100);
+}
+
+/* ============================================================
+   ANALYTICS HOOKS (no-op stubs)
+   ============================================================ */
+function trackEvent(name, payload){
+  if(window.dataLayer){ window.dataLayer.push({event:name, ...payload}); }
+}
+
+/* Auto-dark mode disabled — palette is always cream/light to match brand */
+function setupAutoDark(){ /* disabled */ }
+
+/* ============================================================
+   STICKY OFFER TIMER (only on result, 11 min)
+   ============================================================ */
+const TIMER_DURATION_MS = 11 * 60 * 1000;
+let timerInterval = null;
+let timerEndsAt = null;
+function showTimer(){
+  document.getElementById('stickyTimer').classList.add('visible');
+  document.body.classList.add('has-timer');
+}
+function startTimer(){
+  let endsAt;
+  try{
+    const saved = localStorage.getItem('reconnect-map-timer-end');
+    if(saved){
+      const parsed = parseInt(saved, 10);
+      const remaining = parsed - Date.now();
+      if(remaining > 0 && remaining <= TIMER_DURATION_MS + 30000) endsAt = parsed;
+    }
+  }catch(e){}
+  if(!endsAt){
+    endsAt = Date.now() + TIMER_DURATION_MS;
+    try{ localStorage.setItem('reconnect-map-timer-end', endsAt.toString()); }catch(e){}
+  }
+  timerEndsAt = endsAt;
+  if(timerInterval) clearInterval(timerInterval);
+  renderTimer();
+  timerInterval = setInterval(renderTimer, 1000);
+}
+function renderTimer(){
+  const remaining = timerEndsAt - Date.now();
+  if(remaining <= 0){
+    if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+    renderExpired();
+    return;
+  }
+  const totalSec = Math.floor(remaining / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  document.getElementById('timerCountdown').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+function renderExpired(){
+  const t = document.getElementById('stickyTimer');
+  t.classList.add('expired');
+  document.getElementById('timerLabel').textContent = 'Limited offer · Ending soon';
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init(){
+  setupAutoDark();
+
+  // Resume?
+  const saved = loadState();
+  if(saved && saved.stage && saved.stage !== 'hero' && Object.keys(saved.answers || {}).length > 0){
+    Object.assign(STATE, saved);
+    const banner = document.getElementById('resumeBanner');
+    banner.innerHTML =
+      '<div class="resume-banner">' +
+        '<span>You started this map earlier. Pick up where you left off?</span>' +
+        '<div class="resume-actions"><button id="resumeNo">Start over</button><button id="resumeYes" class="primary">Resume</button></div>' +
+      '</div>';
+    document.getElementById('resumeYes').addEventListener('click', () => {
+      if(STATE.stage === 'result'){ setStage('result'); renderResult(); showTimer(); startTimer(); }
+      else { setStage('questions'); renderQuestion(STATE.qIndex || 0); }
+    });
+    document.getElementById('resumeNo').addEventListener('click', () => {
+      localStorage.removeItem(STORAGE_KEY);
+      try{ localStorage.removeItem('reconnect-map-timer-end'); }catch(e){}
+      STATE.stage = 'hero'; STATE.qIndex = 0; STATE.answers = {}; STATE.path = null;
+      banner.innerHTML = '';
+    });
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    STATE.startedAt = Date.now();
+    STATE.qIndex = 0;
+    STATE.path = null;
+    STATE.answers = {};
+    setStage('questions');
+    renderQuestion(0);
+    trackEvent('quiz_started');
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    const active = getActiveQuestions();
+    const q = active[STATE.qIndex];
+    trackEvent('q_answered', {qid:q.id, value:STATE.answers[q.id]});
+    // If we just answered "age", we now know the path → re-render in case user changed path
+    if(STATE.qIndex < active.length - 1){
+      STATE.qIndex++;
+      renderQuestion(STATE.qIndex);
+    } else {
+      goToResult();
+    }
+  });
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    if(STATE.qIndex > 0){
+      STATE.qIndex--;
+      renderQuestion(STATE.qIndex);
+    } else {
+      setStage('hero');
+    }
+  });
+
+  // Modal close handlers
+  const modal = document.getElementById('availabilityModal');
+  document.getElementById('modalCloseBtn').addEventListener('click', closeAvailabilityModal);
+  modal.addEventListener('click', (e) => { if(e.target === modal) closeAvailabilityModal(); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && modal.classList.contains('visible')) closeAvailabilityModal(); });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
