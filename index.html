@@ -461,7 +461,7 @@ body.has-timer{padding-top:48px}
 /* AVAILABILITY MODAL — loading + available */
 .modal-overlay{position:fixed;inset:0;background:rgba(45,36,30,0.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;animation:fadeIn 0.3s ease both}
 .modal-overlay.visible{display:flex}
-.modal-card{background:var(--cream);border-radius:var(--r-card);padding:36px 32px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.4);position:relative;animation:modalRise 0.45s cubic-bezier(0.22,0.61,0.36,1) both}
+.modal-card{background:var(--cream);border-radius:var(--r-card);padding:22px 26px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.4);position:relative;animation:modalRise 0.45s cubic-bezier(0.22,0.61,0.36,1) both}
 @keyframes modalRise{from{opacity:0;transform:translateY(20px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-stage{display:none}
 .modal-stage.active{display:block;animation:fadeIn 0.4s ease both}
@@ -472,16 +472,21 @@ body.has-timer{padding-top:48px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .modal-eyebrow{font-family:'Lato',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--terracotta);margin-bottom:14px}
 .modal-eyebrow-good{color:var(--gold-deep);display:inline-flex;align-items:center;gap:8px}
-.modal-eyebrow-good::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 1.4s ease-in-out infinite}
+.modal-header-inline .modal-eyebrow{margin-bottom:0}
 .modal-status{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:var(--espresso-soft);margin-bottom:24px;min-height:22px;transition:opacity 0.3s ease}
 .modal-progress{height:3px;background:var(--line);border-radius:3px;overflow:hidden;max-width:240px;margin:0 auto}
 .modal-progress-fill{height:100%;width:0%;background:var(--terracotta);border-radius:3px;transition:width 0.4s ease}
 
 /* Available state */
-.modal-available{text-align:center;padding:8px 0}
-.modal-check-icon{width:64px;height:64px;border-radius:50%;background:rgba(201,165,124,0.20);color:var(--gold-deep);margin:0 auto 18px;display:flex;align-items:center;justify-content:center;animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
-.modal-check-icon svg{width:32px;height:32px}
+.modal-available{text-align:center;padding:0}
+.modal-header-inline{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
+.modal-check-mini{width:22px;height:22px;border-radius:50%;background:rgba(201,165,124,0.22);color:var(--gold-deep);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;animation:checkMiniPulse 1.6s ease-in-out infinite, popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;will-change:transform,box-shadow}
+.modal-check-mini svg{width:13px;height:13px}
 @keyframes popIn{from{opacity:0;transform:scale(0.6)}to{opacity:1;transform:scale(1)}}
+@keyframes checkMiniPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(201,165,124,0.55);transform:scale(1)}
+  50%   {box-shadow:0 0 0 8px rgba(201,165,124,0);transform:scale(1.08)}
+}
 .modal-card h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--espresso);margin-bottom:10px;font-style:italic;line-height:1.25}
 .modal-card .modal-warning{color:var(--terracotta-deep);font-style:italic;font-size:14px;margin-bottom:22px;padding:10px 14px;background:rgba(184,102,90,0.08);border-radius:var(--r);display:inline-block}
 /* === Stock bar + counters (B2 + W1, fixed bar) === */
@@ -561,10 +566,12 @@ body.has-timer{padding-top:48px}
     </div>
     <!-- AVAILABLE -->
     <div class="modal-stage modal-available" id="modalAvailableStage">
-      <div class="modal-check-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <div class="modal-header-inline">
+        <span class="modal-check-mini" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        <span class="modal-eyebrow modal-eyebrow-good">Good news</span>
       </div>
-      <div class="modal-eyebrow modal-eyebrow-good">Good news</div>
       <h3>Stock available in your area.</h3>
       <!-- Stock bar (B2: 6% solid, fixed forever) + live counters + W1 message -->
       <div class="stock-bar-wrap" aria-hidden="true">
@@ -577,7 +584,6 @@ body.has-timer{padding-top:48px}
         <li><strong>All 5 pleasures unlocked</strong> — three coordinated stims, the only configuration that delivers them.</li>
         <li><strong>30-day full refund</strong> — even after opening. Zero risk.</li>
         <li><strong>Plain packaging</strong> + generic bank statement — nobody in your house knows.</li>
-        <li><strong>Free discreet shipping</strong> across Australia, 3-7 business days.</li>
         <li><strong>52,000+ women</strong> already on this map. 4.8/5 across 3,853 verified reviews.</li>
       </ul>
       <a class="modal-cta" id="modalCtaFinal" href="#" target="_blank" rel="noopener">Claim my offer now <span class="cta-arrow">&rarr;</span></a>
